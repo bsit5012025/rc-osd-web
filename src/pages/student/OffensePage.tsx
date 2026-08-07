@@ -3,7 +3,6 @@ import BottomNavigationBar from "../../components/navigation/BottomNavigationBar
 import OffenseCard from "../../components/cards/OffenseCard";
 
 function OffensesPage() {
-
     const offenses = [
         {
             id: 1,
@@ -22,18 +21,16 @@ function OffensesPage() {
     ];
 
     return (
-        <>
-            <div className="container-fluid px-4 py-4">
+        <div className="offenses-page">
+
+            <div className="container-fluid px-3 px-md-4 py-3 py-md-4">
 
                 <TopBar>
-
-                    <div className="d-flex align-items-center">
+                    <div className="student-profile d-flex align-items-center">
 
                         <div
-                            className="rounded d-flex align-items-center justify-content-center"
+                            className="student-avatar rounded d-flex align-items-center justify-content-center"
                             style={{
-                                width: 60,
-                                height: 60,
                                 background: "#6d6adf",
                                 fontWeight: "bold",
                                 fontSize: "1.5rem",
@@ -42,13 +39,13 @@ function OffensesPage() {
                             LR
                         </div>
 
-                        <div className="ms-3 text-white">
+                        <div className="ms-3 text-white student-info">
 
                             <h4 className="mb-1 fw-bold">
                                 Leeane Glazel N. Reyes
                             </h4>
 
-                            <div>
+                            <div className="student-details">
                                 Student ID:
                                 <strong className="ms-2">
                                     CT23-0000
@@ -62,53 +59,57 @@ function OffensesPage() {
                         </div>
 
                     </div>
-                    
                 </TopBar>
 
-                <h2 className="mt-5 mb-4 fw-bold">
-                    My Offenses
-                </h2>
+                <main className="offenses-content">
 
-                {<div className="d-flex gap-3 mb-5">
+                    <h2 className="mt-4 mt-md-5 mb-4 fw-bold">
+                        My Offenses
+                    </h2>
 
-                    <button className="btn btn-primary fw-bold">
-                        All
-                    </button>
+                    {/* Filters */}
+                    <div className="offense-filters d-flex gap-2 gap-md-3 mb-4 mb-md-5">
 
-                    <button className="btn border border-black fw-bold">
-                        Pending
-                    </button>
+                        <button className="btn btn-primary fw-bold">
+                            All
+                        </button>
 
-                    <button className="btn border border-black fw-bold">
-                        Approved
-                    </button>
+                        <button className="btn border border-black fw-bold">
+                            Pending
+                        </button>
 
-                    <button className="btn border border-black fw-bold">
-                        Denied
-                    </button>
+                        <button className="btn border border-black fw-bold">
+                            Approved
+                        </button>
 
-                </div>}
+                        <button className="btn border border-black fw-bold">
+                            Denied
+                        </button>
 
-                {<div>
+                    </div>
 
-                    {offenses.map((offense) => (
+                    {/* Offenses */}
+                    <div className="offense-list">
 
-                        <OffenseCard
-                            key={offense.id}
-                            offense={offense.offense}
-                            level={offense.level}
-                            dateFiled={offense.dateFiled}
-                            status={offense.status}
-                        />
+                        {offenses.map((offense) => (
+                            <OffenseCard
+                                key={offense.id}
+                                offense={offense.offense}
+                                level={offense.level}
+                                dateFiled={offense.dateFiled}
+                                status={offense.status}
+                            />
+                        ))}
 
-                    ))}
+                    </div>
 
-                </div>}
+                </main>
 
             </div>
 
             <BottomNavigationBar />
-        </>
+
+        </div>
     );
 }
 

@@ -1,0 +1,73 @@
+.offenses-page {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.offenses-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.student-avatar {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+.student-info {
+    min-width: 0;
+}
+
+.offense-list {
+    width: 100%;
+}
+
+.offense-filters {
+    flex-wrap: wrap;
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+
+    .offenses-page {
+        padding-bottom: 80px;
+    }
+
+    .student-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1.1rem;
+    }
+
+    .student-info h4 {
+        font-size: 16px;
+        line-height: 1.3;
+    }
+
+    .student-details {
+        font-size: 12px;
+    }
+
+    .student-details .mx-2 {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .offenses-content h2 {
+        font-size: 24px;
+    }
+
+    .offense-filters {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .offense-filters .btn {
+        flex: 1;
+        min-width: 70px;
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+}
