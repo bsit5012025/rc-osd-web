@@ -1,0 +1,9 @@
+.top-bar {
+    width: 100%;
+    min-height: 120px;
+    background: linear-gradient(to bottom, #1b1b8f, #06062f);
+    border-radius: 12px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
