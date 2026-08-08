@@ -1,5 +1,6 @@
 import { useState, FormEvent } from "react";
 import "./loginPage.css";
+import RCLOGO from "../../../assets/RCLOGO.png";
 
 function LoginPage() {
     const [studentId, setStudentId] = useState("");
@@ -19,7 +20,7 @@ function LoginPage() {
                     <div className="text-center mb-4">
 
                         <img
-                            src="/RCLOGO.png"
+                            src={RCLOGO}
                             alt="Rogationist College Logo"
                             className="login-logo mb-3"
                         />
