@@ -1,6 +1,6 @@
-import TopBar from "../../components/navigation/TopBar";
-import BottomNavigationBar from "../../components/navigation/BottomNavigationBar";
-import OffenseCard from "../../components/cards/OffenseCard";
+import TopBar from "../../../components/navigation/TopBar";
+import BottomNavigationBar from "../../../components/navigation/BottomNavigationBar";
+import OffenseCard from "../../../components/cards/OffenseCard";
 
 function OffensesPage() {
     const offenses = [

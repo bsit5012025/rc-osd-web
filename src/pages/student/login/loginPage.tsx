@@ -1,14 +1,35 @@
 import { useState, FormEvent } from "react";
+import { login } from "../../../services/authenticationApi";
 import "./loginPage.css";
 import RCLOGO from "../../../assets/RCLOGO.png";
 
 function LoginPage() {
     const [studentId, setStudentId] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+        const response = await login({
+            username: studentId,
+            password: password,
+        });
+
+        console.log("Login successful:", response);
+
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("username", response.username);
+
+        if (response.role) {
+            localStorage.setItem("role", response.role);
+        }
+
+    } catch (error) {
+        console.error("Login failed:", error);
+    }
+};
 
     return (
         <div className="login-page d-flex align-items-center justify-content-center">
