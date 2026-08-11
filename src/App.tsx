@@ -1,7 +1,7 @@
-import LoginPage from "./pages/student/login/loginPage";
+import DashboardPage from "./pages/student/dashboard/dashboardPage";
 
 function App() {
-    return <OffensePage />;
+    return <DashboardPage />;
 }
 
 export default App;
