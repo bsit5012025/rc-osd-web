@@ -1,0 +1,138 @@
+.profile-page {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+}
+
+.profile-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #4b47c4;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-header h4 {
+    margin-bottom: 2px;
+}
+
+.profile-header-details {
+    font-size: 0.8rem;
+    opacity: 0.85;
+}
+
+.profile-header-details .mx-2 {
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+.profile-stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.profile-section h5 {
+    font-weight: 700;
+}
+
+.info-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 8px 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eceef1;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row-icon {
+    width: 32px;
+    color: #6b6b76;
+    font-size: 1rem;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.info-row-label {
+    font-size: 0.8rem;
+    color: #8a8a94;
+    flex: 1;
+}
+
+.info-row-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    text-align: right;
+}
+
+.action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Desktop: two-column layout for Personal Info + Account/Support */
+@media (min-width: 992px) {
+
+    .profile-lower-sections {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+    }
+
+    .profile-lower-sections > div {
+        flex: 1;
+    }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+
+    .profile-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1.05rem;
+    }
+
+    .profile-header h4 {
+        font-size: 16px;
+    }
+
+    .profile-header-details {
+        font-size: 0.75rem;
+    }
+
+    .info-row-value {
+        font-size: 0.8rem;
+    }
+}

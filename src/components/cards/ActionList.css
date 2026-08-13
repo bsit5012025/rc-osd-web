@@ -1,0 +1,40 @@
+.action-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: inherit;
+}
+
+.action-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.action-item-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #ecebfc;
+    color: #1b1b8f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.action-item-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1a1a2e;
+}
+
+.action-item-chevron {
+    color: #a0a0aa;
+}
