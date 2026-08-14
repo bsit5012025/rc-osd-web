@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/student/login/loginPage";
 import OffensesPage from "./pages/student/offense/OffensePage";
+import AppealPage from "./pages/student/appeal/appealPage";
 
 
 
@@ -17,6 +18,11 @@ function App() {
                 <Route
                     path="/offenses"
                     element={<OffensesPage />}
+                />
+
+                <Route
+                    path="/appeals"
+                    element={<AppealPage />}
                 />
 
             </Routes>

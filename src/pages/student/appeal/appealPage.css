@@ -1,0 +1,126 @@
+.appeal-page {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 90px;
+    background: #f4f4f7;
+}
+
+.appeal-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.appeal-page-title {
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.appeal-page-subtitle {
+    font-size: 0.9rem;
+    color: #8a8a94;
+}
+
+.appeal-stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.appeal-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to right, #1b1b8f, #06062f);
+    border-radius: 14px;
+    padding: 20px 24px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.appeal-cta-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.appeal-cta-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.appeal-cta-title {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.appeal-cta-subtitle {
+    font-size: 0.78rem;
+    opacity: 0.8;
+}
+
+.appeal-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.appeal-filters .btn {
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 9px 20px;
+}
+
+.appeal-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+}
+
+.appeal-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #a0a0aa;
+    font-size: 0.85rem;
+    padding: 40px 8px;
+}
+
+/* Tablet and up: two-column grid so cards use horizontal space */
+@media (min-width: 768px) {
+    .appeal-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+
+    .appeal-content h2 {
+        font-size: 22px;
+    }
+
+    .appeal-cta {
+        padding: 16px 18px;
+    }
+
+    .appeal-cta-title {
+        font-size: 0.88rem;
+    }
+
+    .appeal-filters .btn {
+        flex: 1;
+        min-width: 70px;
+        font-size: 0.75rem;
+        padding: 8px 10px;
+    }
+}

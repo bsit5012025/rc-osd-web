@@ -3,8 +3,9 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    background: white;
-    border-top: 1px solid #ddd;
+    background: #ffffff;
+    border: none;
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
     z-index: 1000;
 }
 
@@ -24,6 +25,8 @@
     padding: 6px 0;
     color: #1b1b8f;
     text-decoration: none;
+    border: none;
+    outline: none;
 }
 
 .nav-item-custom i {
