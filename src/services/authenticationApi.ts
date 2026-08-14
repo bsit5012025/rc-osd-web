@@ -11,28 +11,18 @@ export interface LoginResponse {
   role: string | null;
 }
 
-export const login = async (
-  request: LoginRequest
-): Promise<LoginResponse> => {
-  const response = await apiClient.post<LoginResponse>(
-    "/login",
-    request
-  );
-
+export const login = async (request: LoginRequest): Promise<LoginResponse> => {
+  const response = await apiClient.post<LoginResponse>("/login",request);
   return response.data;
 };
 
 export const refreshToken = async (): Promise<LoginResponse> => {
-  const response = await apiClient.post<LoginResponse>(
-    "/login/refresh"
-  );
-
+  const response = await apiClient.post<LoginResponse>("/login/refresh");
   return response.data;
 };
 
 export const logout = async (): Promise<void> => {
   await apiClient.post("/login/logout");
-
   localStorage.removeItem("token");
   localStorage.removeItem("username");
   localStorage.removeItem("role");
