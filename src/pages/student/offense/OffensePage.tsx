@@ -7,11 +7,17 @@ import OffenseCard from "../../../components/cards/OffenseCard";
 import { getStudentRecords } from "../../../services/recordApi";
 import type { StudentRecord } from "../../../types/record";
 
+import { getStudent } from "../../../services/studentApi";
+import type { Student } from "../../../services/studentApi";
+
+import "./OffensesPage.css";
+
 function OffensesPage() {
 
     const studentId = localStorage.getItem("username") || "";
 
     const [records, setRecords] = useState<StudentRecord[]>([]);
+    const [student, setStudent] = useState<Student | null>(null);
     const [selectedStatus, setSelectedStatus] = useState("All");
 
     const [loading, setLoading] = useState(true);
@@ -19,7 +25,7 @@ function OffensesPage() {
 
     useEffect(() => {
 
-        const fetchStudentRecords = async () => {
+        const fetchStudentData = async () => {
 
             try {
 
@@ -31,22 +37,21 @@ function OffensesPage() {
                     return;
                 }
 
-                console.log("Fetching records for:", studentId);
+                const studentData = await getStudent(studentId);
+                const recordData = await getStudentRecords(studentId);
 
-                const data = await getStudentRecords(studentId);
-
-                console.log("Student records:", data);
-
-                setRecords(data);
+                setStudent(studentData);
+                setRecords(recordData);
+                
+                console.log("Student records:", recordData);
+                console.log("Fetching student:", studentId);
+                console.log("Student:", studentData);
+                console.log("Fetching records for:", studentId);                
 
             } catch (error) {
 
-                console.error(
-                    "Failed to fetch student records:",
-                    error
-                );
-
-                setError("Failed to load offenses.");
+                console.error("Failed to fetch student data:",error);
+                setError("Failed to load student data.");
 
             } finally {
 
@@ -55,21 +60,13 @@ function OffensesPage() {
             }
         };
 
-        fetchStudentRecords();
+        fetchStudentData();
 
     }, [studentId]);
 
-    const filteredRecords =
-        selectedStatus === "All"
-            ? records
-            : records.filter(
-                (record) =>
-                    record.status.toUpperCase() ===
-                    selectedStatus.toUpperCase()
-            );
 
-    const student = records[0]?.enrollment.student;
-
+    const filteredRecords = selectedStatus === "All"? records:records.filter(
+                (record) => record.status.toUpperCase() === selectedStatus.toUpperCase());
 
     return (
         <div className="offenses-page">
@@ -80,27 +77,18 @@ function OffensesPage() {
 
                     <div className="student-profile d-flex align-items-center">
 
-                        <div
-                            className="student-avatar rounded d-flex align-items-center justify-content-center"
-                            style={{
-                                background: "#6d6adf",
-                                fontWeight: "bold",
-                                fontSize: "1.5rem",
-                            }}
-                        >
-                            {student?.fullName
-                                ?.split(" ")
-                                .map((name) => name[0])
-                                .slice(0, 2)
-                                .join("")
-                                .toUpperCase() || "ST"}
-                        </div>
+                        <div className="student-avatar rounded d-flex align-items-center justify-content-center">
 
+                            {student? `${student.person.firstName[0]}${student.person.lastName[0]}`.toUpperCase(): "ST"}
+
+                        </div>
 
                         <div className="ms-3 text-white student-info">
 
                             <h4 className="mb-1 fw-bold">
-                                {student?.fullName || "Student"}
+
+                                {student? `${student.person.firstName} ${student.person.middleName} ${student.person.lastName}`: "Student"}
+
                             </h4>
 
 
@@ -112,13 +100,14 @@ function OffensesPage() {
                                     {student?.studentId || studentId}
                                 </strong>
 
-                                {records[0]?.enrollment && (
+
+                                {student?.department && (
                                     <>
                                         <span className="mx-2">
                                             •
                                         </span>
 
-                                        {records[0].enrollment.department}
+                                        {student.department}
                                     </>
                                 )}
 
@@ -130,69 +119,31 @@ function OffensesPage() {
 
                 </TopBar>
 
-
                 <main className="offenses-content">
 
                     <h2 className="mt-4 mt-md-5 mb-4 fw-bold">
                         My Offenses
                     </h2>
 
-
-                    {}
-
                     <div className="offense-filters d-flex gap-2 gap-md-3 mb-4 mb-md-5">
 
-                        <button
-                            className={
-                                selectedStatus === "All"
-                                    ? "btn btn-primary fw-bold"
-                                    : "btn border border-black fw-bold"
-                            }
-                            onClick={() => setSelectedStatus("All")}
-                        >
+                        <button className={selectedStatus === "All"? "btn btn-primary fw-bold":"btn border border-black fw-bold"} onClick={() => setSelectedStatus("All")}>
                             All
                         </button>
 
-
-                        <button
-                            className={
-                                selectedStatus === "PENDING"
-                                    ? "btn btn-primary fw-bold"
-                                    : "btn border border-black fw-bold"
-                            }
-                            onClick={() => setSelectedStatus("PENDING")}
-                        >
+                        <button className={selectedStatus === "PENDING"? "btn btn-primary fw-bold":"btn border border-black fw-bold"} onClick={() => setSelectedStatus("PENDING")}>
                             Pending
                         </button>
 
-
-                        <button
-                            className={
-                                selectedStatus === "APPROVED"
-                                    ? "btn btn-primary fw-bold"
-                                    : "btn border border-black fw-bold"
-                            }
-                            onClick={() => setSelectedStatus("APPROVED")}
-                        >
+                        <button className={ selectedStatus === "APPROVED"  ? "btn btn-primary fw-bold":"btn border border-black fw-bold" } onClick={() => setSelectedStatus("APPROVED")}>
                             Approved
                         </button>
 
-
-                        <button
-                            className={
-                                selectedStatus === "DENIED"
-                                    ? "btn btn-primary fw-bold"
-                                    : "btn border border-black fw-bold"
-                            }
-                            onClick={() => setSelectedStatus("DENIED")}
-                        >
+                        <button className={ selectedStatus === "DENIED" ? "btn btn-primary fw-bold":"btn border border-black fw-bold" } onClick={() => setSelectedStatus("DENIED")}>
                             Denied
                         </button>
 
                     </div>
-
-
-                    {}
 
                     <div className="offense-list">
 
@@ -202,36 +153,26 @@ function OffensesPage() {
                             </p>
                         )}
 
-
                         {!loading && error && (
                             <p className="text-danger">
                                 {error}
                             </p>
                         )}
 
-
-                        {!loading &&
-                            !error &&
-                            filteredRecords.length === 0 && (
-                                <p>
-                                    No offenses found.
-                                </p>
-                            )
+                        {!loading && !error && filteredRecords.length === 0 && (
+                             <p>
+                                No offenses found.
+                            </p>
+                        )
                         }
 
-
-                        {!loading &&
-                            !error &&
-                            filteredRecords.map((record) => (
-
-                                <OffenseCard
-                                    key={record.recordId}
-                                    offense={record.offense.offense}
-                                    level={record.offense.type}
-                                    dateFiled={record.dateOfViolation}
-                                    status={record.status}
-                                />
-
+                        {!loading && !error && filteredRecords.map((record) => (
+                            <OffenseCard
+                                key={record.recordId}
+                                offense={record.offense.offense}
+                                level={record.offense.type}
+                                dateFiled={record.dateOfViolation}
+                                status={record.status}/>
                             ))
                         }
 
