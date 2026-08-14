@@ -1,0 +1,130 @@
+.appeal-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.appeal-card-id {
+    font-size: 0.7rem;
+    color: #a0a0aa;
+    letter-spacing: 0.03em;
+}
+
+.appeal-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.appeal-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 2px 0 10px;
+}
+
+.appeal-status-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.appeal-status-badge.pending {
+    background: #fdf1e2;
+    color: #e6a23c;
+}
+
+.appeal-status-badge.approved {
+    background: #e5f6ec;
+    color: #3cb371;
+}
+
+.appeal-status-badge.denied {
+    background: #fcebea;
+    color: #d9534f;
+}
+
+.appeal-awaiting-box {
+    background: #fdf6e3;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.appeal-awaiting-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #b8860b;
+    margin-bottom: 2px;
+}
+
+.appeal-awaiting-text {
+    font-size: 0.78rem;
+    color: #8a7550;
+    margin: 0;
+}
+
+.appeal-prefect-box {
+    background: #f4f4f7;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.appeal-prefect-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.appeal-prefect-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.appeal-prefect-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+.appeal-prefect-role {
+    font-size: 0.7rem;
+    color: #8a8a94;
+}
+
+.appeal-remarks-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 2px;
+}
+
+.appeal-remarks-text {
+    font-size: 0.78rem;
+    color: #6b6b76;
+    margin: 0;
+}
+
+.appeal-card-date {
+    font-size: 0.75rem;
+    color: #a0a0aa;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
