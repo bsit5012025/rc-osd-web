@@ -10,7 +10,7 @@ import type { StudentRecord } from "../../../types/record";
 import { getStudent } from "../../../services/studentApi";
 import type { Student } from "../../../services/studentApi";
 
-import "./OffensesPage.css";
+import "./OffensePage.css";
 
 function OffensesPage() {
 
