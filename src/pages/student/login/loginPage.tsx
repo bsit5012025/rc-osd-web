@@ -1,35 +1,53 @@
 import { useState, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { login } from "../../../services/authenticationApi";
 import "./loginPage.css";
 import RCLOGO from "../../../assets/RCLOGO.png";
 
 function LoginPage() {
+    const navigate = useNavigate();
+
     const [studentId, setStudentId] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    try {
-        const response = await login({
-            username: studentId,
-            password: password,
-        });
+        try {
+            setError("");
 
-        console.log("Login successful:", response);
+            // Remove old authentication
+            localStorage.removeItem("token");
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
 
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("username", response.username);
+            // Login
+            const response = await login({
+                username: studentId,
+                password: password,
+            });
 
-        if (response.role) {
+            console.log("Login response:", response);
+
+            // Make sure the login response contains everything we need
+            if (!response.token || !response.username || !response.role) {
+                throw new Error("Invalid login response.");
+            }
+
+            localStorage.setItem("token", response.token);
+            localStorage.setItem("username", response.username);
             localStorage.setItem("role", response.role);
-        }
 
-    } catch (error) {
-        console.error("Login failed:", error);
-    }
-};
+            console.log("Authentication saved.");
+            navigate("/offenses");
+
+        } catch (error) {
+            console.error("Login failed:", error);
+            setError("Invalid username or password.");
+        }
+    };
 
     return (
         <div className="login-page d-flex align-items-center justify-content-center">
@@ -59,48 +77,84 @@ function LoginPage() {
                     <form onSubmit={handleSubmit}>
 
                         <div className="mb-3 text-start">
-                            <label htmlFor="studentId" className="form-label fw-bold login-label">
+
+                            <label
+                                htmlFor="studentId"
+                                className="form-label fw-bold login-label"
+                            >
                                 Student ID
                             </label>
+
                             <input
                                 id="studentId"
                                 type="text"
                                 className="form-control"
                                 placeholder="e.g. CT23-0010"
                                 value={studentId}
-                                onChange={(e) => setStudentId(e.target.value)}
+                                onChange={(e) =>
+                                    setStudentId(e.target.value)
+                                }
                             />
+
                         </div>
 
                         <div className="mb-2 text-start">
-                            <label htmlFor="password" className="form-label fw-bold login-label">
+
+                            <label
+                                htmlFor="password"
+                                className="form-label fw-bold login-label"
+                            >
                                 Password
                             </label>
+
                             <input
                                 id="password"
                                 type="password"
                                 className="form-control"
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                onChange={(e) =>
+                                    setPassword(e.target.value)
+                                }
                             />
+
                         </div>
 
                         <div className="text-end mb-4">
-                            <a href="#" className="login-forgot fw-bold">
+
+                            <a
+                                href="#"
+                                className="login-forgot fw-bold"
+                            >
                                 Forgot password?
                             </a>
+
                         </div>
 
-                        <button type="submit" className="btn btn-primary w-100 fw-bold login-submit">
+                        {error && (
+                            <div className="alert alert-danger">
+                                {error}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="btn btn-primary w-100 fw-bold login-submit"
+                        >
                             Log In
                         </button>
 
                     </form>
 
                     <div className="login-divider d-flex align-items-center my-4">
+
                         <span className="flex-grow-1"></span>
-                        <span className="mx-3 login-divider-text">OR</span>
+
+                        <span className="mx-3 login-divider-text">
+                            OR
+                        </span>
+
                         <span className="flex-grow-1"></span>
+
                     </div>
 
                     <p className="login-footer text-center mb-0">
