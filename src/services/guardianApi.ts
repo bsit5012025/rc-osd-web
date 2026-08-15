@@ -1,7 +1,17 @@
 import { apiClient } from "./clientApi";
-import type { Guardian } from "../types/guardian";
 
-export const getStudentGuardians = async (studentId: string): Promise<Guardian[]> => {
-    const response = await apiClient.get<Guardian[]>(`/api/guardians/student/${studentId}`);
+export interface BackendGuardian {
+    guardianID: number;
+    person?: {
+        personId: number;
+        firstName: string;
+        lastName: string;
+    };
+    contactNumber: string;
+    relationship: string;
+}
+
+export const getStudentGuardians = async (studentId: string): Promise<BackendGuardian[]> => {
+    const response = await apiClient.get<BackendGuardian[]>(`/api/guardians/student/${studentId}`);
     return response.data;
 };

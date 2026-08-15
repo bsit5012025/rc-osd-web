@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { getStudent } from "../services/studentApi";
 import { getStudentRecords } from "../services/recordApi";
-import { getStudentAppeals } from "../services/appealApi";
+import { getStudentAppeals, type BackendAppeal } from "../services/appealApi";
 import { getStudentEnrollment } from "../services/enrollmentApi";
-import { getStudentGuardians } from "../services/guardianApi";
+import { getStudentGuardians, type BackendGuardian } from "../services/guardianApi";
 import type { Student } from "../services/studentApi";
 import type { StudentRecord } from "../types/record";
-import type { Appeal } from "../types/appeal";
+import type { Appeal, AppealStatus } from "../types/appeal";
 import type { StudentEnrollment } from "../types/enrollment";
 import type { Guardian } from "../types/guardian";
 
@@ -38,6 +38,38 @@ const isToday = (dateString: string): boolean => {
         date.getFullYear() === today.getFullYear()
     );
 };
+
+const toAppealStatus = (status: string): AppealStatus => {
+    switch (status.toUpperCase()) {
+        case "APPROVED": return "Approved";
+        case "DENIED": return "Denied";
+        default: return "Pending";
+    }
+};
+
+const mapAppeal = (ba: BackendAppeal): Appeal => {
+    const person = ba.record?.employee?.person;
+    const offenseName = ba.record?.offense?.offense;
+
+    return {
+        appealId: String(ba.appealId),
+        title: offenseName || ba.message || "Unknown Appeal",
+        status: toAppealStatus(ba.status),
+        dateSubmitted: ba.dateFiled,
+        prefectName: person ? `${person.firstName} ${person.lastName}` : undefined,
+        prefectInitials: person
+            ? `${person.firstName[0]}${person.lastName[0]}`.toUpperCase()
+            : undefined,
+        remarks: ba.remarks ?? undefined,
+    };
+};
+
+const mapGuardian = (bg: BackendGuardian): Guardian => ({
+    guardianId: bg.guardianID,
+    fullName: bg.person ? `${bg.person.firstName} ${bg.person.lastName}` : "Unknown",
+    relationship: bg.relationship,
+    contactNumber: bg.contactNumber || "",
+});
 
 export const useStudentData = (studentId?: string): UseStudentDataReturn => {
     const id = studentId || localStorage.getItem("username") || "";
@@ -72,18 +104,18 @@ export const useStudentData = (studentId?: string): UseStudentDataReturn => {
                     getStudentRecords(id),
                 ]);
 
-                const [appealsData, enrollmentData, guardiansData] = await Promise.all([
-                    getStudentAppeals(id).catch(() => [] as Appeal[]),
+                const [appealsRaw, enrollmentData, guardiansRaw] = await Promise.all([
+                    getStudentAppeals(id).catch(() => [] as BackendAppeal[]),
                     getStudentEnrollment(id).catch(() => null),
-                    getStudentGuardians(id).catch(() => [] as Guardian[]),
+                    getStudentGuardians(id).catch(() => [] as BackendGuardian[]),
                 ]);
 
                 if (!cancelled) {
                     setStudent(studentData);
                     setRecords(recordsData);
-                    setAppeals(appealsData);
+                    setAppeals(appealsRaw.map(mapAppeal));
                     setEnrollment(enrollmentData);
-                    setGuardians(guardiansData);
+                    setGuardians(guardiansRaw.map(mapGuardian));
                 }
             } catch (err) {
                 if (!cancelled) {
@@ -91,17 +123,12 @@ export const useStudentData = (studentId?: string): UseStudentDataReturn => {
                     console.error(err);
                 }
             } finally {
-                if (!cancelled) {
-                    setLoading(false);
-                }
+                if (!cancelled) setLoading(false);
             }
         };
 
         fetchAll();
-
-        return () => {
-            cancelled = true;
-        };
+        return () => { cancelled = true; };
     }, [id, fetchKey]);
 
     const stats = useMemo<StudentStats>(() => {
@@ -120,12 +147,7 @@ export const useStudentData = (studentId?: string): UseStudentDataReturn => {
             .sort((a, b) => b.count - a.count)
             .slice(0, 5);
 
-        return {
-            totalViolations,
-            pendingAppeals,
-            offensesToday,
-            mostFrequentOffenses,
-        };
+        return { totalViolations, pendingAppeals, offensesToday, mostFrequentOffenses };
     }, [records, appeals]);
 
     return {
