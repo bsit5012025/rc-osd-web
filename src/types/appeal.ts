@@ -1,8 +1,9 @@
+export type AppealStatus = "Pending" | "Approved" | "Denied";
+
 export interface Appeal {
   appealId: string;
-  recordId: number;
   title: string;
-  status: "Pending" | "Approved" | "Denied";
+  status: AppealStatus;
   dateSubmitted: string;
   prefectName?: string;
   prefectInitials?: string;

@@ -79,3 +79,13 @@
     background: #ffd5d5;
     color: #c62828;
 }
+
+.status-badge.resolved {
+    background: #c8f6c9;
+    color: #218838;
+}
+
+.status-badge.appealed {
+    background: #e0e0ff;
+    color: #4b5bd7;
+}

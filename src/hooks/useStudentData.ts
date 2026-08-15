@@ -30,12 +30,12 @@ export interface UseStudentDataReturn {
 }
 
 const isToday = (dateString: string): boolean => {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split("-").map(Number);
     const today = new Date();
     return (
-        date.getDate() === today.getDate() &&
-        date.getMonth() === today.getMonth() &&
-        date.getFullYear() === today.getFullYear()
+        day === today.getDate() &&
+        month === today.getMonth() + 1 &&
+        year === today.getFullYear()
     );
 };
 
