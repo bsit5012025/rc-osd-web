@@ -1,12 +1,5 @@
 import { apiClient } from "./clientApi";
-
-export interface StudentEnrollment {
-    enrollmentId: number;
-    schoolYear: string;
-    studentLevel: string;
-    section: string;
-    department: string;
-}
+import type { StudentEnrollment } from "../types/enrollment";
 
 export const getStudentEnrollment = async (studentId: string): Promise<StudentEnrollment> => {
     const response = await apiClient.get<StudentEnrollment>(

@@ -20,6 +20,30 @@ function DashboardPage() {
     const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
     const timeZone = "Manila Time";
 
+    const statCards = [
+        {
+            icon: "bi-exclamation-triangle-fill",
+            iconColor: "#6d6adf",
+            iconBg: "#ecebfc",
+            value: stats.totalViolations,
+            label: "Total Violations",
+        },
+        {
+            icon: "bi-clock-fill",
+            iconColor: "#e6a23c",
+            iconBg: "#fdf1e2",
+            value: stats.pendingAppeals,
+            label: "Pending Appeals",
+        },
+        {
+            icon: "bi-calendar-check-fill",
+            iconColor: "#3cb371",
+            iconBg: "#e5f6ec",
+            value: stats.offensesToday,
+            label: "Offenses Today",
+        },
+    ];
+
     const frequentOffensesWithPercent = useMemo(() => {
         if (stats.mostFrequentOffenses.length === 0) return [];
         const maxCount = stats.mostFrequentOffenses[0].count;
@@ -72,27 +96,16 @@ function DashboardPage() {
 
                 <main className="dashboard-content">
                     <div className="stats-row mt-4 mt-md-5 mb-4 mb-md-5">
-                        <StatCard
-                            icon="bi-exclamation-triangle-fill"
-                            iconColor="#6d6adf"
-                            iconBg="#ecebfc"
-                            value={stats.totalViolations}
-                            label="Total Violations"
-                        />
-                        <StatCard
-                            icon="bi-clock-fill"
-                            iconColor="#e6a23c"
-                            iconBg="#fdf1e2"
-                            value={stats.pendingAppeals}
-                            label="Pending Appeals"
-                        />
-                        <StatCard
-                            icon="bi-calendar-check-fill"
-                            iconColor="#3cb371"
-                            iconBg="#e5f6ec"
-                            value={stats.offensesToday}
-                            label="Offenses Today"
-                        />
+                        {statCards.map((stat) => (
+                            <StatCard
+                                key={stat.label}
+                                icon={stat.icon}
+                                iconColor={stat.iconColor}
+                                iconBg={stat.iconBg}
+                                value={stat.value}
+                                label={stat.label}
+                            />
+                        ))}
                     </div>
 
                     <div className="mb-4">
