@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/student/login/loginPage";
 import OffensesPage from "./pages/student/offense/OffensePage";
 import AppealPage from "./pages/student/appeal/appealPage";
-
+import FileAppealPage from "./pages/student/appeal/fileAppealPage";
 
 
 function App() {
@@ -23,6 +23,10 @@ function App() {
                 <Route
                     path="/appeals"
                     element={<AppealPage />}
+                />
+                <Route
+                    path="/appeals/file"
+                    element={<FileAppealPage />}
                 />
 
             </Routes>
