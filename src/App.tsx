@@ -4,6 +4,8 @@ import OffensesPage from "./pages/student/offense/OffensePage";
 import AppealPage from "./pages/student/appeal/appealPage";
 import DashboardPage from "./pages/student/dashboard/dashboardPage";
 import ProfilePage from "./pages/student/profile/profilePage";
+import FileAppealPage from "./pages/student/appeal/fileAppealPage";
+
 
 function App() {
     return (
@@ -33,6 +35,10 @@ function App() {
                 <Route
                     path="/appeals"
                     element={<AppealPage />}
+                />
+                <Route
+                    path="/appeals/file"
+                    element={<FileAppealPage />}
                 />
 
             </Routes>

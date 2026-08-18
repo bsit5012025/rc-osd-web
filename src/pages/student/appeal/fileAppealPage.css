@@ -1,0 +1,149 @@
+.new-appeal-page {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: #fff;
+    padding-bottom: 40px;
+}
+
+.new-appeal-content {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.new-appeal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+}
+
+.new-appeal-back {
+    font-size: 1.3rem;
+    color: #1a1a2e;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.new-appeal-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.new-appeal-section-label {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.new-appeal-hint {
+    font-size: 0.78rem;
+    color: #a0a0aa;
+}
+
+.new-appeal-select {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #d9d9e0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.new-appeal-select:focus {
+    border-color: #1a1a2e;
+    box-shadow: 0 0 0 0.2rem rgba(26, 26, 46, 0.15);
+}
+
+.upload-box {
+    border: 1px dashed #d9d9e0;
+    border-radius: 12px;
+    padding: 32px 20px;
+    text-align: center;
+    background: #faf9fc;
+}
+
+.upload-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #ecebfc;
+    color: #1b1b8f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 1.1rem;
+}
+
+.upload-text {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+    word-break: break-word;
+}
+
+.upload-subtext {
+    font-size: 0.72rem;
+    color: #8a8a94;
+    margin-bottom: 16px;
+}
+
+.upload-browse-btn {
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 24px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.upload-browse-btn:hover {
+    opacity: 0.9;
+}
+
+.submit-appeal-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: #1a1a2e;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.submit-appeal-btn:disabled {
+    background: #c9c8ec;
+    cursor: not-allowed;
+}
+
+
+@media (min-width: 992px) {
+    .new-appeal-content {
+        max-width: 640px;
+        padding-top: 20px;
+    }
+
+    .upload-box {
+        padding: 44px 20px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+    .new-appeal-title {
+        font-size: 1rem;
+    }
+
+    .upload-box {
+        padding: 24px 16px;
+    }
+}
