@@ -7,7 +7,6 @@ import RCLOGO from "../../../assets/RCLOGO.png";
 
 function LoginPage() {
     const navigate = useNavigate();
-
     const [studentId, setStudentId] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -18,12 +17,10 @@ function LoginPage() {
         try {
             setError("");
 
-            // Remove old authentication
             localStorage.removeItem("token");
             localStorage.removeItem("username");
             localStorage.removeItem("role");
 
-            // Login
             const response = await login({
                 username: studentId,
                 password: password,
@@ -31,8 +28,7 @@ function LoginPage() {
 
             console.log("Login response:", response);
 
-            // Make sure the login response contains everything we need
-            if (!response.token || !response.username || !response.role) {
+           if (!response.token || !response.username || !response.role) {
                 throw new Error("Invalid login response.");
             }
 

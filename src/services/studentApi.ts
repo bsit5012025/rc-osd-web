@@ -5,6 +5,7 @@ export interface Student {
     address: string;
     department: string;
     studentType: string;
+
     person: {
         personId: number;
         firstName: string;
@@ -13,7 +14,12 @@ export interface Student {
     };
 }
 
-export const getStudent = async ( studentId: string): Promise<Student> => {
-    const response = await apiClient.get<Student>(`/api/students/${studentId}`);
+export const getStudent = async (
+    studentId: string
+): Promise<Student> => {
+    const response = await apiClient.get<Student>(
+        `/api/students/${studentId}`
+    );
+
     return response.data;
 };

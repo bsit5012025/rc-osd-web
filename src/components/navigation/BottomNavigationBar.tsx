@@ -52,7 +52,6 @@ const BottomNav = () => {
                     </button>
                 ))}
 
-                {/* Logout */}
                 <button
                     type="button"
                     className="nav-item-custom"
