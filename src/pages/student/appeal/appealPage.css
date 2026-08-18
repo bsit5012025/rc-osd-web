@@ -95,7 +95,6 @@
     padding: 40px 8px;
 }
 
-/* Tablet and up: two-column grid so cards use horizontal space */
 @media (min-width: 768px) {
     .appeal-list {
         grid-template-columns: repeat(2, 1fr);
