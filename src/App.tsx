@@ -5,6 +5,7 @@ import AppealPage from "./pages/student/appeal/appealPage";
 import DashboardPage from "./pages/student/dashboard/dashboardPage";
 import ProfilePage from "./pages/student/profile/profilePage";
 import FileAppealPage from "./pages/student/appeal/fileAppealPage";
+import DeptHeadDashboardPage from "./pages/deptHead/dashboard/deptHeadDashboardPage";
 
 
 function App() {
@@ -39,6 +40,10 @@ function App() {
                 <Route
                     path="/appeals/file"
                     element={<FileAppealPage />}
+                />
+                <Route
+                    path="/depthead/dashboard"
+                    element={<DeptHeadDashboardPage />}
                 />
 
             </Routes>
