@@ -1,0 +1,161 @@
+.depthead-dashboard-page {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 40px;
+}
+
+.depthead-dashboard-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.depthead-datetime {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    gap: 20px;
+}
+
+.depthead-date-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.depthead-date-icon {
+    font-size: 1.6rem;
+    opacity: 0.6;
+}
+
+.depthead-divider {
+    width: 1px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.depthead-day-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    opacity: 0.8;
+}
+
+.depthead-day-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.depthead-date-full {
+    font-size: 0.85rem;
+    opacity: 0.85;
+}
+
+.depthead-time-block {
+    text-align: right;
+}
+
+.depthead-time {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.depthead-time-zone {
+    font-size: 0.75rem;
+    opacity: 0.85;
+}
+
+.depthead-department-label {
+    font-size: 0.85rem;
+    color: #6b6b76;
+}
+
+.stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.dashboard-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-section h5 {
+    font-weight: 700;
+}
+
+.recent-requests-scroll {
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.recent-requests-table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.recent-requests-table th {
+    background: #eceef1;
+    color: #6b6b76;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 12px 8px;
+    border-right: 1px solid #d9d9e0;
+}
+
+.recent-requests-table th:first-child {
+    border-top-left-radius: 12px;
+}
+
+.recent-requests-table th:last-child {
+    border-right: none;
+    border-top-right-radius: 12px;
+}
+
+.recent-requests-table td {
+    text-align: center;
+    font-size: 0.85rem;
+    padding: 12px 8px;
+    border-top: 1px solid #eceef1;
+}
+
+.recent-requests-empty {
+    text-align: center;
+    color: #a0a0aa;
+    font-size: 0.85rem;
+    padding: 32px 8px;
+}
+
+
+@media (max-width: 576px) {
+
+    .depthead-day-number {
+        font-size: 1.6rem;
+    }
+
+    .depthead-time {
+        font-size: 1.3rem;
+    }
+
+    .depthead-dashboard-content h2 {
+        font-size: 22px;
+    }
+
+    .recent-requests-table th,
+    .recent-requests-table td {
+        font-size: 0.7rem;
+        padding: 8px 4px;
+    }
+}
