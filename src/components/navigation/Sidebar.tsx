@@ -2,7 +2,40 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 
-const Sidebar = () => {
+export interface SidebarNavItem {
+    name: string;
+    icon: string;
+    path: string;
+}
+
+interface SidebarProps {
+    navItems?: SidebarNavItem[];
+}
+
+const defaultStudentNavItems: SidebarNavItem[] = [
+    {
+        name: "Profile",
+        icon: "bi-person-fill",
+        path: "/profile",
+    },
+    {
+        name: "Offenses",
+        icon: "bi-exclamation-triangle-fill",
+        path: "/offenses",
+    },
+    {
+        name: "Dashboard",
+        icon: "bi-grid-fill",
+        path: "/dashboard",
+    },
+    {
+        name: "Appeal",
+        icon: "bi-person-badge-fill",
+        path: "/appeals",
+    },
+];
+
+const Sidebar = ({ navItems = defaultStudentNavItems }: SidebarProps) => {
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
 
@@ -24,29 +57,6 @@ const Sidebar = () => {
 
         navigate("/login");
     };
-
-    const navItems = [
-        {
-            name: "Profile",
-            icon: "bi-person-fill",
-            path: "/profile",
-        },
-        {
-            name: "Offenses",
-            icon: "bi-exclamation-triangle-fill",
-            path: "/offenses",
-        },
-        {
-            name: "Dashboard",
-            icon: "bi-grid-fill",
-            path: "/dashboard",
-        },
-        {
-            name: "Appeal",
-            icon: "bi-person-badge-fill",
-            path: "/appeals",
-        },
-    ];
 
     return (
         <nav className={`bottom-nav ${collapsed ? "collapsed" : ""}`}>

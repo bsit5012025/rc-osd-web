@@ -7,6 +7,7 @@ import ProfilePage from "./pages/student/profile/profilePage";
 import FileAppealPage from "./pages/student/appeal/fileAppealPage";
 import DeptHeadDashboardPage from "./pages/deptHead/dashboard/deptHeadDashboardPage";
 import AppLayout from "./components/layout/AppLayout";
+import DeptHeadLayout from "./components/layout/DeptHeadLayout";
 
 
 function App() {
@@ -47,10 +48,14 @@ function App() {
 
                 </Route>
 
-                <Route
-                    path="/depthead/dashboard"
-                    element={<DeptHeadDashboardPage />}
-                />
+                <Route element={<DeptHeadLayout />}>
+
+                    <Route
+                        path="/depthead/dashboard"
+                        element={<DeptHeadDashboardPage />}
+                    />
+
+                </Route>
 
             </Routes>
         </BrowserRouter>
