@@ -1,0 +1,44 @@
+.user-greeting {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    gap: 8px;
+}
+
+.user-greeting-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.user-greeting-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.user-greeting-info-item {
+    white-space: nowrap;
+}
+
+.user-greeting-info-label {
+    opacity: 0.75;
+}
+
+.user-greeting-info-value {
+    font-weight: 600;
+}
+
+@media (max-width: 576px) {
+    .user-greeting-title {
+        font-size: 1.15rem;
+    }
+
+    .user-greeting-info {
+        font-size: 0.78rem;
+        gap: 4px 14px;
+    }
+}

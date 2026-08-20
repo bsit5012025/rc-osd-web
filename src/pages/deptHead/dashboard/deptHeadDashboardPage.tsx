@@ -1,5 +1,6 @@
 import { useState } from "react";
 import TopBar from "../../../components/navigation/TopBar";
+import UserGreeting from "../../../components/navigation/UserGreeting";
 import StatCard from "../../../components/cards/StatCard";
 import "./deptHeadDashboardPage.css";
 
@@ -22,7 +23,9 @@ interface RecentRequest {
 
 function DeptHeadDashboardPage() {
 
-    // TODO: replace with the department head's actual department name from auth/session
+    // TODO: replace with the department head's actual info from auth/session/API
+    const [deptHeadName] = useState("");
+    const [employeeId] = useState("");
     const [departmentName] = useState("");
 
     // TODO: replace with real counts from API, scoped to this department only
@@ -59,25 +62,13 @@ function DeptHeadDashboardPage() {
             <div className="container-fluid px-3 px-md-4 py-3 py-md-4">
 
                 <TopBar>
-                    <div className="depthead-datetime">
-
-                        <div className="depthead-date-block">
-                            <i className="bi bi-calendar3 depthead-date-icon"></i>
-                            <div>
-                                <div className="depthead-day-label">TUESDAY</div>
-                                <div className="depthead-day-number">14</div>
-                                <div className="depthead-date-full">July 2026</div>
-                            </div>
-                        </div>
-
-                        <div className="depthead-divider"></div>
-
-                        <div className="depthead-time-block">
-                            <div className="depthead-time">11:11 PM</div>
-                            <div className="depthead-time-zone">Manila Time</div>
-                        </div>
-
-                    </div>
+                    <UserGreeting
+                        name={deptHeadName}
+                        infoItems={[
+                            { label: "Employee ID", value: employeeId },
+                            { label: "Department", value: departmentName },
+                        ]}
+                    />
                 </TopBar>
 
                 <main className="depthead-dashboard-content">

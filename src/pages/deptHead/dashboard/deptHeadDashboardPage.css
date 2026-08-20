@@ -11,65 +11,6 @@
     margin: 0 auto;
 }
 
-.depthead-datetime {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 100%;
-    max-width: 480px;
-    margin: 0 auto;
-    gap: 20px;
-}
-
-.depthead-date-block {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.depthead-date-icon {
-    font-size: 1.6rem;
-    opacity: 0.6;
-}
-
-.depthead-divider {
-    width: 1px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.2);
-    flex-shrink: 0;
-}
-
-.depthead-day-label {
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    opacity: 0.8;
-}
-
-.depthead-day-number {
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1.1;
-}
-
-.depthead-date-full {
-    font-size: 0.85rem;
-    opacity: 0.85;
-}
-
-.depthead-time-block {
-    text-align: right;
-}
-
-.depthead-time {
-    font-size: 1.6rem;
-    font-weight: 700;
-}
-
-.depthead-time-zone {
-    font-size: 0.75rem;
-    opacity: 0.85;
-}
-
 .depthead-department-label {
     font-size: 0.85rem;
     color: #6b6b76;
@@ -140,14 +81,6 @@
 
 
 @media (max-width: 576px) {
-
-    .depthead-day-number {
-        font-size: 1.6rem;
-    }
-
-    .depthead-time {
-        font-size: 1.3rem;
-    }
 
     .depthead-dashboard-content h2 {
         font-size: 22px;
