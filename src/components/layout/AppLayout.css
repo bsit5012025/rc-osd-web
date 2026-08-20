@@ -1,0 +1,24 @@
+.app-layout {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.app-layout-content {
+    width: 100%;
+    min-height: 100vh;
+    padding-bottom: 80px; 
+}
+
+
+@media (min-width: 992px) {
+
+    .app-layout-content {
+        padding-bottom: 0;
+        padding-left: 220px;
+        transition: padding-left 0.2s ease;
+    }
+
+    body.sidebar-collapsed .app-layout-content {
+        padding-left: 72px;
+    }
+}

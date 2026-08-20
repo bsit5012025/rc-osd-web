@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import TopBar from "../../../components/navigation/TopBar";
-import BottomNavigationBar from "../../../components/navigation/BottomNavigationBar";
 import StatCard from "../../../components/cards/StatCard";
 import ActionListItem from "../../../components/cards/ActionList";
 
@@ -185,8 +184,6 @@ function ProfilePage() {
                 </main>
 
             </div>
-
-            <BottomNavigationBar />
 
         </div>
     );

@@ -1,8 +1,6 @@
 .profile-page {
     width: 100%;
-    min-height: 100vh;
     overflow-x: hidden;
-    padding-bottom: 80px;
 }
 
 .profile-content {
@@ -100,7 +98,6 @@
     gap: 12px;
 }
 
-/* Desktop: two-column layout for Personal Info + Account/Support */
 @media (min-width: 992px) {
 
     .profile-lower-sections {
