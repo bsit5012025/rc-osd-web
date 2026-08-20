@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import TopBar from "../../../components/navigation/TopBar";
+import ProfileHeader from "../../../components/navigation/ProfileHeader";
+import InfoList from "../../../components/cards/InfoList";
 import StatCard from "../../../components/cards/StatCard";
 import ActionListItem from "../../../components/cards/ActionList";
 
@@ -108,24 +110,14 @@ function ProfilePage() {
             <div className="container-fluid px-3 px-md-4 py-3 py-md-4">
 
                 <TopBar>
-                    <div className="profile-header">
-
-                        <div className="profile-avatar">{initials}</div>
-
-                        <div className="text-white">
-                            <h4 className="fw-bold">{fullName || "Student"}</h4>
-                            <div className="profile-header-details">
-                                Student ID: <strong>{studentId}</strong>
-                                {course && (
-                                    <>
-                                        <span className="mx-2">•</span>
-                                        {course}
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                    </div>
+                    <ProfileHeader
+                        initials={initials}
+                        name={fullName || "Student"}
+                        infoItems={[
+                            { label: "Student ID", value: studentId },
+                            ...(course ? [{ value: course }] : []),
+                        ]}
+                    />
                 </TopBar>
 
                 <main className="profile-content">
@@ -149,16 +141,7 @@ function ProfilePage() {
 
                         <div className="profile-section mb-4">
                             <h5 className="mb-3">Personal Information</h5>
-
-                            <div className="info-card">
-                                {personalInfo.map((item) => (
-                                    <div className="info-row" key={item.label}>
-                                        <i className={`bi ${item.icon} info-row-icon`}></i>
-                                        <span className="info-row-label">{item.label}</span>
-                                        <span className="info-row-value">{item.value}</span>
-                                    </div>
-                                ))}
-                            </div>
+                            <InfoList items={personalInfo} />
                         </div>
 
                         <div>

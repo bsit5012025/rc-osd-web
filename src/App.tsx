@@ -6,6 +6,7 @@ import DashboardPage from "./pages/student/dashboard/dashboardPage";
 import ProfilePage from "./pages/student/profile/profilePage";
 import FileAppealPage from "./pages/student/appeal/fileAppealPage";
 import DeptHeadDashboardPage from "./pages/deptHead/dashboard/deptHeadDashboardPage";
+import DeptHeadProfilePage from "./pages/deptHead/dashboard/profile/deptHeadProfilePage";
 import AppLayout from "./components/layout/AppLayout";
 import DeptHeadLayout from "./components/layout/DeptHeadLayout";
 
@@ -53,6 +54,11 @@ function App() {
                     <Route
                         path="/depthead/dashboard"
                         element={<DeptHeadDashboardPage />}
+                    />
+
+                    <Route
+                        path="/depthead/profile"
+                        element={<DeptHeadProfilePage />}
                     />
 
                 </Route>
