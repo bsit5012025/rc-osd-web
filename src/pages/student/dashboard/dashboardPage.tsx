@@ -1,9 +1,16 @@
+import { useState } from "react";
 import TopBar from "../../../components/navigation/TopBar";
+import UserGreeting from "../../../components/navigation/UserGreeting";
 import BottomNavigationBar from "../../../components/navigation/BottomNavigationBar";
 import StatCard from "../../../components/cards/StatCard";
 import "./dashboardPage.css";
 
 function DashboardPage() {
+
+    // TODO: replace with the logged-in student's actual info from auth/session/API
+    const [studentName] = useState("");
+    const [studentId] = useState("");
+    const [section] = useState("");
 
     const stats = [
         {
@@ -42,20 +49,13 @@ function DashboardPage() {
             <div className="container-fluid px-3 px-md-4 py-3 py-md-4">
 
                 <TopBar>
-                    <div className="dashboard-datetime">
-
-                        <div>
-                            <div className="dashboard-day-label">TUESDAY</div>
-                            <div className="dashboard-day-number">14</div>
-                            <div className="dashboard-date-full">July 2026</div>
-                        </div>
-
-                        <div>
-                            <div className="dashboard-time">11:11 PM</div>
-                            <div className="dashboard-time-zone">Manila Time</div>
-                        </div>
-
-                    </div>
+                    <UserGreeting
+                        name={studentName}
+                        infoItems={[
+                            { label: "Student ID", value: studentId },
+                            { label: "Section", value: section },
+                        ]}
+                    />
                 </TopBar>
 
                 <main className="dashboard-content">
