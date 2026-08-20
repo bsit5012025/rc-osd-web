@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import TopBar from "../../../components/navigation/TopBar";
-import BottomNavigationBar from "../../../components/navigation/BottomNavigationBar";
 import OffenseCard from "../../../components/cards/OffenseCard";
 
 import { getStudentRecords } from "../../../services/recordApi";
@@ -181,8 +180,6 @@ function OffensesPage() {
                 </main>
 
             </div>
-
-            <BottomNavigationBar />
 
         </div>
     );

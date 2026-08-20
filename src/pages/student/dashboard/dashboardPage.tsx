@@ -1,7 +1,6 @@
 import { useState } from "react";
 import TopBar from "../../../components/navigation/TopBar";
 import UserGreeting from "../../../components/navigation/UserGreeting";
-import BottomNavigationBar from "../../../components/navigation/BottomNavigationBar";
 import StatCard from "../../../components/cards/StatCard";
 import "./dashboardPage.css";
 
@@ -60,7 +59,7 @@ function DashboardPage() {
 
                 <main className="dashboard-content">
 
-            
+
                     <div className="stats-row mt-4 mt-md-5 mb-4 mb-md-5">
                         {stats.map((stat) => (
                             <StatCard
@@ -74,7 +73,7 @@ function DashboardPage() {
                         ))}
                     </div>
 
-                
+
                     <div className="mb-4">
                         <h5 className="mb-3">Most Frequent Offenses</h5>
 
@@ -93,7 +92,7 @@ function DashboardPage() {
                         </div>
                     </div>
 
-                
+
                     <div className="mb-4">
                         <h5 className="mb-3">Recent Offenses</h5>
 
@@ -122,8 +121,6 @@ function DashboardPage() {
                 </main>
 
             </div>
-
-            <BottomNavigationBar />
 
         </div>
     );

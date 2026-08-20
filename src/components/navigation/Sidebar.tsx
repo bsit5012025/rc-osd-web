@@ -1,8 +1,20 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./BottomNavigationBar.css";
+import "./Sidebar.css";
 
-const BottomNav = () => {
+const Sidebar = () => {
     const navigate = useNavigate();
+    const [collapsed, setCollapsed] = useState(false);
+
+    // Reflect the collapsed state on <body> so page-level CSS
+    // (content spacing) can react to it without prop drilling.
+    useEffect(() => {
+        document.body.classList.toggle("sidebar-collapsed", collapsed);
+
+        return () => {
+            document.body.classList.remove("sidebar-collapsed");
+        };
+    }, [collapsed]);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -37,7 +49,17 @@ const BottomNav = () => {
     ];
 
     return (
-        <nav className="bottom-nav">
+        <nav className={`bottom-nav ${collapsed ? "collapsed" : ""}`}>
+
+            <button
+                type="button"
+                className="sidebar-toggle-btn"
+                onClick={() => setCollapsed((prev) => !prev)}
+                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+                <i className="bi bi-list"></i>
+            </button>
+
             <div className="nav-items">
 
                 {navItems.map((item) => (
@@ -66,4 +88,4 @@ const BottomNav = () => {
     );
 };
 
-export default BottomNav;
+export default Sidebar;

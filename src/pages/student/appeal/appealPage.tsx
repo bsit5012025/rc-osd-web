@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import BottomNavigationBar from "../../../components/navigation/BottomNavigationBar";
 import StatCard from "../../../components/cards/StatCard";
 import AppealCard from "../../../components/cards/AppealCard";
 
@@ -161,8 +160,6 @@ function AppealPage() {
                 </main>
 
             </div>
-
-            <BottomNavigationBar />
 
         </div>
     );
