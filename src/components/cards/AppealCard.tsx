@@ -10,6 +10,10 @@ interface AppealCardProps {
     prefectName?: string;
     prefectInitials?: string;
     remarks?: string;
+    idLabel?: string;
+    reviewerRoleLabel?: string;
+    awaitingTitle?: string;
+    awaitingText?: string;
 }
 
 function AppealCard({
@@ -20,6 +24,10 @@ function AppealCard({
     prefectName,
     prefectInitials,
     remarks,
+    idLabel = "APPEAL ID",
+    reviewerRoleLabel = "Prefect of Discipline",
+    awaitingTitle = "Awaiting Review",
+    awaitingText = "The prefect hasn't responded yet. You'll be notified once a decision is made.",
 }: AppealCardProps) {
 
     const statusClass = status.toLowerCase();
@@ -28,7 +36,7 @@ function AppealCard({
         <div className="appeal-card mb-3">
 
             <div className="appeal-card-header">
-                <span className="appeal-card-id">APPEAL ID: {appealId}</span>
+                <span className="appeal-card-id">{idLabel}: {appealId}</span>
                 <span className={`appeal-status-badge ${statusClass}`}>
                     {status.toUpperCase()}
                 </span>
@@ -38,9 +46,9 @@ function AppealCard({
 
             {status === "Pending" && (
                 <div className="appeal-awaiting-box">
-                    <div className="appeal-awaiting-title">Awaiting Review</div>
+                    <div className="appeal-awaiting-title">{awaitingTitle}</div>
                     <p className="appeal-awaiting-text">
-                        The prefect hasn't responded yet. You'll be notified once a decision is made.
+                        {awaitingText}
                     </p>
                 </div>
             )}
@@ -51,7 +59,7 @@ function AppealCard({
                         <div className="appeal-prefect-avatar">{prefectInitials}</div>
                         <div>
                             <div className="appeal-prefect-name">{prefectName}</div>
-                            <div className="appeal-prefect-role">Prefect of Discipline</div>
+                            <div className="appeal-prefect-role">{reviewerRoleLabel}</div>
                         </div>
                     </div>
 
