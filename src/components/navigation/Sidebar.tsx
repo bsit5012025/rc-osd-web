@@ -37,7 +37,7 @@ const defaultStudentNavItems: SidebarNavItem[] = [
 
 const Sidebar = ({ navItems = defaultStudentNavItems }: SidebarProps) => {
     const navigate = useNavigate();
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
 
     // Reflect the collapsed state on <body> so page-level CSS
     // (content spacing) can react to it without prop drilling.
