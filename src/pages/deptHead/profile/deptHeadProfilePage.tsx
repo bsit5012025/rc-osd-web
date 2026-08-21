@@ -1,8 +1,8 @@
 import { useState } from "react";
-import TopBar from "../../../../components/navigation/TopBar";
-import ProfileHeader from "../../../../components/navigation/ProfileHeader";
-import InfoList from "../../../../components/cards/InfoList";
-import ActionListItem from "../../../../components/cards/ActionList";
+import TopBar from "../../../components/navigation/TopBar";
+import ProfileHeader from "../../../components/navigation/ProfileHeader";
+import InfoList from "../../../components/cards/InfoList";
+import ActionListItem from "../../../components/cards/ActionList";
 import "./deptHeadProfilePage.css";
 import "./deptHeadProfilePage.css";
 
