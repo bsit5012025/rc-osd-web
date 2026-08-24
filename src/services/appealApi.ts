@@ -5,6 +5,7 @@ export interface SubmitAppealRequest {
     recordId: number;
     enrollmentId: number;
     message: string;
+    documentId?: number;
 }
 
 export const getStudentAppeals = async (studentId: string): Promise<Appeal[]> => {
