@@ -28,7 +28,12 @@ export interface Student {
     };
 }
 
-export const getStudent = async ( studentId: string): Promise<Student> => {
+export const getStudent = async (studentId: string): Promise<Student> => {
     const response = await apiClient.get<Student>(`/api/students/${studentId}`);
+    return response.data;
+};
+
+export const getAllStudents = async (): Promise<Student[]> => {
+    const response = await apiClient.get<Student[]>("/api/students");
     return response.data;
 };
