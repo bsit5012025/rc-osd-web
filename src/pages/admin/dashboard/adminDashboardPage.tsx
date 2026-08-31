@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import TopBar from "../../components/navigation/TopBar";
-import UserGreeting from "../../components/navigation/UserGreeting";
-import StatCard from "../../components/cards/StatCard";
 
-import { getOffenses } from "../../services/offenseApi";
-import { getAllStudents } from "../../services/studentApi";
+import TopBar from "../../../components/navigation/TopBar";
+import UserGreeting from "../../../components/navigation/UserGreeting";
+import StatCard from "../../../components/cards/StatCard";
+
+import { getOffenses } from "../../../services/offenseApi";
+import { getAllStudents } from "../../../services/studentApi";
 
 import "./adminDashboardPage.css";
 
