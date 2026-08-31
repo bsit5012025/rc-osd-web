@@ -10,8 +10,8 @@ import DeptHeadProfilePage from "./pages/deptHead/profile/deptHeadProfilePage";
 import DeptHeadRequestPage from "./pages/deptHead/request/deptHeadRequestPage";
 import AppLayout from "./components/layout/AppLayout";
 import DeptHeadLayout from "./components/layout/DeptHeadLayout";
-import AdminDashboardPage from "./pages/admin/adminDashboardPage";
-
+import AdminDashboardPage from "./pages/admin/dashboard/adminDashboardPage";
+import AdminOffensePage from "./pages/admin/offense/adminOffensePage";
 
 function App() {
     return (
@@ -71,6 +71,11 @@ function App() {
                     <Route
                         path="/admin/dashboard"
                         element={<AdminDashboardPage />}
+                    />
+
+                    <Route
+                        path="/admin/offense"
+                        element={<AdminOffensePage />}
                     />
 
                 </Route>

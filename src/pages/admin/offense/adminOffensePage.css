@@ -1,0 +1,148 @@
+.admin-offense-page {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.admin-offense-content {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.admin-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.admin-page-title {
+    font-weight: 700;
+    margin: 0;
+}
+
+.admin-filter-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.admin-table-section {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+}
+
+.admin-table-scroll {
+    max-height: 560px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.admin-table th {
+    background: #eceef1;
+    color: #6b6b76;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 14px;
+    border-right: 1px solid #d9d9e0;
+}
+
+.admin-table th:last-child {
+    border-right: none;
+}
+
+.admin-table td {
+    text-align: left;
+    font-size: 0.85rem;
+    padding: 12px 14px;
+    border-top: 1px solid #eceef1;
+    vertical-align: top;
+}
+
+.admin-table-empty {
+    text-align: center;
+    color: #a0a0aa;
+    font-size: 0.85rem;
+    padding: 32px 8px;
+}
+
+.admin-row-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-icon-btn {
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a2e;
+}
+
+.admin-icon-btn:hover {
+    background: #f0f0f5;
+}
+
+.admin-icon-btn.danger {
+    color: #d9534f;
+}
+
+.admin-icon-btn.danger:hover {
+    background: #fbeaea;
+}
+
+.admin-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 46, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.admin-modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.admin-modal-title {
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.admin-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+@media (max-width: 576px) {
+    .admin-table th,
+    .admin-table td {
+        font-size: 0.75rem;
+        padding: 8px 10px;
+    }
+}
