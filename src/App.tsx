@@ -10,6 +10,7 @@ import DeptHeadProfilePage from "./pages/deptHead/profile/deptHeadProfilePage";
 import DeptHeadRequestPage from "./pages/deptHead/request/deptHeadRequestPage";
 import AppLayout from "./components/layout/AppLayout";
 import DeptHeadLayout from "./components/layout/DeptHeadLayout";
+import AdminDashboardPage from "./pages/admin/adminDashboardPage";
 
 
 function App() {
@@ -65,6 +66,11 @@ function App() {
                     <Route
                         path="/depthead/requests"
                         element={<DeptHeadRequestPage />}
+                    />
+
+                    <Route
+                        path="/admin/dashboard"
+                        element={<AdminDashboardPage />}
                     />
 
                 </Route>

@@ -1,0 +1,33 @@
+.admin-dashboard-page {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.admin-dashboard-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.dashboard-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-section h5 {
+    font-weight: 700;
+}
+
+@media (max-width: 576px) {
+    .admin-dashboard-content h2 {
+        font-size: 22px;
+    }
+}
