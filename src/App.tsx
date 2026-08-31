@@ -12,6 +12,7 @@ import AppLayout from "./components/layout/AppLayout";
 import DeptHeadLayout from "./components/layout/DeptHeadLayout";
 import AdminDashboardPage from "./pages/admin/dashboard/adminDashboardPage";
 import AdminOffensePage from "./pages/admin/offense/adminOffensePage";
+import AdminStudentPage from "./pages/admin/student/adminStudentPage";
 
 function App() {
     return (
@@ -76,6 +77,11 @@ function App() {
                     <Route
                         path="/admin/offense"
                         element={<AdminOffensePage />}
+                    />
+
+                    <Route
+                        path="/admin/student"
+                        element={<AdminStudentPage />}
                     />
 
                 </Route>
