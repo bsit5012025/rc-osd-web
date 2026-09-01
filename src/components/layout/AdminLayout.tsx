@@ -9,7 +9,7 @@ const adminNavItems: SidebarNavItem[] = [
         path: "/admin/dashboard",
     },
     {
-        name: "Students",
+        name: "Student",
         icon: "bi-people-fill",
         path: "/admin/students",
     },
