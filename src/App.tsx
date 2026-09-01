@@ -10,6 +10,7 @@ import DeptHeadProfilePage from "./pages/deptHead/profile/deptHeadProfilePage";
 import DeptHeadRequestPage from "./pages/deptHead/request/deptHeadRequestPage";
 import AppLayout from "./components/layout/AppLayout";
 import DeptHeadLayout from "./components/layout/DeptHeadLayout";
+import AdminLayout from "./components/layout/AdminLayout";
 import AdminDashboardPage from "./pages/admin/dashboard/adminDashboardPage";
 import AdminOffensePage from "./pages/admin/offense/adminOffensePage";
 import AdminStudentPage from "./pages/admin/student/adminStudentPage";
@@ -69,18 +70,22 @@ function App() {
                         element={<DeptHeadRequestPage />}
                     />
 
+                </Route>
+
+                <Route element={<AdminLayout />}>
+
                     <Route
                         path="/admin/dashboard"
                         element={<AdminDashboardPage />}
                     />
 
                     <Route
-                        path="/admin/offense"
+                        path="/admin/offenses"
                         element={<AdminOffensePage />}
                     />
 
                     <Route
-                        path="/admin/student"
+                        path="/admin/students"
                         element={<AdminStudentPage />}
                     />
 
