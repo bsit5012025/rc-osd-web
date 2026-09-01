@@ -26,9 +26,7 @@ function LoginPage() {
                 password: password,
             });
 
-            console.log("Login response:", response);
-
-           if (!response.token || !response.username || !response.role) {
+            if (!response.token || !response.username || !response.role) {
                 throw new Error("Invalid login response.");
             }
 
@@ -36,8 +34,13 @@ function LoginPage() {
             localStorage.setItem("username", response.username);
             localStorage.setItem("role", response.role);
 
-            console.log("Authentication saved.");
-            navigate("/offenses");
+            if (response.role === "ROLE_STAFF") {
+                navigate("/depthead/dashboard");
+            } else if (response.role === "ROLE_ADMIN") {
+                navigate("/admin/dashboard");
+            } else {
+                navigate("/offenses");
+            }
 
         } catch (error) {
             console.error("Login failed:", error);

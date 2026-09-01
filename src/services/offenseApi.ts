@@ -2,43 +2,40 @@ import { apiClient } from "./clientApi";
 import type { Offense } from "../types/offense";
 
 export interface OffenseInput {
-    offense: string;
-    type: string;
-    description: string;
+offense: string;
+type: string;
+description: string;
 }
 
-// Get all offenses
+const OFFENSE_API_URL = "/api/offenses";
+
 export const getOffenses = async (): Promise<Offense[]> => {
-    const response = await apiClient.get<Offense[]>("/api/offenses");
+    const response = await apiClient.get<Offense[]>(OFFENSE_API_URL);
     return response.data;
 };
 
-// Create offense
-export const createOffense = async (
-    offense: OffenseInput
-): Promise<Offense> => {
-    const response = await apiClient.post<Offense>(
-        "/api/offenses",
-        offense
-    );
+export const getOffensesByType = async (type: string): Promise<Offense[]> => {
+    const response = await apiClient.get<Offense[]>(OFFENSE_API_URL,{
+        params: {type: type,},
+    });
     return response.data;
 };
 
-// Update offense
-export const updateOffense = async (
-    offenseId: number,
-    offense: OffenseInput
-): Promise<Offense> => {
-    const response = await apiClient.put<Offense>(
-        `/api/offenses/${offenseId}`,
-        offense
-    );
+export const getOffenseById = async (offenseId: number): Promise<Offense> => {
+    const response = await apiClient.get<Offense>(`${OFFENSE_API_URL}/${offenseId}`);
     return response.data;
 };
 
-// Delete offense
-export const deleteOffense = async (
-    offenseId: number
-): Promise<void> => {
-    await apiClient.delete(`/api/offenses/${offenseId}`);
+export const createOffense = async (offense: OffenseInput): Promise<Offense> => {
+    const response = await apiClient.post<Offense>(OFFENSE_API_URL,offense);
+    return response.data;
+};
+
+export const updateOffense = async (offenseId: number,offense: OffenseInput): Promise<Offense> => {
+    const response = await apiClient.put<Offense>(`${OFFENSE_API_URL}/${offenseId}`,offense);
+    return response.data;
+};
+
+export const deleteOffense = async (offenseId: number): Promise<void> => {
+    await apiClient.delete(`${OFFENSE_API_URL}/${offenseId}`);
 };
