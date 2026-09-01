@@ -13,42 +13,7 @@ import type { Appeal } from "../../../types/appeal";
 import "./dashboardPage.css";
 import Sidebar from "../../../components/navigation/Sidebar";
 
-const DAY_NAMES = [
-    "SUNDAY",
-    "MONDAY",
-    "TUESDAY",
-    "WEDNESDAY",
-    "THURSDAY",
-    "FRIDAY",
-    "SATURDAY",
-];
-
-const MONTH_NAMES = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-];
-
 function DashboardPage() {
-
-    /*
-     * Your login currently stores the student's ID in
-     * localStorage under "username".
-     *
-     * Login response:
-     * username: "CT23-0004"
-     *
-     * Therefore we use username here.
-     */
     const studentId = localStorage.getItem("username") || "";
 
     const [records, setRecords] = useState<StudentRecord[]>([]);
@@ -59,19 +24,9 @@ function DashboardPage() {
 
     const [now] = useState(new Date());
 
-
-    /*
-     * =========================================================
-     * FETCH DASHBOARD DATA
-     * =========================================================
-     */
-
     useEffect(() => {
-
         const fetchDashboardData = async () => {
-
             try {
-
                 setLoading(true);
                 setError("");
 
@@ -80,32 +35,34 @@ function DashboardPage() {
                     return;
                 }
 
-                console.log(
-                    "Fetching dashboard data for:",
-                    studentId
-                );
-
                 const [recordData, appealData] =
                     await Promise.all([
                         getStudentRecords(studentId),
                         getStudentAppeals(studentId),
                     ]);
 
+                // DEBUG: Check what the backend is returning
+                console.log("Student Records:", recordData);
                 console.log(
-                    "Dashboard student records:",
-                    recordData
+                    "First Enrollment:",
+                    recordData[0]?.enrollment
+                );
+
+                // Specifically check section and department
+                console.log(
+                    "Section:",
+                    recordData[0]?.enrollment?.section
                 );
 
                 console.log(
-                    "Dashboard student appeals:",
-                    appealData
+                    "Department:",
+                    recordData[0]?.enrollment?.department
                 );
 
                 setRecords(recordData);
                 setAppeals(appealData);
 
             } catch (err) {
-
                 console.error(
                     "Failed to fetch dashboard data:",
                     err
@@ -114,33 +71,13 @@ function DashboardPage() {
                 setError(
                     "Failed to load dashboard data."
                 );
-
             } finally {
-
                 setLoading(false);
-
             }
         };
 
         fetchDashboardData();
-
     }, [studentId]);
-
-
-    /*
-     * =========================================================
-     * STUDENT INFORMATION
-     * =========================================================
-     *
-     * Student information is already contained inside:
-     *
-     * record.enrollment.student
-     *
-     * and:
-     *
-     * record.enrollment.section
-     *
-     */
 
     const firstRecord = records[0];
 
@@ -151,18 +88,9 @@ function DashboardPage() {
         firstRecord?.enrollment?.student?.studentId ||
         studentId;
 
+    // GET SECTION HERE
     const section =
         firstRecord?.enrollment?.section || "";
-
-
-    /*
-     * =========================================================
-     * TODAY'S DATE
-     * =========================================================
-     *
-     * Use local Manila date instead of toISOString(),
-     * because toISOString() converts the date to UTC.
-     */
 
     const todayIso =
         `${now.getFullYear()}-${String(
@@ -170,13 +98,6 @@ function DashboardPage() {
         ).padStart(2, "0")}-${String(
             now.getDate()
         ).padStart(2, "0")}`;
-
-
-    /*
-     * =========================================================
-     * STATISTICS
-     * =========================================================
-     */
 
     const totalViolations = records.length;
 
@@ -189,7 +110,6 @@ function DashboardPage() {
         (record) =>
             record.dateOfViolation === todayIso
     ).length;
-
 
     const stats = [
         {
@@ -215,17 +135,9 @@ function DashboardPage() {
         },
     ];
 
-
-    /*
-     * =========================================================
-     * MOST FREQUENT OFFENSES
-     * =========================================================
-     */
-
     const offenseCounts =
         records.reduce<Record<string, number>>(
             (acc, record) => {
-
                 const label =
                     record.offense?.offense ||
                     "Unknown";
@@ -234,7 +146,6 @@ function DashboardPage() {
                     (acc[label] || 0) + 1;
 
                 return acc;
-
             },
             {}
         );
@@ -255,13 +166,6 @@ function DashboardPage() {
                 ),
             }));
 
-
-    /*
-     * =========================================================
-     * RECENT OFFENSES
-     * =========================================================
-     */
-
     const recentOffenses =
         [...records]
             .sort(
@@ -273,13 +177,6 @@ function DashboardPage() {
             )
             .slice(0, 5);
 
-
-    /*
-     * =========================================================
-     * RENDER
-     * =========================================================
-     */
-
     return (
         <div className="dashboard-page">
 
@@ -288,8 +185,6 @@ function DashboardPage() {
                 <TopBar>
 
                     <div className="dashboard-topbar-content">
-
-                        {/* STUDENT INFORMATION */}
 
                         <UserGreeting
                             name={
@@ -305,68 +200,18 @@ function DashboardPage() {
                                 {
                                     label: "Section",
                                     value:
-                                        section || "—",
+                                        loading
+                                            ? "Loading..."
+                                            : section || "—",
                                 },
                             ]}
                         />
-
-
-                        {/* DATE AND TIME */}
-
-                        <div className="dashboard-datetime">
-
-                            <div>
-
-                                <div className="dashboard-day-label">
-                                    {DAY_NAMES[now.getDay()]}
-                                </div>
-
-                                <div className="dashboard-day-number">
-                                    {now.getDate()}
-                                </div>
-
-                                <div className="dashboard-date-full">
-                                    {
-                                        MONTH_NAMES[
-                                            now.getMonth()
-                                        ]
-                                    }{" "}
-                                    {now.getFullYear()}
-                                </div>
-
-                            </div>
-
-                            <div>
-
-                                <div className="dashboard-time">
-
-                                    {now.toLocaleTimeString(
-                                        "en-US",
-                                        {
-                                            hour: "numeric",
-                                            minute: "2-digit",
-                                            hour12: true,
-                                        }
-                                    )}
-
-                                </div>
-
-                                <div className="dashboard-time-zone">
-                                    Manila Time
-                                </div>
-
-                            </div>
-
-                        </div>
 
                     </div>
 
                 </TopBar>
 
-
                 <main className="dashboard-content">
-
-                    {/* ERROR */}
 
                     {error && (
                         <div className="alert alert-danger mt-3">
@@ -374,15 +219,9 @@ function DashboardPage() {
                         </div>
                     )}
 
-
-                    {/* =================================================
-                        STATISTICS
-                    ================================================= */}
-
                     <div className="stats-row mt-4 mt-md-5 mb-4 mb-md-5">
 
                         {stats.map((stat) => (
-
                             <StatCard
                                 key={stat.label}
                                 icon={stat.icon}
@@ -395,15 +234,9 @@ function DashboardPage() {
                                 }
                                 label={stat.label}
                             />
-
                         ))}
 
                     </div>
-
-
-                    {/* =================================================
-                        MOST FREQUENT OFFENSES
-                    ================================================= */}
 
                     <div className="mb-4">
 
@@ -429,7 +262,6 @@ function DashboardPage() {
                             {!loading &&
                                 frequentOffenses.map(
                                     (item) => (
-
                                         <div
                                             className="frequent-offense-row"
                                             key={item.label}
@@ -451,18 +283,12 @@ function DashboardPage() {
                                             </div>
 
                                         </div>
-
                                     )
                                 )}
 
                         </div>
 
                     </div>
-
-
-                    {/* =================================================
-                        RECENT OFFENSES
-                    ================================================= */}
 
                     <div className="mb-4">
 
@@ -528,7 +354,6 @@ function DashboardPage() {
                                         {!loading &&
                                             recentOffenses.map(
                                                 (record) => (
-
                                                     <tr
                                                         key={
                                                             record.recordId
@@ -560,7 +385,6 @@ function DashboardPage() {
                                                         </td>
 
                                                     </tr>
-
                                                 )
                                             )}
 
@@ -577,7 +401,6 @@ function DashboardPage() {
                 </main>
 
             </div>
-
 
             <Sidebar />
 
