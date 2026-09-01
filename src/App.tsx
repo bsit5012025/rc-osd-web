@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/student/login/loginPage";
 import OffensesPage from "./pages/student/offense/OffensePage";
 import AppealPage from "./pages/student/appeal/appealPage";
@@ -14,6 +14,11 @@ import AdminLayout from "./components/layout/AdminLayout";
 import AdminDashboardPage from "./pages/admin/dashboard/adminDashboardPage";
 import AdminOffensePage from "./pages/admin/offense/adminOffensePage";
 import AdminStudentPage from "./pages/admin/student/adminStudentPage";
+import AppLayout from "./components/layout/AppLayout";
+import DeptHeadLayout from "./components/layout/DeptHeadLayout";
+import AdminLayout from "./components/layout/AdminLayout";
+import ProtectedRoute from "./components/routing/ProtectedRoute";
+
 
 function App() {
     return (
@@ -25,7 +30,13 @@ function App() {
                     element={<LoginPage />}
                 />
 
-                <Route element={<AppLayout />}>
+                <Route
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout />
+                        </ProtectedRoute>
+                    }
+                >
 
                     <Route
                         path="/dashboard"
@@ -53,7 +64,13 @@ function App() {
 
                 </Route>
 
-                <Route element={<DeptHeadLayout />}>
+                <Route
+                    element={
+                        <ProtectedRoute>
+                            <DeptHeadLayout />
+                        </ProtectedRoute>
+                    }
+                >
 
                     <Route
                         path="/depthead/dashboard"
@@ -90,6 +107,9 @@ function App() {
                     />
 
                 </Route>
+
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
 
             </Routes>
         </BrowserRouter>
