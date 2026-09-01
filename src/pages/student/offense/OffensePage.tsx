@@ -12,7 +12,6 @@ import type { Student } from "../../../services/studentApi";
 import "./OffensePage.css";
 
 function OffensesPage() {
-
     const studentId = localStorage.getItem("username") || "";
 
     const [records, setRecords] = useState<StudentRecord[]>([]);
@@ -23,11 +22,8 @@ function OffensesPage() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-
         const fetchStudentData = async () => {
-
             try {
-
                 setLoading(true);
                 setError("");
 
@@ -41,31 +37,43 @@ function OffensesPage() {
 
                 setStudent(studentData);
                 setRecords(recordData);
-                
-                console.log("Student records:", recordData);
-                console.log("Fetching student:", studentId);
+
                 console.log("Student:", studentData);
-                console.log("Fetching records for:", studentId);                
-
+                console.log("Student records:", recordData);
+                console.log(
+                    "Enrollment:",
+                    recordData[0]?.enrollment
+                );
+                console.log(
+                    "Section:",
+                    recordData[0]?.enrollment?.section
+                );
             } catch (error) {
+                console.error(
+                    "Failed to fetch student data:",
+                    error
+                );
 
-                console.error("Failed to fetch student data:",error);
                 setError("Failed to load student data.");
-
             } finally {
-
                 setLoading(false);
-
             }
         };
 
         fetchStudentData();
-
     }, [studentId]);
 
+    const section =
+        records[0]?.enrollment?.section || "";
 
-    const filteredRecords = selectedStatus === "All"? records:records.filter(
-                (record) => record.status.toUpperCase() === selectedStatus.toUpperCase());
+    const filteredRecords =
+        selectedStatus === "All"
+            ? records
+            : records.filter(
+                  (record) =>
+                      record.status.toUpperCase() ===
+                      selectedStatus.toUpperCase()
+              );
 
     return (
         <div className="offenses-page">
@@ -78,7 +86,9 @@ function OffensesPage() {
 
                         <div className="student-avatar rounded d-flex align-items-center justify-content-center">
 
-                            {student? `${student.person.firstName[0]}${student.person.lastName[0]}`.toUpperCase(): "ST"}
+                            {student
+                                ? `${student.person.firstName[0]}${student.person.lastName[0]}`.toUpperCase()
+                                : "ST"}
 
                         </div>
 
@@ -86,10 +96,11 @@ function OffensesPage() {
 
                             <h4 className="mb-1 fw-bold">
 
-                                {student? `${student.person.firstName} ${student.person.middleName} ${student.person.lastName}`: "Student"}
+                                {student
+                                    ? `${student.person.firstName} ${student.person.middleName} ${student.person.lastName}`
+                                    : "Student"}
 
                             </h4>
-
 
                             <div className="student-details">
 
@@ -99,14 +110,13 @@ function OffensesPage() {
                                     {student?.studentId || studentId}
                                 </strong>
 
-
-                                {student?.department && (
+                                {section && (
                                     <>
                                         <span className="mx-2">
                                             •
                                         </span>
 
-                                        {student.department}
+                                        {section}
                                     </>
                                 )}
 
@@ -126,19 +136,55 @@ function OffensesPage() {
 
                     <div className="offense-filters d-flex gap-2 gap-md-3 mb-4 mb-md-5">
 
-                        <button className={selectedStatus === "All"? "btn btn-primary fw-bold":"btn border border-black fw-bold"} onClick={() => setSelectedStatus("All")}>
+                        <button
+                            className={
+                                selectedStatus === "All"
+                                    ? "btn btn-primary fw-bold"
+                                    : "btn border border-black fw-bold"
+                            }
+                            onClick={() =>
+                                setSelectedStatus("All")
+                            }
+                        >
                             All
                         </button>
 
-                        <button className={selectedStatus === "PENDING"? "btn btn-primary fw-bold":"btn border border-black fw-bold"} onClick={() => setSelectedStatus("PENDING")}>
+                        <button
+                            className={
+                                selectedStatus === "PENDING"
+                                    ? "btn btn-primary fw-bold"
+                                    : "btn border border-black fw-bold"
+                            }
+                            onClick={() =>
+                                setSelectedStatus("PENDING")
+                            }
+                        >
                             Pending
                         </button>
 
-                        <button className={ selectedStatus === "APPROVED"  ? "btn btn-primary fw-bold":"btn border border-black fw-bold" } onClick={() => setSelectedStatus("APPROVED")}>
+                        <button
+                            className={
+                                selectedStatus === "APPROVED"
+                                    ? "btn btn-primary fw-bold"
+                                    : "btn border border-black fw-bold"
+                            }
+                            onClick={() =>
+                                setSelectedStatus("APPROVED")
+                            }
+                        >
                             Approved
                         </button>
 
-                        <button className={ selectedStatus === "DENIED" ? "btn btn-primary fw-bold":"btn border border-black fw-bold" } onClick={() => setSelectedStatus("DENIED")}>
+                        <button
+                            className={
+                                selectedStatus === "DENIED"
+                                    ? "btn btn-primary fw-bold"
+                                    : "btn border border-black fw-bold"
+                            }
+                            onClick={() =>
+                                setSelectedStatus("DENIED")
+                            }
+                        >
                             Denied
                         </button>
 
@@ -158,22 +204,27 @@ function OffensesPage() {
                             </p>
                         )}
 
-                        {!loading && !error && filteredRecords.length === 0 && (
-                             <p>
-                                No offenses found.
-                            </p>
-                        )
-                        }
+                        {!loading &&
+                            !error &&
+                            filteredRecords.length === 0 && (
+                                <p>
+                                    No offenses found.
+                                </p>
+                            )}
 
-                        {!loading && !error && filteredRecords.map((record) => (
-                            <OffenseCard
-                                key={record.recordId}
-                                offense={record.offense.offense}
-                                level={record.offense.type}
-                                dateFiled={record.dateOfViolation}
-                                status={record.status}/>
-                            ))
-                        }
+                        {!loading &&
+                            !error &&
+                            filteredRecords.map((record) => (
+                                <OffenseCard
+                                    key={record.recordId}
+                                    offense={record.offense.offense}
+                                    level={record.offense.type}
+                                    dateFiled={
+                                        record.dateOfViolation
+                                    }
+                                    status={record.status}
+                                />
+                            ))}
 
                     </div>
 
