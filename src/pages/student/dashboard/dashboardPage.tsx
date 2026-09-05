@@ -11,7 +11,6 @@ import { getStudentAppeals } from "../../../services/appealApi";
 import type { Appeal } from "../../../types/appeal";
 
 import "./dashboardPage.css";
-import Sidebar from "../../../components/navigation/Sidebar";
 
 function DashboardPage() {
     const studentId = localStorage.getItem("username") || "";
@@ -401,8 +400,6 @@ function DashboardPage() {
                 </main>
 
             </div>
-
-            <Sidebar />
 
         </div>
     );
