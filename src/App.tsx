@@ -1,20 +1,24 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import LoginPage from "./pages/student/login/loginPage";
 import OffensesPage from "./pages/student/offense/OffensePage";
 import AppealPage from "./pages/student/appeal/appealPage";
 import DashboardPage from "./pages/student/dashboard/dashboardPage";
 import ProfilePage from "./pages/student/profile/profilePage";
 import FileAppealPage from "./pages/student/appeal/fileAppealPage";
+
 import DeptHeadDashboardPage from "./pages/deptHead/dashboard/deptHeadDashboardPage";
 import DeptHeadProfilePage from "./pages/deptHead/profile/deptHeadProfilePage";
 import DeptHeadRequestPage from "./pages/deptHead/request/deptHeadRequestPage";
+
 import AdminDashboardPage from "./pages/admin/dashboard/adminDashboardPage";
 import AdminOffensePage from "./pages/admin/offense/adminOffensePage";
 import AdminStudentPage from "./pages/admin/student/adminStudentPage";
+
 import AppLayout from "./components/layout/AppLayout";
 import DeptHeadLayout from "./components/layout/DeptHeadLayout";
 import AdminLayout from "./components/layout/AdminLayout";
-import ProtectedRoute from "./components/routing/ProtectedRoute";
+{/* import ProtectedRoute from "./components/routing/ProtectedRoute";*/}
 
 
 function App() {
@@ -22,18 +26,25 @@ function App() {
         <BrowserRouter>
             <Routes>
 
+                {/* Login */}
                 <Route
                     path="/login"
                     element={<LoginPage />}
                 />
 
-                <Route
-                    element={
-                        <ProtectedRoute>
-                            <AppLayout />
-                        </ProtectedRoute>
-                    }
+
+                {/* 
+                <Route 
+                    element={ 
+                        <ProtectedRoute> 
+                            <AppLayout /> 
+                        </ProtectedRoute> 
+                    } 
                 >
+                */}
+
+                {/* Student Routes */}
+                <Route element={<AppLayout />}>
 
                     <Route
                         path="/dashboard"
@@ -54,6 +65,7 @@ function App() {
                         path="/appeals"
                         element={<AppealPage />}
                     />
+
                     <Route
                         path="/appeals/file"
                         element={<FileAppealPage />}
@@ -61,13 +73,19 @@ function App() {
 
                 </Route>
 
-                <Route
-                    element={
-                        <ProtectedRoute>
-                            <DeptHeadLayout />
-                        </ProtectedRoute>
-                    }
+
+                {/* 
+                <Route 
+                    element={ 
+                        <ProtectedRoute> 
+                            <DeptHeadLayout /> 
+                        </ProtectedRoute> 
+                    } 
                 >
+                */}
+
+                {/* Department Head Routes */}
+                <Route element={<DeptHeadLayout />}>
 
                     <Route
                         path="/depthead/dashboard"
@@ -86,6 +104,8 @@ function App() {
 
                 </Route>
 
+
+                {/* Admin Routes */}
                 <Route element={<AdminLayout />}>
 
                     <Route
@@ -105,8 +125,17 @@ function App() {
 
                 </Route>
 
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route path="*" element={<Navigate to="/login" replace />} />
+
+                {/* Default Routes */}
+                <Route
+                    path="/"
+                    element={<Navigate to="/login" replace />}
+                />
+
+                <Route
+                    path="*"
+                    element={<Navigate to="/login" replace />}
+                />
 
             </Routes>
         </BrowserRouter>
