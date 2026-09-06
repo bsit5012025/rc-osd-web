@@ -10,11 +10,7 @@ import FileAppealPage from "./pages/student/appeal/fileAppealPage";
 import DeptHeadDashboardPage from "./pages/deptHead/dashboard/deptHeadDashboardPage";
 import DeptHeadProfilePage from "./pages/deptHead/profile/deptHeadProfilePage";
 import DeptHeadRequestPage from "./pages/deptHead/request/deptHeadRequestPage";
-
 import AdminDashboardPage from "./pages/admin/dashboard/adminDashboardPage";
-import AdminOffensePage from "./pages/admin/offense/adminOffensePage";
-import AdminStudentPage from "./pages/admin/student/adminStudentPage";
-
 import AppLayout from "./components/layout/AppLayout";
 import DeptHeadLayout from "./components/layout/DeptHeadLayout";
 import AdminLayout from "./components/layout/AdminLayout";
@@ -111,16 +107,6 @@ function App() {
                     <Route
                         path="/admin/dashboard"
                         element={<AdminDashboardPage />}
-                    />
-
-                    <Route
-                        path="/admin/offenses"
-                        element={<AdminOffensePage />}
-                    />
-
-                    <Route
-                        path="/admin/students"
-                        element={<AdminStudentPage />}
                     />
 
                 </Route>
