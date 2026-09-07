@@ -1,4 +1,5 @@
 import "./AppealCard.css";
+import "./OffenseCard.css";
 
 type AppealStatus = "Pending" | "Approved" | "Denied";
 
@@ -7,6 +8,7 @@ interface AppealCardProps {
     title: string;
     status: AppealStatus;
     dateSubmitted: string;
+    offenseType?: string;
     prefectName?: string;
     prefectInitials?: string;
     remarks?: string;
@@ -21,6 +23,7 @@ function AppealCard({
     title,
     status,
     dateSubmitted,
+    offenseType,
     prefectName,
     prefectInitials,
     remarks,
@@ -43,6 +46,12 @@ function AppealCard({
             </div>
 
             <h5 className="appeal-card-title">{title}</h5>
+
+            {offenseType && (
+                <span className={`level-badge ${offenseType.toLowerCase()} appeal-offense-type-badge`}>
+                    {offenseType}
+                </span>
+            )}
 
             {status === "Pending" && (
                 <div className="appeal-awaiting-box">

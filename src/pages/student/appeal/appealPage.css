@@ -1,7 +1,7 @@
 .appeal-page {
     width: 100%;
     overflow-x: hidden;
-    background: #f4f4f7;
+    background: var(--color-bg-muted, #f4f4f7);
 }
 
 .appeal-content {
@@ -16,7 +16,7 @@
 
 .appeal-page-subtitle {
     font-size: 0.9rem;
-    color: #8a8a94;
+    color: var(--color-text-muted, #8a8a94);
 }
 
 .appeal-stats-row {
@@ -29,11 +29,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(to right, #1b1b8f, #06062f);
-    border-radius: 14px;
+    width: 100%;
+    background: linear-gradient(to right, var(--color-navy-accent, #1b1b8f), var(--color-navy-deep, #06062f));
+    border: none;
+    border-radius: var(--radius-lg, 14px);
     padding: 20px 24px;
     color: #fff;
-    text-decoration: none;
+    text-align: left;
+    cursor: pointer;
 }
 
 .appeal-cta-left {
@@ -64,6 +67,48 @@
     opacity: 0.8;
 }
 
+.appeal-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.appeal-search {
+    flex: 1 1 220px;
+    max-width: 320px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    background: #fff;
+    border: 1px solid var(--color-border, #e2e2e8);
+    border-radius: var(--radius-pill, 20px);
+    padding: 0 14px;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.appeal-search:focus-within {
+    border-color: var(--color-navy-accent, #1b1b8f);
+    box-shadow: 0 0 0 3px rgba(27, 27, 143, 0.1);
+}
+
+.appeal-search i {
+    color: var(--color-text-faint, #a0a0aa);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.appeal-search input {
+    border: none;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    font-size: 0.85rem;
+    background: transparent;
+}
+
 .appeal-filters {
     display: flex;
     flex-wrap: wrap;
@@ -71,7 +116,7 @@
 }
 
 .appeal-filters .btn {
-    border-radius: 20px;
+    border-radius: var(--radius-pill, 20px);
     font-size: 0.85rem;
     font-weight: 600;
     padding: 9px 20px;
@@ -87,7 +132,7 @@
 .appeal-empty {
     grid-column: 1 / -1;
     text-align: center;
-    color: #a0a0aa;
+    color: var(--color-text-faint, #a0a0aa);
     font-size: 0.85rem;
     padding: 40px 8px;
 }
@@ -96,6 +141,55 @@
     .appeal-list {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+@media (min-width: 1200px) {
+    .appeal-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ===== Pagination (matches Offenses/Admin technique) ===== */
+
+.appeal-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-top: 24px;
+}
+
+.appeal-pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid var(--color-border, #e2e2e8);
+    border-radius: 8px;
+    padding: 9px 16px;
+    background: #ffffff;
+    color: var(--color-text-muted, #64748b);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.appeal-pagination-btn:hover:not(:disabled) {
+    background: var(--color-navy, #000064);
+    color: #ffffff;
+    border-color: var(--color-navy, #000064);
+}
+
+.appeal-pagination-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.appeal-pagination-info {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted, #64748b);
 }
 
 /* Mobile */
@@ -113,10 +207,50 @@
         font-size: 0.88rem;
     }
 
+    .appeal-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .appeal-search {
+        flex: none;
+        width: 100%;
+        max-width: none;
+        height: 34px;
+        padding: 0 12px;
+        gap: 6px;
+    }
+
+    .appeal-search i {
+        font-size: 0.78rem;
+    }
+
+    .appeal-search input {
+        font-size: 0.8rem;
+    }
+
     .appeal-filters .btn {
         flex: 1;
         min-width: 70px;
         font-size: 0.75rem;
         padding: 8px 10px;
+    }
+
+    .appeal-pagination {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .appeal-pagination-info {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        text-align: center;
+        padding-bottom: 5px;
+    }
+
+    .appeal-pagination-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
