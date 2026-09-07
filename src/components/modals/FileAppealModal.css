@@ -1,0 +1,219 @@
+.file-appeal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 6, 47, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 20px;
+}
+
+.file-appeal-modal {
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    background: #fff;
+    border-radius: var(--radius-lg, 14px);
+    box-shadow: var(--shadow-modal, 0 20px 60px rgba(0, 0, 0, 0.25));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.file-appeal-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--color-border, #e2e2e8);
+    flex-shrink: 0;
+}
+
+.file-appeal-modal-header h5 {
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-navy, #1a1a2e);
+}
+
+.file-appeal-close-btn {
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted, #8a8a94);
+    font-size: 1.1rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.file-appeal-form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+}
+
+.file-appeal-modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.file-appeal-section {
+    margin-bottom: 24px;
+}
+
+.file-appeal-section:last-child {
+    margin-bottom: 0;
+}
+
+.file-appeal-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-navy-accent, #090909);
+    margin-bottom: 10px;
+}
+
+.file-appeal-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--color-border, #e2e2e8);
+    flex-shrink: 0;
+}
+
+.file-appeal-cancel-btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-md, 12px);
+    border: 1px solid var(--color-border, #e2e2e8);
+    background: #fff;
+    color: var(--color-navy, #1a1a2e);
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+/* ===== Reused field styling (same look as the old fileAppealPage form) ===== */
+
+.new-appeal-section-label {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--color-navy, #1a1a2e);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.new-appeal-hint {
+    font-size: 0.78rem;
+    color: var(--color-text-faint, #a0a0aa);
+}
+
+.new-appeal-select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border, #e2e2e8);
+    border-radius: var(--radius-sm, 8px);
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.new-appeal-select:focus {
+    border-color: var(--color-navy, #1a1a2e);
+    box-shadow: 0 0 0 0.2rem rgba(26, 26, 46, 0.15);
+}
+
+.upload-box {
+    border: 1px dashed var(--color-border, #e2e2e8);
+    border-radius: var(--radius-md, 12px);
+    padding: 24px 20px;
+    text-align: center;
+    background: #faf9fc;
+}
+
+.upload-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm, 8px);
+    background: #ecebfc;
+    color: var(--color-navy-accent, #1b1b8f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 1rem;
+}
+
+.upload-text {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--color-navy, #1a1a2e);
+    margin-bottom: 4px;
+    word-break: break-word;
+}
+
+.upload-subtext {
+    font-size: 0.72rem;
+    color: var(--color-text-muted, #8a8a94);
+    margin-bottom: 14px;
+}
+
+.upload-browse-btn {
+    background: var(--color-navy, #000064);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-pill, 20px);
+    padding: 8px 22px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.upload-browse-btn:hover {
+    opacity: 0.7;
+}
+
+.submit-appeal-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--radius-md, 12px);
+    background: var(--color-navy, #000064);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.submit-appeal-btn:disabled {
+    background: #c9c8ec;
+    cursor: not-allowed;
+}
+
+.submit-appeal-btn:hover {
+    opacity: 0.7;
+}
+
+.ai-suggestion-card {
+    border: 1px solid var(--color-border, #e2e2e8);
+    border-radius: var(--radius-md, 12px);
+    padding: 16px;
+    background: #faf9fc;
+}
+
+.ai-suggestion-text {
+    font-size: 0.85rem;
+    color: var(--color-navy, #1a1a2e);
+    line-height: 1.5;
+}
+
+@media (max-width: 576px) {
+
+    .file-appeal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .file-appeal-modal {
+        max-width: 100%;
+        max-height: 92vh;
+        border-radius: var(--radius-lg, 14px) var(--radius-lg, 14px) 0 0;
+    }
+}

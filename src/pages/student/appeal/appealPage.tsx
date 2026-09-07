@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import StatCard from "../../../components/cards/StatCard";
 import AppealCard from "../../../components/cards/AppealCard";
+import FileAppealModal from "../../../components/modals/FileAppealModal";
 
 import { getStudentAppeals } from "../../../services/appealApi";
 import type { Appeal } from "../../../types/appeal";
@@ -10,6 +10,8 @@ import "./appealPage.css";
 
 type AppealStatus = "Pending" | "Approved" | "Denied";
 type FilterType = "All" | AppealStatus;
+
+const PAGE_SIZE = 6;
 
 const normalizeStatus = (status: string): AppealStatus => {
     switch (status?.toUpperCase()) {
@@ -30,35 +32,60 @@ function AppealPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [activeFilter, setActiveFilter] = useState<FilterType>("All");
+    const [search, setSearch] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [showFileModal, setShowFileModal] = useState(false);
+
+    const fetchAppeals = async () => {
+        try {
+            setLoading(true);
+            setError("");
+
+            if (!studentId) {
+                setError("No logged-in student.");
+                return;
+            }
+
+            const data = await getStudentAppeals(studentId);
+            setAppeals(data);
+        } catch (err) {
+            console.error("Failed to fetch appeals:", err);
+            setError("Failed to load appeals.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchAppeals = async () => {
-            try {
-                setLoading(true);
-                setError("");
-
-                if (!studentId) {
-                    setError("No logged-in student.");
-                    return;
-                }
-
-                const data = await getStudentAppeals(studentId);
-                setAppeals(data);
-            } catch (err) {
-                console.error("Failed to fetch appeals:", err);
-                setError("Failed to load appeals.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchAppeals();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [studentId]);
 
     const filters: FilterType[] = ["All", "Pending", "Approved", "Denied"];
 
-    const filteredAppeals = appeals.filter((appeal) =>
-        activeFilter === "All" ? true : normalizeStatus(appeal.status) === activeFilter
+    const filteredAppeals = useMemo(() => {
+        let result = appeals.filter((appeal) =>
+            activeFilter === "All" ? true : normalizeStatus(appeal.status) === activeFilter
+        );
+
+        if (search.trim()) {
+            const q = search.trim().toLowerCase();
+            result = result.filter((appeal) =>
+                (appeal.record?.offense?.offense ?? "").toLowerCase().includes(q)
+            );
+        }
+
+        return result;
+    }, [appeals, activeFilter, search]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [activeFilter, search]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredAppeals.length / PAGE_SIZE));
+    const pagedAppeals = filteredAppeals.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE
     );
 
     const stats = [
@@ -79,6 +106,11 @@ function AppealPage() {
             valueColor: "#d9534f",
         },
     ];
+
+    const handleAppealFiled = () => {
+        setShowFileModal(false);
+        fetchAppeals();
+    };
 
     return (
         <div className="appeal-page">
@@ -107,7 +139,11 @@ function AppealPage() {
                         ))}
                     </div>
 
-                    <Link to="/appeals/file" className="appeal-cta mb-4">
+                    <button
+                        type="button"
+                        className="appeal-cta mb-4"
+                        onClick={() => setShowFileModal(true)}
+                    >
                         <div className="appeal-cta-left">
                             <div className="appeal-cta-icon">
                                 <i className="bi bi-plus-lg"></i>
@@ -118,22 +154,36 @@ function AppealPage() {
                             </div>
                         </div>
                         <i className="bi bi-chevron-right"></i>
-                    </Link>
+                    </button>
 
-                    <div className="appeal-filters mt-4 mb-4">
-                        {filters.map((filter) => (
-                            <button
-                                key={filter}
-                                className={`btn fw-bold ${
-                                    activeFilter === filter
-                                        ? "btn-primary"
-                                        : "border border-black"
-                                }`}
-                                onClick={() => setActiveFilter(filter)}
-                            >
-                                {filter}
-                            </button>
-                        ))}
+                    <div className="appeal-toolbar mt-4 mb-4">
+
+                        <div className="appeal-search">
+                            <i className="bi bi-search"></i>
+                            <input
+                                type="text"
+                                placeholder="Search by offense..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="appeal-filters">
+                            {filters.map((filter) => (
+                                <button
+                                    key={filter}
+                                    className={`btn fw-bold ${
+                                        activeFilter === filter
+                                            ? "btn-primary"
+                                            : "border border-black"
+                                    }`}
+                                    onClick={() => setActiveFilter(filter)}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
+                        </div>
+
                     </div>
 
                     <div className="appeal-list">
@@ -144,11 +194,12 @@ function AppealPage() {
                             <div className="appeal-empty">No appeals to show.</div>
                         )}
 
-                        {!loading && filteredAppeals.map((appeal) => (
+                        {!loading && pagedAppeals.map((appeal) => (
                             <AppealCard
                                 key={appeal.appealId}
                                 appealId={`AP${String(appeal.appealId).padStart(4, "0")}`}
                                 title={appeal.record?.offense?.offense ?? "Offense"}
+                                offenseType={appeal.record?.offense?.type}
                                 status={normalizeStatus(appeal.status)}
                                 dateSubmitted={appeal.dateFiled}
                                 remarks={appeal.remarks ?? undefined}
@@ -157,9 +208,45 @@ function AppealPage() {
 
                     </div>
 
+                    {!loading && filteredAppeals.length > 0 && (
+                        <div className="appeal-pagination">
+
+                            <button
+                                type="button"
+                                className="appeal-pagination-btn"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage((prev) => prev - 1)}
+                            >
+                                <i className="bi bi-chevron-left"></i>
+                                <span>Previous</span>
+                            </button>
+
+                            <span className="appeal-pagination-info">
+                                Page {currentPage} of {totalPages}
+                            </span>
+
+                            <button
+                                type="button"
+                                className="appeal-pagination-btn"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage((prev) => prev + 1)}
+                            >
+                                <span>Next</span>
+                                <i className="bi bi-chevron-right"></i>
+                            </button>
+
+                        </div>
+                    )}
+
                 </main>
 
             </div>
+
+            <FileAppealModal
+                show={showFileModal}
+                onClose={() => setShowFileModal(false)}
+                onFiled={handleAppealFiled}
+            />
 
         </div>
     );
