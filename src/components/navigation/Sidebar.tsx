@@ -24,11 +24,6 @@ const defaultStudentNavItems: SidebarNavItem[] = [
         path: "/offenses",
     },
     {
-        name: "Dashboard",
-        icon: "bi-grid-fill",
-        path: "/dashboard",
-    },
-    {
         name: "Appeal",
         icon: "bi-person-badge-fill",
         path: "/appeals",
@@ -39,8 +34,6 @@ const Sidebar = ({ navItems = defaultStudentNavItems }: SidebarProps) => {
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(true);
 
-    // Reflect the collapsed state on <body> so page-level CSS
-    // (content spacing) can react to it without prop drilling.
     useEffect(() => {
         document.body.classList.toggle("sidebar-collapsed", collapsed);
 

@@ -3,9 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/student/login/loginPage";
 import OffensesPage from "./pages/student/offense/OffensePage";
 import AppealPage from "./pages/student/appeal/appealPage";
-import DashboardPage from "./pages/student/dashboard/dashboardPage";
 import ProfilePage from "./pages/student/profile/profilePage";
-import FileAppealPage from "./pages/student/appeal/fileAppealPage";
 
 import DeptHeadDashboardPage from "./pages/deptHead/dashboard/deptHeadDashboardPage";
 import DeptHeadProfilePage from "./pages/deptHead/profile/deptHeadProfilePage";
@@ -43,11 +41,6 @@ function App() {
                 <Route element={<AppLayout />}>
 
                     <Route
-                        path="/dashboard"
-                        element={<DashboardPage />}
-                    />
-
-                    <Route
                         path="/profile"
                         element={<ProfilePage />}
                     />
@@ -60,11 +53,6 @@ function App() {
                     <Route
                         path="/appeals"
                         element={<AppealPage />}
-                    />
-
-                    <Route
-                        path="/appeals/file"
-                        element={<FileAppealPage />}
                     />
 
                 </Route>

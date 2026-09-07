@@ -1,0 +1,26 @@
+:root {
+    --color-navy: #1a1a2e;
+    --color-navy-deep: #06062f;
+    --color-navy-accent: #1b1b8f;
+    --color-white: #ffffff;
+    --color-bg-muted: #f4f4f7;
+    --color-border: #e2e2e8;
+    --color-text-muted: #8a8a94;
+    --color-text-faint: #a0a0aa;
+
+    --status-pending-bg: #fdf1e2;
+    --status-pending-text: #e6a23c;
+    --status-approved-bg: #e5f6ec;
+    --status-approved-text: #3cb371;
+    --status-denied-bg: #fcebea;
+    --status-denied-text: #d9534f;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 14px;
+    --radius-pill: 20px;
+
+    --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.08);
+    --shadow-card-strong: 0 4px 14px rgba(0, 0, 0, 0.12);
+    --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
