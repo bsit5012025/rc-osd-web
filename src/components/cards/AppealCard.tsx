@@ -18,6 +18,12 @@ interface AppealCardProps {
     awaitingText?: string;
 }
 
+const STATUS_ACCENTS: Record<string, string> = {
+    pending: "#E1AD01",
+    approved: "#1f8a3d",
+    denied: "#c62828",
+};
+
 function AppealCard({
     appealId,
     title,
@@ -34,9 +40,13 @@ function AppealCard({
 }: AppealCardProps) {
 
     const statusClass = status.toLowerCase();
+    const accentColor = STATUS_ACCENTS[statusClass] ?? "#94a3b8";
 
     return (
-        <div className="appeal-card mb-3">
+        <div
+            className="appeal-card mb-3"
+            style={{ ["--appeal-accent" as string]: accentColor } as React.CSSProperties}
+        >
 
             <div className="appeal-card-header">
                 <span className="appeal-card-id">{idLabel}: {appealId}</span>

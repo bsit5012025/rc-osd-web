@@ -161,89 +161,112 @@ function AppealPage() {
                         <i className="bi bi-chevron-right"></i>
                     </button>
 
-                    <div className="appeal-toolbar mt-4 mb-4">
+                    <div className="appeal-panel">
 
-                        <div className="appeal-status-tabs">
-                            {filters.map((filter) => (
+                        <div className="appeal-toolbar">
+
+                            <div className="appeal-status-tabs">
+                                {filters.map((filter) => (
+                                    <button
+                                        type="button"
+                                        key={filter.key}
+                                        className={
+                                            activeFilter === filter.key
+                                                ? `appeal-status-tab active status-${filter.key.toLowerCase()}`
+                                                : "appeal-status-tab"
+                                        }
+                                        onClick={() => setActiveFilter(filter.key)}
+                                    >
+                                        <i className={`bi ${filter.icon}`}></i>
+                                        <span>{filter.key}</span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="appeal-toolbar-row">
+
+                                <div className="appeal-search">
+                                    <i className="bi bi-search"></i>
+                                    <input
+                                        type="text"
+                                        placeholder="Search by offense..."
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                    />
+                                </div>
+
+                                {!loading && (
+                                    <span className="appeal-toolbar-count">
+                                        {filteredAppeals.length} {filteredAppeals.length === 1 ? "appeal" : "appeals"}
+                                    </span>
+                                )}
+
+                            </div>
+
+                        </div>
+
+                        <div className="appeal-list">
+
+                            {loading && (
+                                <div className="appeal-empty">
+                                    <i className="bi bi-arrow-repeat appeal-spinner"></i>
+                                    <strong>Loading appeals…</strong>
+                                </div>
+                            )}
+
+                            {!loading && filteredAppeals.length === 0 && (
+                                <div className="appeal-empty">
+                                    <i className="bi bi-inbox"></i>
+                                    <strong>No appeals to show</strong>
+                                    <span>Try a different filter or search term.</span>
+                                </div>
+                            )}
+
+                            {!loading && pagedAppeals.map((appeal) => (
+                                <AppealCard
+                                    key={appeal.appealId}
+                                    appealId={`AP${String(appeal.appealId).padStart(4, "0")}`}
+                                    title={appeal.record?.offense?.offense ?? "Offense"}
+                                    offenseType={appeal.record?.offense?.type}
+                                    status={normalizeStatus(appeal.status)}
+                                    dateSubmitted={appeal.dateFiled}
+                                    remarks={appeal.remarks ?? undefined}
+                                />
+                            ))}
+
+                        </div>
+
+                        {!loading && filteredAppeals.length > 0 && (
+                            <div className="appeal-pagination">
+
                                 <button
                                     type="button"
-                                    key={filter.key}
-                                    className={
-                                        activeFilter === filter.key
-                                            ? `appeal-status-tab active status-${filter.key.toLowerCase()}`
-                                            : "appeal-status-tab"
-                                    }
-                                    onClick={() => setActiveFilter(filter.key)}
+                                    className="appeal-pagination-btn"
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage((prev) => prev - 1)}
                                 >
-                                    <i className={`bi ${filter.icon}`}></i>
-                                    <span>{filter.key}</span>
+                                    <i className="bi bi-chevron-left"></i>
+                                    <span>Previous</span>
                                 </button>
-                            ))}
-                        </div>
 
-                        <div className="appeal-search">
-                            <i className="bi bi-search"></i>
-                            <input
-                                type="text"
-                                placeholder="Search by offense..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
-                        </div>
+                                <span className="appeal-pagination-info">
+                                    Page {currentPage} of {totalPages}
+                                </span>
 
-                    </div>
+                                <button
+                                    type="button"
+                                    className="appeal-pagination-btn"
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                                >
+                                    <span>Next</span>
+                                    <i className="bi bi-chevron-right"></i>
+                                </button>
 
-                    <div className="appeal-list">
-
-                        {loading && <div className="appeal-empty">Loading appeals...</div>}
-
-                        {!loading && filteredAppeals.length === 0 && (
-                            <div className="appeal-empty">No appeals to show.</div>
+                            </div>
                         )}
 
-                        {!loading && pagedAppeals.map((appeal) => (
-                            <AppealCard
-                                key={appeal.appealId}
-                                appealId={`AP${String(appeal.appealId).padStart(4, "0")}`}
-                                title={appeal.record?.offense?.offense ?? "Offense"}
-                                offenseType={appeal.record?.offense?.type}
-                                status={normalizeStatus(appeal.status)}
-                                dateSubmitted={appeal.dateFiled}
-                                remarks={appeal.remarks ?? undefined}
-                            />
-                        ))}
-
                     </div>
-
-                    {!loading && filteredAppeals.length > 0 && (
-                        <div className="appeal-pagination">
-
-                            <button
-                                type="button"
-                                className="appeal-pagination-btn"
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage((prev) => prev - 1)}
-                            >
-                                <i className="bi bi-chevron-left"></i>
-                                <span>Previous</span>
-                            </button>
-
-                            <span className="appeal-pagination-info">
-                                Page {currentPage} of {totalPages}
-                            </span>
-
-                            <button
-                                type="button"
-                                className="appeal-pagination-btn"
-                                disabled={currentPage === totalPages}
-                                onClick={() => setCurrentPage((prev) => prev + 1)}
-                            >
-                                <span>Next</span>
-                                <i className="bi bi-chevron-right"></i>
-                            </button>
-
-                        </div>
-                    )}
 
                 </main>
 

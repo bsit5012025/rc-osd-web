@@ -20,9 +20,17 @@
 }
 
 .appeal-stats-row {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    align-items: stretch;
     gap: 16px;
+}
+
+@media (max-width: 576px) {
+    .appeal-stats-row {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
 }
 
 .appeal-cta {
@@ -37,6 +45,13 @@
     color: #fff;
     text-align: left;
     cursor: pointer;
+    box-shadow: 0 4px 16px rgba(6, 6, 47, 0.18);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.appeal-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(6, 6, 47, 0.26);
 }
 
 .appeal-cta-left {
@@ -67,13 +82,38 @@
     opacity: 0.8;
 }
 
+/* ===== Panel wrapping the list ===== */
+
+.appeal-panel {
+    background: #fff;
+    border-radius: var(--radius-lg, 14px);
+    padding: 26px 28px;
+    box-shadow: 0 4px 18px rgba(20, 20, 43, 0.06);
+}
+
 .appeal-toolbar {
     display: flex;
     flex-direction: column;
     gap: 14px;
     align-items: stretch;
-    padding-bottom: 14px;
-    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 18px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.appeal-toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.appeal-toolbar-count {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text-muted, #8a8a94);
+    white-space: nowrap;
 }
 
 .appeal-search {
@@ -170,10 +210,40 @@
 
 .appeal-empty {
     grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 64px 20px;
     text-align: center;
     color: var(--color-text-faint, #a0a0aa);
-    font-size: 0.85rem;
-    padding: 40px 8px;
+}
+
+.appeal-empty i {
+    font-size: 2rem;
+    color: #c7c7d1;
+    margin-bottom: 6px;
+}
+
+.appeal-empty strong {
+    font-size: 0.95rem;
+    color: #55555f;
+    font-weight: 600;
+}
+
+.appeal-empty span {
+    font-size: 0.82rem;
+}
+
+.appeal-spinner {
+    animation: appeal-spin 0.9s linear infinite;
+}
+
+@keyframes appeal-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @media (min-width: 768px) {
@@ -245,9 +315,23 @@
         font-size: 0.88rem;
     }
 
+    .appeal-panel {
+        padding: 18px 16px;
+        border-radius: 12px;
+    }
+
     .appeal-toolbar {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .appeal-toolbar-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .appeal-toolbar-count {
+        order: -1;
     }
 
     .appeal-search {
