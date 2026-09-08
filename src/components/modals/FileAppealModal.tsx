@@ -205,7 +205,7 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                             <div className="file-appeal-section">
                                 <div className="file-appeal-section-title">1. Select Offense</div>
                                 <label className="new-appeal-section-label" htmlFor="offenseSelect">
-                                    Select Offense to Appeal
+                                    Select Offense to Appeal <span className="required-asterisk">*</span>
                                 </label>
                                 <select
                                     id="offenseSelect"
@@ -249,7 +249,9 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                             </div>
 
                             <div className="file-appeal-section">
-                                <div className="file-appeal-section-title">2. Attach Appeal Letter</div>
+                                <div className="file-appeal-section-title">
+                                    2. Attach Appeal Letter <span className="required-asterisk">*</span>
+                                </div>
                                 <p className="new-appeal-hint mb-2">
                                     Attach a scanned/photographed copy of your handwritten letter, or upload a PDF/DOCX directly.
                                 </p>
@@ -278,7 +280,9 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                             </div>
 
                             <div className="file-appeal-section">
-                                <div className="file-appeal-section-title">3. Reason for Appeal</div>
+                                <div className="file-appeal-section-title">
+                                    3. Reason for Appeal <span className="required-asterisk">*</span>
+                                </div>
                                 <p className="new-appeal-hint mb-2">
                                     Explain why you believe this offense should be reviewed.
                                 </p>
