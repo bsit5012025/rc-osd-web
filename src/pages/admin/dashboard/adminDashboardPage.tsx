@@ -1,21 +1,27 @@
 import TopBar from "../../../components/navigation/TopBar";
 import UserGreeting from "../../../components/navigation/UserGreeting";
 
-import {useEffect, useMemo, useState, type FormEvent, } from "react";
-import { getAllStudents, createStudent, updateStudent, } from "../../../services/studentApi";
-import type { Student, StudentInput, } from "../../../services/studentApi";
-import { getOffenses, createOffense, updateOffense,} from "../../../services/offenseApi";
-import type { OffenseInput, } from "../../../services/offenseApi";
-import type { Offense } from "../../../types/offense";
+import {useEffect,useMemo,useState,type FormEvent,} from "react";
+import {getAllStudents,createStudent,updateStudent,} from "../../../services/studentApi";
+import type {Student,StudentInput,} from "../../../services/studentApi";
+import {getOffenses,createOffense,updateOffense,} from "../../../services/offenseApi";
+import type {OffenseInput,} from "../../../services/offenseApi";
+import type {Offense} from "../../../types/offense";
 import "./adminDashboardPage.css";
 
 type ActiveTable = "students" | "offenses";
 
 const ITEMS_PER_PAGE = 8;
+
 const departments = [
     "JHS",
     "SHS",
     "COLLEGE",
+];
+
+const studentTypes = [
+    "Intern",
+    "Extern",
 ];
 
 const offenseTypesList = [
@@ -24,84 +30,53 @@ const offenseTypesList = [
 ];
 
 const emptyStudentForm: StudentInput = {
-    studentId: "",
-    address: "",
-    department: "",
-    studentType: "",
-    contactNumber: "",
-    person: {
-        firstName: "",
-        middleName: "",
-        lastName: "",
-        dateOfBirth: null,
+    studentId:"",
+    address:"",
+    department:"",
+    studentType:"",
+    contactNumber:"",
+    person:{
+        firstName:"",
+        middleName:"",
+        lastName:"",
+        dateOfBirth:null,
     },
 };
 
 const emptyOffenseForm: OffenseInput = {
-    offense: "",
-    type: "",
-    description: "",
+    offense:"",
+    type:"",
+    description:"",
 };
-
 
 function AdminDashboardPage() {
 
     const username = localStorage.getItem("username") || "";
 
-    /*
-     * DATA OF STUDENT AND OFFENSE
-     */
+    const [students,setStudents] = useState<Student[]>([]);
+    const [offenses,setOffenses] = useState<Offense[]>([]);
+    const [loading,setLoading] = useState(true);
+    const [error,setError] = useState("");
 
-    const [students, setStudents] = useState<Student[]>([]);
-    const [offenses, setOffenses] = useState<Offense[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [activeTable,setActiveTable] = useState<ActiveTable>("students");
+    const [currentPage,setCurrentPage] = useState(1);
 
-    /*
-    *   Initialize active table.
-    */
+    const [studentSearch,setStudentSearch] = useState("");
+    const [departmentFilter,setDepartmentFilter] = useState("");
+    const [offenseSearch,setOffenseSearch] = useState("");
+    const [offenseTypeFilter,setOffenseTypeFilter] = useState("");
 
-    const [activeTable, setActiveTable] = useState<ActiveTable>("students");
+    const [showStudentModal,setShowStudentModal] = useState(false);
+    const [editingStudentId,setEditingStudentId] = useState<string | null>(null);
+    const [studentForm,setStudentForm] = useState<StudentInput>(emptyStudentForm);
+    const [studentFormError,setStudentFormError] = useState("");
+    const [savingStudent,setSavingStudent] = useState(false);
 
-    /*
-    *   Initialize page for table
-    */
-
-    const [currentPage, setCurrentPage] = useState(1);
-
-    /*
-     * FILTER STUDENT AND OFFENSE
-     */
-
-    const [studentSearch, setStudentSearch] = useState("");
-    const [ departmentFilter, setDepartmentFilter, ] = useState("");
-    const [offenseSearch, setOffenseSearch] = useState("");
-    const [ offenseTypeFilter, setOffenseTypeFilter, ] = useState("");
-
-    /*
-    * STUDENT MODAL
-    */
-
-    const [ showStudentModal, setShowStudentModal, ] = useState(false);
-    const [ editingStudentId, setEditingStudentId, ] = useState<string | null>(null);
-    const [ studentForm, setStudentForm, ] = useState<StudentInput>(emptyStudentForm);
-    const [ studentFormError, setStudentFormError, ] = useState("");
-    const [ savingStudent, setSavingStudent, ] = useState(false);
-
-    /*
-    * OFFENSE MODAL
-    */
-
-    const [ showOffenseModal, setShowOffenseModal, ] = useState(false);
-    const [ editingOffenseId, setEditingOffenseId, ] = useState<number | null>(null);
-    const [ offenseForm, setOffenseForm, ] = useState<OffenseInput>( emptyOffenseForm);
-    const [ offenseFormError, setOffenseFormError, ] = useState("");
-    const [ savingOffense, setSavingOffense, ] = useState(false);
-
-
-    /*
-    *   Fetch data
-    */
+    const [showOffenseModal,setShowOffenseModal] = useState(false);
+    const [editingOffenseId,setEditingOffenseId] = useState<number | null>(null);
+    const [offenseForm,setOffenseForm] = useState<OffenseInput>(emptyOffenseForm);
+    const [offenseFormError,setOffenseFormError] = useState("");
+    const [savingOffense,setSavingOffense] = useState(false);
 
     const fetchDashboardData = async () => {
 
@@ -110,14 +85,17 @@ function AdminDashboardPage() {
             setLoading(true);
             setError("");
 
-            const [studentData, offenseData,] = await Promise.all([getAllStudents(), getOffenses(),]);
+            const [studentData,offenseData] = await Promise.all([
+                getAllStudents(),
+                getOffenses(),
+            ]);
 
             setStudents(studentData);
             setOffenses(offenseData);
 
         } catch (err) {
 
-            console.error("Failed to fetch dashboard data:", err);
+            console.error("Failed to fetch dashboard data:",err);
             setError("Failed to load dashboard data.");
 
         } finally {
@@ -132,65 +110,95 @@ function AdminDashboardPage() {
 
         fetchDashboardData();
 
-    }, []);
+    },[]);
 
-    /*
-    *   For filtering of students.
-    */
     const filteredStudents = useMemo(() => {
 
         return students.filter((student) => {
 
             const search = studentSearch.trim().toLowerCase();
-            const fullName = [student.person?.firstName, student.person?.middleName, student.person?.lastName,].filter(Boolean).join(" ").toLowerCase();
-            const matchesSearch = !search || student.studentId?.toLowerCase().includes(search) || fullName.includes(search);
-            const matchesDepartment = !departmentFilter || student.department === departmentFilter;
 
-            return (matchesSearch &&matchesDepartment);
+            const fullName = [
+                student.person?.firstName,
+                student.person?.middleName,
+                student.person?.lastName,
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase();
+
+            const matchesSearch =
+                !search ||
+                student.studentId?.toLowerCase().includes(search) ||
+                fullName.includes(search);
+
+            const matchesDepartment =
+                !departmentFilter ||
+                student.department === departmentFilter;
+
+            return matchesSearch && matchesDepartment;
 
         });
 
-    }, [students, studentSearch, departmentFilter,]);
+    },[students,studentSearch,departmentFilter]);
 
-    /*
-     *  For filtering of offense.
-     */
     const filteredOffenses = useMemo(() => {
 
         return offenses.filter((offense) => {
 
             const search = offenseSearch.trim().toLowerCase();
-            const matchesSearch = !search || offense.offense?.toLowerCase().includes(search) || offense.description?.toLowerCase().includes(search);
-            const matchesType = !offenseTypeFilter || offense.type === offenseTypeFilter;
 
-            return ( matchesSearch && matchesType );
+            const matchesSearch =
+                !search ||
+                offense.offense?.toLowerCase().includes(search) ||
+                offense.description?.toLowerCase().includes(search);
+
+            const matchesType =
+                !offenseTypeFilter ||
+                offense.type === offenseTypeFilter;
+
+            return matchesSearch && matchesType;
 
         });
 
-    }, [offenses, offenseSearch, offenseTypeFilter, ]);
+    },[offenses,offenseSearch,offenseTypeFilter]);
 
+    const totalItems =
+        activeTable === "students"
+            ? filteredStudents.length
+            : filteredOffenses.length;
 
-    /*
-     *  For pages 
-     */
-    const totalItems = activeTable === "students" ? filteredStudents.length : filteredOffenses.length;
-    const totalPages = Math.max( 1, Math.ceil(totalItems/ITEMS_PER_PAGE));
-    const paginatedStudents = filteredStudents.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-    const paginatedOffenses = filteredOffenses.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+    const totalPages = Math.max(
+        1,
+        Math.ceil(totalItems / ITEMS_PER_PAGE)
+    );
 
+    const paginatedStudents = filteredStudents.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
-    /*
-     * Change table
-     */
-    const changeTable = (table: ActiveTable) => {setActiveTable(table);setCurrentPage(1);};
+    const paginatedOffenses = filteredOffenses.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
+    const changeTable = (table: ActiveTable) => {
 
-    /*
-     * Student Modal
-     */
+        setActiveTable(table);
+        setCurrentPage(1);
+
+    };
+
     const openAddStudentModal = () => {
+
         setEditingStudentId(null);
-        setStudentForm(emptyStudentForm);
+        setStudentForm({
+            ...emptyStudentForm,
+            person:{
+                ...emptyStudentForm.person,
+            },
+        });
         setStudentFormError("");
         setShowStudentModal(true);
 
@@ -199,20 +207,19 @@ function AdminDashboardPage() {
     const openEditStudentModal = (student: Student) => {
 
         setEditingStudentId(student.studentId);
-        setStudentForm({
 
+        setStudentForm({
             studentId:student.studentId,
             address:student.address || "",
             department:student.department || "",
             studentType:student.studentType || "",
             contactNumber:student.contactNumber || "",
-            person: {
+            person:{
                 firstName:student.person?.firstName || "",
                 middleName:student.person?.middleName || "",
                 lastName:student.person?.lastName || "",
                 dateOfBirth:student.person?.dateOfBirth || null,
             },
-
         });
 
         setStudentFormError("");
@@ -220,32 +227,97 @@ function AdminDashboardPage() {
 
     };
 
-
     const closeStudentModal = () => {
 
         if (!savingStudent) {
-
             setShowStudentModal(false);
-
         }
 
     };
 
+    const handleStudentSubmit = async (
+        e: FormEvent<HTMLFormElement>
+    ) => {
 
-    /*
-     *  Save student
-     */
+        e.preventDefault();
 
-    const handleStudentSubmit = async (e: FormEvent<HTMLFormElement>) => { e.preventDefault();
+        setStudentFormError("");
+
+        if (!studentForm.studentId.trim()) {
+            setStudentFormError("Student ID is required.");
+            return;
+        }
+
+        if (!studentForm.person.firstName.trim()) {
+            setStudentFormError("First Name is required.");
+            return;
+        }
+
+        if (!studentForm.person.middleName.trim()) {
+            setStudentFormError("Middle Name is required.");
+            return;
+        }
+
+        if (!studentForm.person.lastName.trim()) {
+            setStudentFormError("Last Name is required.");
+            return;
+        }
+
+        if (!studentForm.person.dateOfBirth) {
+            setStudentFormError("Date of Birth is required.");
+            return;
+        }
+
+        if (!studentForm.department.trim()) {
+            setStudentFormError("Department is required.");
+            return;
+        }
+
+        if (!studentForm.studentType.trim()) {
+            setStudentFormError("Student Type is required.");
+            return;
+        }
+
+        if (!studentForm.contactNumber.trim()) {
+            setStudentFormError("Contact Number is required.");
+            return;
+        }
+
+        if (!studentForm.address.trim()) {
+            setStudentFormError("Address is required.");
+            return;
+        }
+
+        if (editingStudentId === null) {
+
+            const duplicateStudent = students.some(
+                (student) =>
+                    student.studentId?.trim().toLowerCase() ===
+                    studentForm.studentId.trim().toLowerCase()
+            );
+
+            if (duplicateStudent) {
+
+                setStudentFormError(
+                    `Student ID "${studentForm.studentId}" already exists. Please use a different Student ID.`
+                );
+
+                return;
+
+            }
+
+        }
 
         try {
 
             setSavingStudent(true);
-            setStudentFormError("");
 
             if (editingStudentId !== null) {
 
-                await updateStudent(editingStudentId,studentForm);
+                await updateStudent(
+                    editingStudentId,
+                    studentForm
+                );
 
             } else {
 
@@ -254,12 +326,40 @@ function AdminDashboardPage() {
             }
 
             setShowStudentModal(false);
+
             await fetchDashboardData();
 
-        } catch (err) {
+        } catch (err: any) {
 
             console.error("Failed to save student:",err);
-            setStudentFormError("Failed to save student.");
+
+            const message =
+                err?.response?.data?.message ||
+                err?.response?.data ||
+                "";
+
+            if (
+                typeof message === "string" &&
+                message.toLowerCase().includes("already exists")
+            ) {
+
+                setStudentFormError(
+                    `Student ID "${studentForm.studentId}" already exists. Please use a different Student ID.`
+                );
+
+            } else if (err?.response?.status === 409) {
+
+                setStudentFormError(
+                    `Student ID "${studentForm.studentId}" already exists. Please use a different Student ID.`
+                );
+
+            } else {
+
+                setStudentFormError(
+                    "Failed to save student. Please try again."
+                );
+
+            }
 
         } finally {
 
@@ -269,27 +369,27 @@ function AdminDashboardPage() {
 
     };
 
-
-    /**
-     * Offense Modal
-     */
     const openAddOffenseModal = () => {
 
         setEditingOffenseId(null);
-        setOffenseForm({offense: "", type: "", description: "",});
+        setOffenseForm({
+            offense:"",
+            type:"",
+            description:"",
+        });
         setOffenseFormError("");
         setShowOffenseModal(true);
 
     };
 
-    const openEditOffenseModal = (offense: Offense) => {setEditingOffenseId(offense.offenseId);
+    const openEditOffenseModal = (offense: Offense) => {
+
+        setEditingOffenseId(offense.offenseId);
 
         setOffenseForm({
-
             offense:offense.offense || "",
             type:offense.type || "",
             description:offense.description || "",
-
         });
 
         setOffenseFormError("");
@@ -297,57 +397,69 @@ function AdminDashboardPage() {
 
     };
 
-
     const closeOffenseModal = () => {
 
         if (!savingOffense) {
-
             setShowOffenseModal(false);
-
         }
 
     };
 
-
-    /*
-     * Save Offense
-     */
-
-    const handleOffenseSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    const handleOffenseSubmit = async (
+        e: FormEvent<HTMLFormElement>
+    ) => {
 
         e.preventDefault();
 
-        if (!offenseForm.offense.trim()) {
+        setOffenseFormError("");
 
+        if (!offenseForm.offense.trim()) {
             setOffenseFormError("Offense is required.");
             return;
-
         }
 
         if (!offenseForm.type.trim()) {
-
             setOffenseFormError("Please select an offense type.");
             return;
-
         }
 
         if (!offenseForm.description.trim()) {
-
             setOffenseFormError("Description is required.");
             return;
+        }
+
+        if (editingOffenseId === null) {
+
+            const duplicateOffense = offenses.some(
+                (offense) =>
+                    offense.offense?.trim().toLowerCase() ===
+                        offenseForm.offense.trim().toLowerCase() &&
+                    offense.type?.trim().toLowerCase() ===
+                        offenseForm.type.trim().toLowerCase()
+            );
+
+            if (duplicateOffense) {
+
+                setOffenseFormError(
+                    `The offense "${offenseForm.offense}" with type "${offenseForm.type}" already exists. Please enter a different offense.`
+                );
+
+                return;
+
+            }
 
         }
 
         try {
 
             setSavingOffense(true);
-            setOffenseFormError("");
-
-            console.log("Saving offense:", offenseForm);
 
             if (editingOffenseId !== null) {
 
-                await updateOffense(editingOffenseId, offenseForm);
+                await updateOffense(
+                    editingOffenseId,
+                    offenseForm
+                );
 
             } else {
 
@@ -356,12 +468,40 @@ function AdminDashboardPage() {
             }
 
             setShowOffenseModal(false);
+
             await fetchDashboardData();
 
-        } catch (err) {
+        } catch (err: any) {
 
-            console.error("Failed to save offense:", err);
-            setOffenseFormError("Failed to save offense.");
+            console.error("Failed to save offense:",err);
+
+            const message =
+                err?.response?.data?.message ||
+                err?.response?.data ||
+                "";
+
+            if (
+                typeof message === "string" &&
+                message.toLowerCase().includes("already exists")
+            ) {
+
+                setOffenseFormError(
+                    `The offense "${offenseForm.offense}" already exists. Please enter a different offense.`
+                );
+
+            } else if (err?.response?.status === 409) {
+
+                setOffenseFormError(
+                    `The offense "${offenseForm.offense}" already exists. Please enter a different offense.`
+                );
+
+            } else {
+
+                setOffenseFormError(
+                    "Failed to save offense. Please try again."
+                );
+
+            }
 
         } finally {
 
@@ -379,45 +519,39 @@ function AdminDashboardPage() {
 
                 <TopBar>
 
-                    <UserGreeting name="Administrator"
-
+                    <UserGreeting
+                        name="Administrator"
                         infoItems={[
                             {
-                                label: "Username",
-                                value: username,
+                                label:"Username",
+                                value:username,
                             },
-                        ]}/>
+                        ]}
+                    />
 
                 </TopBar>
 
                 <main className="admin-dashboard-content">
 
-
                     {error && (
-
                         <div className="alert alert-danger mt-3">
-
                             {error}
-
                         </div>
-
                     )}
-
 
                     <section className="dashboard-management-section">
 
                         <div className="dashboard-table-tabs">
 
-                            <button type="button"
-
+                            <button
+                                type="button"
                                 className={
-                                    activeTable === "students" ? "dashboard-tab active" : "dashboard-tab"
+                                    activeTable === "students"
+                                        ? "dashboard-tab active"
+                                        : "dashboard-tab"
                                 }
-
                                 onClick={() =>
-                                    changeTable(
-                                        "students"
-                                    )
+                                    changeTable("students")
                                 }
                             >
 
@@ -429,17 +563,15 @@ function AdminDashboardPage() {
 
                             </button>
 
-
-                            <button type="button"
-
+                            <button
+                                type="button"
                                 className={
-                                    activeTable === "offenses" ? "dashboard-tab active" : "dashboard-tab"
+                                    activeTable === "offenses"
+                                        ? "dashboard-tab active"
+                                        : "dashboard-tab"
                                 }
-
                                 onClick={() =>
-                                    changeTable(
-                                        "offenses"
-                                    )
+                                    changeTable("offenses")
                                 }
                             >
 
@@ -450,7 +582,6 @@ function AdminDashboardPage() {
                                 </span>
 
                             </button>
-
 
                         </div>
 
@@ -473,7 +604,9 @@ function AdminDashboardPage() {
                                                 Total number of:
 
                                                 <strong>
-                                                    {loading ? "—" : students.length}
+                                                    {loading
+                                                        ? "—"
+                                                        : students.length}
                                                 </strong>
 
                                             </span>
@@ -486,13 +619,10 @@ function AdminDashboardPage() {
 
                                     </div>
 
-
-                                    <button type="button" className="add-btn"
-
-                                        onClick={
-                                            openAddStudentModal
-                                        }
-
+                                    <button
+                                        type="button"
+                                        className="add-btn"
+                                        onClick={openAddStudentModal}
                                     >
 
                                         <i className="bi bi-plus-lg"></i>
@@ -505,15 +635,13 @@ function AdminDashboardPage() {
 
                                 </div>
 
-
                                 <div className="admin-filter-row">
 
-                                    <input type="text" className="form-control" placeholder="Search student..."
-
-                                        value={
-                                            studentSearch
-                                        }
-
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Search student..."
+                                        value={studentSearch}
                                         onChange={(e) => {
 
                                             setStudentSearch(
@@ -523,16 +651,11 @@ function AdminDashboardPage() {
                                             setCurrentPage(1);
 
                                         }}
-
                                     />
 
-
-                                    <select className="form-select"
-
-                                        value={
-                                            departmentFilter
-                                        }
-
+                                    <select
+                                        className="form-select"
+                                        value={departmentFilter}
                                         onChange={(e) => {
 
                                             setDepartmentFilter(
@@ -542,18 +665,19 @@ function AdminDashboardPage() {
                                             setCurrentPage(1);
 
                                         }}
-
                                     >
 
                                         <option value="">
                                             All Departments
                                         </option>
 
-
                                         {departments.map(
                                             (department) => (
 
-                                                <option key={department} value={department}>
+                                                <option
+                                                    key={department}
+                                                    value={department}
+                                                >
                                                     {department}
                                                 </option>
 
@@ -564,25 +688,19 @@ function AdminDashboardPage() {
 
                                 </div>
 
-
                                 <div className="dashboard-table-container">
 
                                     <table className="admin-table student-table">
 
                                         <colgroup>
 
-                                            <col style={{ width: "16%" }} />
-
-                                            <col style={{ width: "30%" }} />
-
-                                            <col style={{ width: "20%" }} />
-
-                                            <col style={{ width: "20%" }} />
-
-                                            <col style={{ width: "14%" }} />
+                                            <col style={{width:"16%"}} />
+                                            <col style={{width:"30%"}} />
+                                            <col style={{width:"20%"}} />
+                                            <col style={{width:"20%"}} />
+                                            <col style={{width:"14%"}} />
 
                                         </colgroup>
-
 
                                         <thead>
 
@@ -612,40 +730,41 @@ function AdminDashboardPage() {
 
                                         </thead>
 
-
                                         <tbody>
 
                                             {loading && (
 
                                                 <tr>
 
-                                                    <td colSpan={5} className="admin-table-empty">
-
+                                                    <td
+                                                        colSpan={5}
+                                                        className="admin-table-empty"
+                                                    >
                                                         Loading students...
-
                                                     </td>
 
                                                 </tr>
 
                                             )}
 
-
-                                            {!loading && paginatedStudents.length === 0 && (
+                                            {!loading &&
+                                                paginatedStudents.length === 0 && (
 
                                                     <tr>
 
-                                                        <td colSpan={5} className="admin-table-empty">
-
+                                                        <td
+                                                            colSpan={5}
+                                                            className="admin-table-empty"
+                                                        >
                                                             No students found.
-
                                                         </td>
 
                                                     </tr>
 
                                                 )}
 
-
-                                            {!loading && paginatedStudents.map(
+                                            {!loading &&
+                                                paginatedStudents.map(
                                                     (student) => {
 
                                                         const fullName = [
@@ -656,46 +775,38 @@ function AdminDashboardPage() {
                                                             .filter(Boolean)
                                                             .join(" ");
 
-
                                                         return (
 
-                                                            <tr key={student.studentId}>
+                                                            <tr
+                                                                key={student.studentId}
+                                                            >
 
                                                                 <td data-label="Student ID">
-
                                                                     {student.studentId}
-
                                                                 </td>
 
                                                                 <td data-label="Name">
-
                                                                     {fullName || "—"}
-
                                                                 </td>
 
                                                                 <td data-label="Department">
-
                                                                     {student.department || "—"}
-
                                                                 </td>
 
                                                                 <td data-label="Contact">
-
                                                                     {student.contactNumber || "—"}
-
                                                                 </td>
-
 
                                                                 <td data-label="Action">
 
-                                                                    <button type="button" className="edit-action-btn"
-
+                                                                    <button
+                                                                        type="button"
+                                                                        className="edit-action-btn"
                                                                         onClick={() =>
                                                                             openEditStudentModal(
                                                                                 student
                                                                             )
                                                                         }
-
                                                                     >
 
                                                                         <i className="bi bi-pencil-fill"></i>
@@ -744,7 +855,9 @@ function AdminDashboardPage() {
                                                 Total number of:
 
                                                 <strong>
-                                                    {loading ? "—" : offenses.length}
+                                                    {loading
+                                                        ? "—"
+                                                        : offenses.length}
                                                 </strong>
 
                                             </span>
@@ -757,13 +870,10 @@ function AdminDashboardPage() {
 
                                     </div>
 
-
-                                    <button type="button" className="add-btn"
-
-                                        onClick={
-                                            openAddOffenseModal
-                                        }
-
+                                    <button
+                                        type="button"
+                                        className="add-btn"
+                                        onClick={openAddOffenseModal}
                                     >
 
                                         <i className="bi bi-plus-lg"></i>
@@ -776,13 +886,13 @@ function AdminDashboardPage() {
 
                                 </div>
 
-
                                 <div className="admin-filter-row">
 
-                                    <input type="text" className="form-control" placeholder="Search offense..."
-
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Search offense..."
                                         value={offenseSearch}
-
                                         onChange={(e) => {
 
                                             setOffenseSearch(
@@ -792,16 +902,11 @@ function AdminDashboardPage() {
                                             setCurrentPage(1);
 
                                         }}
-
                                     />
 
-
-                                    <select className="form-select"
-
-                                        value={
-                                            offenseTypeFilter
-                                        }
-
+                                    <select
+                                        className="form-select"
+                                        value={offenseTypeFilter}
                                         onChange={(e) => {
 
                                             setOffenseTypeFilter(
@@ -811,18 +916,19 @@ function AdminDashboardPage() {
                                             setCurrentPage(1);
 
                                         }}
-
                                     >
 
                                         <option value="">
                                             All Types
                                         </option>
 
-
                                         {offenseTypesList.map(
                                             (type) => (
 
-                                                <option key={type} value={type}>
+                                                <option
+                                                    key={type}
+                                                    value={type}
+                                                >
                                                     {type}
                                                 </option>
 
@@ -833,23 +939,18 @@ function AdminDashboardPage() {
 
                                 </div>
 
-
                                 <div className="dashboard-table-container">
 
                                     <table className="admin-table offense-table">
 
                                         <colgroup>
 
-                                            <col style={{ width: "22%" }} />
-
-                                            <col style={{ width: "18%" }} />
-
-                                            <col style={{ width: "45%" }} />
-
-                                            <col style={{ width: "15%" }} />
+                                            <col style={{width:"22%"}} />
+                                            <col style={{width:"18%"}} />
+                                            <col style={{width:"45%"}} />
+                                            <col style={{width:"15%"}} />
 
                                         </colgroup>
-
 
                                         <thead>
 
@@ -875,75 +976,73 @@ function AdminDashboardPage() {
 
                                         </thead>
 
-
                                         <tbody>
 
                                             {loading && (
 
                                                 <tr>
 
-                                                    <td colSpan={4} className="admin-table-empty">
-
+                                                    <td
+                                                        colSpan={4}
+                                                        className="admin-table-empty"
+                                                    >
                                                         Loading offenses...
-
                                                     </td>
 
                                                 </tr>
 
                                             )}
 
-
-                                            {!loading && paginatedOffenses.length === 0 && (
+                                            {!loading &&
+                                                paginatedOffenses.length === 0 && (
 
                                                     <tr>
 
-                                                        <td colSpan={4} className="admin-table-empty">
-
+                                                        <td
+                                                            colSpan={4}
+                                                            className="admin-table-empty"
+                                                        >
                                                             No offenses found.
-
                                                         </td>
 
                                                     </tr>
 
                                                 )}
 
-                                            {!loading && paginatedOffenses.map(
+                                            {!loading &&
+                                                paginatedOffenses.map(
                                                     (offense) => (
 
-                                                        <tr key={offense.offenseId}>                                                 
+                                                        <tr
+                                                            key={offense.offenseId}
+                                                        >
 
                                                             <td data-label="Offense">
-
                                                                 {offense.offense}
-
                                                             </td>
 
                                                             <td data-label="Type">
 
                                                                 <span className="offense-type-badge">
-
                                                                     {offense.type || "—"}
-
                                                                 </span>
 
                                                             </td>
 
                                                             <td data-label="Description">
-
                                                                 {offense.description || "—"}
-
                                                             </td>
 
                                                             <td data-label="Action">
 
-                                                                <button type="button" className="edit-action-btn"
-
+                                                                <button
+                                                                    type="button"
+                                                                    className="edit-action-btn"
                                                                     onClick={() =>
                                                                         openEditOffenseModal(
                                                                             offense
                                                                         )
                                                                     }
-
                                                                 >
 
                                                                     <i className="bi bi-pencil-fill"></i>
@@ -973,21 +1072,18 @@ function AdminDashboardPage() {
 
                         <div className="dashboard-pagination">
 
-
-                            <button type="button" className="pagination-btn"
-
-                                disabled={
-                                    currentPage === 1
-                                }
-
+                            <button
+                                type="button"
+                                className="pagination-btn"
+                                disabled={currentPage === 1}
                                 onClick={() =>
                                     setCurrentPage(
                                         (previous) =>
                                             previous - 1
                                     )
                                 }
-
                             >
+
                                 <i className="bi bi-chevron-left"></i>
 
                                 <span>
@@ -996,27 +1092,22 @@ function AdminDashboardPage() {
 
                             </button>
 
-
                             <span className="pagination-info">
-
                                 Page {currentPage} of {totalPages}
-
                             </span>
 
-
-                            <button type="button" className="pagination-btn"
-
+                            <button
+                                type="button"
+                                className="pagination-btn"
                                 disabled={
                                     currentPage === totalPages
                                 }
-
                                 onClick={() =>
                                     setCurrentPage(
                                         (previous) =>
                                             previous + 1
                                     )
                                 }
-
                             >
 
                                 <span>
@@ -1029,7 +1120,6 @@ function AdminDashboardPage() {
 
                         </div>
 
-
                     </section>
 
                 </main>
@@ -1038,9 +1128,13 @@ function AdminDashboardPage() {
 
             {showStudentModal && (
 
-                <div className="admin-modal-overlay" onClick={closeStudentModal}>
+                <div
+                    className="admin-modal-overlay"
+                    onClick={closeStudentModal}
+                >
 
-                    <div className="admin-modal"
+                    <div
+                        className="admin-modal"
                         onClick={(e) =>
                             e.stopPropagation()
                         }
@@ -1049,18 +1143,15 @@ function AdminDashboardPage() {
                         <div className="admin-modal-header">
 
                             <h4>
-
-                                {editingStudentId !== null ? "Edit Student" : "Add Student"}
-
+                                {editingStudentId !== null
+                                    ? "Edit Student"
+                                    : "Add Student"}
                             </h4>
 
-
-                            <button type="button" className="modal-close-btn"
-
-                                onClick={
-                                    closeStudentModal
-                                }
-
+                            <button
+                                type="button"
+                                className="modal-close-btn"
+                                onClick={closeStudentModal}
                             >
 
                                 <i className="bi bi-x-lg"></i>
@@ -1069,33 +1160,63 @@ function AdminDashboardPage() {
 
                         </div>
 
-
                         <form onSubmit={handleStudentSubmit}>
+
+                            {studentFormError && (
+
+                                <div
+                                    className="alert alert-danger"
+                                    role="alert"
+                                >
+
+                                    <div className="d-flex align-items-start">
+
+                                        <i className="bi bi-exclamation-triangle-fill me-2"></i>
+
+                                        <div>
+                                            <strong>
+                                                Duplicate or invalid data
+                                            </strong>
+
+                                            <div>
+                                                {studentFormError}
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            )}
 
                             <div className="row g-3">
 
                                 <div className="col-12">
 
                                     <label className="form-label">
+
                                         Student ID
+
+                                        <span className="text-danger">
+                                            *
+                                        </span>
+
                                     </label>
 
-
-                                    <input type="text" className="form-control"
-
+                                    <input
+                                        type="text"
+                                        className="form-control"
                                         value={studentForm.studentId}
-                                        disabled={editingStudentId !== null}
-
+                                        disabled={
+                                            editingStudentId !== null
+                                        }
                                         onChange={(e) =>
                                             setStudentForm({
                                                 ...studentForm,
-                                                studentId:
-                                                    e.target.value,
+                                                studentId:e.target.value,
                                             })
                                         }
-
                                         required
-
                                     />
 
                                 </div>
@@ -1103,85 +1224,309 @@ function AdminDashboardPage() {
                                 <div className="col-md-6">
 
                                     <label className="form-label">
+
                                         First Name
+
+                                        <span className="text-danger">
+                                            *
+                                        </span>
+
                                     </label>
 
-
-                                    <input type="text" className="form-control"
-
-                                        value={studentForm.person.firstName}
-
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={
+                                            studentForm.person.firstName
+                                        }
                                         onChange={(e) =>
                                             setStudentForm({
                                                 ...studentForm,
-                                                person: {
+                                                person:{
                                                     ...studentForm.person,
-                                                    firstName:
-                                                        e.target.value,
+                                                    firstName:e.target.value,
                                                 },
                                             })
                                         }
-
-                                        required/>
+                                        required
+                                    />
 
                                 </div>
-
 
                                 <div className="col-md-6">
 
                                     <label className="form-label">
-                                        Last Name
+
+                                        Middle Name
+
+                                        <span className="text-danger">
+                                            *
+                                        </span>
+
                                     </label>
 
-
-                                    <input type="text" className="form-control" value={studentForm.person.lastName}
-
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={
+                                            studentForm.person.middleName
+                                        }
                                         onChange={(e) =>
-                                            setStudentForm({...studentForm, person: {...studentForm.person, lastName:e.target.value,},
+                                            setStudentForm({
+                                                ...studentForm,
+                                                person:{
+                                                    ...studentForm.person,
+                                                    middleName:e.target.value,
+                                                },
                                             })
                                         }
+                                        required
+                                    />
 
-                                        required/>
+                                </div>
+
+                                <div className="col-md-6">
+
+                                    <label className="form-label">
+
+                                        Last Name
+
+                                        <span className="text-danger">
+                                            *
+                                        </span>
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={
+                                            studentForm.person.lastName
+                                        }
+                                        onChange={(e) =>
+                                            setStudentForm({
+                                                ...studentForm,
+                                                person:{
+                                                    ...studentForm.person,
+                                                    lastName:e.target.value,
+                                                },
+                                            })
+                                        }
+                                        required
+                                    />
+
+                                </div>
+
+                                <div className="col-md-6">
+
+                                    <label className="form-label">
+
+                                        Date of Birth
+
+                                        <span className="text-danger">
+                                            *
+                                        </span>
+
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        className="form-control"
+                                        value={
+                                            studentForm.person.dateOfBirth || ""
+                                        }
+                                        onChange={(e) =>
+                                            setStudentForm({
+                                                ...studentForm,
+                                                person:{
+                                                    ...studentForm.person,
+                                                    dateOfBirth:
+                                                        e.target.value || null,
+                                                },
+                                            })
+                                        }
+                                        required
+                                    />
+
+                                </div>
+
+                                <div className="col-md-6">
+
+                                    <label className="form-label">
+
+                                        Department
+
+                                        <span className="text-danger">
+                                            *
+                                        </span>
+
+                                    </label>
+
+                                    <select
+                                        className="form-select"
+                                        value={
+                                            studentForm.department
+                                        }
+                                        onChange={(e) =>
+                                            setStudentForm({
+                                                ...studentForm,
+                                                department:e.target.value,
+                                            })
+                                        }
+                                        required
+                                    >
+
+                                        <option value="">
+                                            Select department
+                                        </option>
+
+                                        {departments.map(
+                                            (department) => (
+
+                                                <option
+                                                    key={department}
+                                                    value={department}
+                                                >
+                                                    {department}
+                                                </option>
+
+                                            )
+                                        )}
+
+                                    </select>
+
+                                </div>
+
+                                <div className="col-md-6">
+
+                                    <label className="form-label">
+
+                                        Student Type
+
+                                        <span className="text-danger">
+                                            *
+                                        </span>
+
+                                    </label>
+
+                                    <select
+                                        className="form-select"
+                                        value={
+                                            studentForm.studentType
+                                        }
+                                        onChange={(e) =>
+                                            setStudentForm({
+                                                ...studentForm,
+                                                studentType:e.target.value,
+                                            })
+                                        }
+                                        required
+                                    >
+
+                                        <option value="">
+                                            Select student type
+                                        </option>
+
+                                        {studentTypes.map(
+                                            (studentType) => (
+
+                                                <option
+                                                    key={studentType}
+                                                    value={studentType}
+                                                >
+                                                    {studentType}
+                                                </option>
+
+                                            )
+                                        )}
+
+                                    </select>
 
                                 </div>
 
                                 <div className="col-12">
 
                                     <label className="form-label">
+
                                         Contact Number
+
+                                        <span className="text-danger">
+                                            *
+                                        </span>
+
                                     </label>
 
-                                    <input type="text" className="form-control"value={studentForm.contactNumber}
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={
+                                            studentForm.contactNumber
+                                        }
                                         onChange={(e) =>
-                                            setStudentForm({...studentForm, contactNumber:e.target.value,})
-                                        }/>
+                                            setStudentForm({
+                                                ...studentForm,
+                                                contactNumber:
+                                                    e.target.value,
+                                            })
+                                        }
+                                        required
+                                    />
 
                                 </div>
 
+                                <div className="col-12">
+
+                                    <label className="form-label">
+
+                                        Address
+
+                                        <span className="text-danger">
+                                            *
+                                        </span>
+
+                                    </label>
+
+                                    <textarea
+                                        className="form-control"
+                                        rows={3}
+                                        value={
+                                            studentForm.address
+                                        }
+                                        onChange={(e) =>
+                                            setStudentForm({
+                                                ...studentForm,
+                                                address:e.target.value,
+                                            })
+                                        }
+                                        required
+                                    />
+
+                                </div>
 
                             </div>
 
-                            {studentFormError && (
-
-                                <p className="text-danger mt-3">
-
-                                    {studentFormError}
-
-                                </p>
-
-                            )}
-
                             <div className="admin-modal-actions">
 
-                                <button type="button" className="cancel-btn" onClick={ closeStudentModal } disabled={ savingStudent }>
-
+                                <button
+                                    type="button"
+                                    className="cancel-btn"
+                                    onClick={closeStudentModal}
+                                    disabled={savingStudent}
+                                >
                                     Cancel
-
                                 </button>
 
-                                <button type="submit" className="save-btn" disabled={savingStudent}>
+                                <button
+                                    type="submit"
+                                    className="save-btn"
+                                    disabled={savingStudent}
+                                >
 
-                                    {savingStudent ? "Saving..." : editingStudentId !== null ? "Update Student" : "Save Student"}
+                                    {savingStudent
+                                        ? "Saving..."
+                                        : editingStudentId !== null
+                                            ? "Update Student"
+                                            : "Save Student"}
 
                                 </button>
 
@@ -1197,20 +1542,31 @@ function AdminDashboardPage() {
 
             {showOffenseModal && (
 
-                <div className="admin-modal-overlay" onClick={closeOffenseModal}>
+                <div
+                    className="admin-modal-overlay"
+                    onClick={closeOffenseModal}
+                >
 
-                    <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+                    <div
+                        className="admin-modal"
+                        onClick={(e) =>
+                            e.stopPropagation()
+                        }
+                    >
 
                         <div className="admin-modal-header">
 
                             <h4>
-
-                                {editingOffenseId !== null ? "Edit Offense" : "Add Offense"}
-
+                                {editingOffenseId !== null
+                                    ? "Edit Offense"
+                                    : "Add Offense"}
                             </h4>
 
-
-                            <button type="button" className="modal-close-btn" onClick={closeOffenseModal}>
+                            <button
+                                type="button"
+                                className="modal-close-btn"
+                                onClick={closeOffenseModal}
+                            >
 
                                 <i className="bi bi-x-lg"></i>
 
@@ -1218,12 +1574,34 @@ function AdminDashboardPage() {
 
                         </div>
 
+                        <form onSubmit={handleOffenseSubmit}>
 
-                        <form
-                            onSubmit={
-                                handleOffenseSubmit
-                            }
-                        >
+                            {offenseFormError && (
+
+                                <div
+                                    className="alert alert-danger"
+                                    role="alert"
+                                >
+
+                                    <div className="d-flex align-items-start">
+
+                                        <i className="bi bi-exclamation-triangle-fill me-2"></i>
+
+                                        <div>
+                                            <strong>
+                                                Duplicate or invalid data
+                                            </strong>
+
+                                            <div>
+                                                {offenseFormError}
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            )}
 
                             <div className="mb-3">
 
@@ -1231,16 +1609,26 @@ function AdminDashboardPage() {
 
                                     Offense
 
+                                    <span className="text-danger">
+                                        *
+                                    </span>
+
                                 </label>
 
-                                <input type="text" className="form-control" value={offenseForm.offense}
-
-                                    onChange={(e) => setOffenseForm(
-                                            (previous) => ({...previous, offense:e.target.value,})
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={offenseForm.offense}
+                                    onChange={(e) =>
+                                        setOffenseForm(
+                                            (previous) => ({
+                                                ...previous,
+                                                offense:e.target.value,
+                                            })
                                         )
                                     }
-
-                                    required/>
+                                    required
+                                />
 
                             </div>
 
@@ -1250,28 +1638,38 @@ function AdminDashboardPage() {
 
                                     Type
 
+                                    <span className="text-danger">
+                                        *
+                                    </span>
+
                                 </label>
 
-
-                                <select className="form-select" value={offenseForm.type}
-
-                                    onChange={(e) => setOffenseForm(
-                                            (previous) => ({ ...previous, type:e.target.value,})
+                                <select
+                                    className="form-select"
+                                    value={offenseForm.type}
+                                    onChange={(e) =>
+                                        setOffenseForm(
+                                            (previous) => ({
+                                                ...previous,
+                                                type:e.target.value,
+                                            })
                                         )
                                     }
-
-                                    required>
+                                    required
+                                >
 
                                     <option value="">
                                         Select offense type
                                     </option>
 
-                                    {offenseTypesList.map((type) => (
+                                    {offenseTypesList.map(
+                                        (type) => (
 
-                                            <option key={type} value={type}>
-
+                                            <option
+                                                key={type}
+                                                value={type}
+                                            >
                                                 {type}
-
                                             </option>
 
                                         )
@@ -1287,32 +1685,54 @@ function AdminDashboardPage() {
 
                                     Description
 
+                                    <span className="text-danger">
+                                        *
+                                    </span>
+
                                 </label>
 
-
-                                <textarea className="form-control" rows={5} value={ offenseForm.description } 
-                                onChange={(e) =>  setOffenseForm(
-                                        (previous) => ({...previous, description:e.target.value,})
-                                    )
-                                }
-                                    required/>
+                                <textarea
+                                    className="form-control"
+                                    rows={5}
+                                    value={
+                                        offenseForm.description
+                                    }
+                                    onChange={(e) =>
+                                        setOffenseForm(
+                                            (previous) => ({
+                                                ...previous,
+                                                description:
+                                                    e.target.value,
+                                            })
+                                        )
+                                    }
+                                    required
+                                />
 
                             </div>
 
-                            {offenseFormError && (<p className="text-danger">{offenseFormError}</p>)}
-
                             <div className="admin-modal-actions">
 
-                                <button type="button" className="cancel-btn" onClick={ closeOffenseModal } disabled={savingOffense}>
-
+                                <button
+                                    type="button"
+                                    className="cancel-btn"
+                                    onClick={closeOffenseModal}
+                                    disabled={savingOffense}
+                                >
                                     Cancel
-
                                 </button>
 
+                                <button
+                                    type="submit"
+                                    className="save-btn"
+                                    disabled={savingOffense}
+                                >
 
-                                <button type="submit" className="save-btn" disabled={savingOffense}>
-
-                                    {savingOffense ? "Saving..." : editingOffenseId !== null? "Update Offense" : "Save Offense"}
+                                    {savingOffense
+                                        ? "Saving..."
+                                        : editingOffenseId !== null
+                                            ? "Update Offense"
+                                            : "Save Offense"}
 
                                 </button>
 
