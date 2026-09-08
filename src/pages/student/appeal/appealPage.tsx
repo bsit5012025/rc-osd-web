@@ -61,7 +61,12 @@ function AppealPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [studentId]);
 
-    const filters: FilterType[] = ["All", "Pending", "Approved", "Denied"];
+    const filters: { key: FilterType; icon: string }[] = [
+        { key: "All", icon: "bi-grid-fill" },
+        { key: "Pending", icon: "bi-hourglass-split" },
+        { key: "Approved", icon: "bi-check-circle-fill" },
+        { key: "Denied", icon: "bi-x-circle-fill" },
+    ];
 
     const filteredAppeals = useMemo(() => {
         let result = appeals.filter((appeal) =>
@@ -158,6 +163,24 @@ function AppealPage() {
 
                     <div className="appeal-toolbar mt-4 mb-4">
 
+                        <div className="appeal-status-tabs">
+                            {filters.map((filter) => (
+                                <button
+                                    type="button"
+                                    key={filter.key}
+                                    className={
+                                        activeFilter === filter.key
+                                            ? `appeal-status-tab active status-${filter.key.toLowerCase()}`
+                                            : "appeal-status-tab"
+                                    }
+                                    onClick={() => setActiveFilter(filter.key)}
+                                >
+                                    <i className={`bi ${filter.icon}`}></i>
+                                    <span>{filter.key}</span>
+                                </button>
+                            ))}
+                        </div>
+
                         <div className="appeal-search">
                             <i className="bi bi-search"></i>
                             <input
@@ -166,22 +189,6 @@ function AppealPage() {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
-                        </div>
-
-                        <div className="appeal-filters">
-                            {filters.map((filter) => (
-                                <button
-                                    key={filter}
-                                    className={`btn fw-bold ${
-                                        activeFilter === filter
-                                            ? "btn-primary"
-                                            : "border border-black"
-                                    }`}
-                                    onClick={() => setActiveFilter(filter)}
-                                >
-                                    {filter}
-                                </button>
-                            ))}
                         </div>
 
                     </div>

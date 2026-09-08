@@ -14,7 +14,7 @@ export default function UserGreeting({ name, infoItems }: UserGreetingProps) {
     return (
         <div className="user-greeting">
             <div className="user-greeting-title">
-                Hello, {name || "User"}!
+                Hello, {name || "User"}
             </div>
 
             <div className="user-greeting-info">

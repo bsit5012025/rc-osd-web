@@ -69,13 +69,15 @@
 
 .appeal-toolbar {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
+    flex-direction: column;
+    gap: 14px;
+    align-items: stretch;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .appeal-search {
-    flex: 1 1 220px;
+    width: 100%;
     max-width: 320px;
     display: flex;
     align-items: center;
@@ -83,7 +85,7 @@
     height: 40px;
     background: #fff;
     border: 1px solid var(--color-border, #e2e2e8);
-    border-radius: var(--radius-pill, 20px);
+    border-radius: var(--radius-pill, 8px);
     padding: 0 14px;
     box-sizing: border-box;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -109,17 +111,54 @@
     background: transparent;
 }
 
-.appeal-filters {
+.appeal-status-tabs {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-.appeal-filters .btn {
-    border-radius: var(--radius-pill, 20px);
-    font-size: 0.85rem;
+.appeal-status-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 9px;
+    background: transparent;
+    color: #64748b;
     font-weight: 600;
-    padding: 9px 20px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.appeal-status-tab:hover {
+    background: #f1f5f9;
+}
+
+.appeal-status-tab i {
+    font-size: 0.85rem;
+}
+
+.appeal-status-tab.active.status-all {
+    background: #25235f;
+    color: #ffffff;
+}
+
+.appeal-status-tab.active.status-pending {
+    background: #000064;
+    color: #ffffff;
+}
+
+.appeal-status-tab.active.status-approved {
+    background: #000064;
+    color: #ffffff;
+}
+
+.appeal-status-tab.active.status-denied {
+    background: #000064;
+    color: #ffffff;
 }
 
 .appeal-list {
@@ -229,11 +268,15 @@
         font-size: 0.8rem;
     }
 
-    .appeal-filters .btn {
+    .appeal-status-tab {
         flex: 1;
         min-width: 70px;
         font-size: 0.75rem;
         padding: 8px 10px;
+    }
+
+    .appeal-status-tab i {
+        font-size: 0.75rem;
     }
 
     .appeal-pagination {
