@@ -11,7 +11,10 @@ interface StatCardProps {
 
 function StatCard({ icon, iconColor, iconBg, value, valueColor, label }: StatCardProps) {
     return (
-        <div className="stat-card">
+        <div
+            className="stat-card"
+            style={{ ["--stat-accent" as string]: valueColor || "#1a1a2e" } as React.CSSProperties}
+        >
 
             {icon && (
                 <div

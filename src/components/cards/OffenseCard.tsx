@@ -7,6 +7,12 @@ interface OffenseCardProps {
     status: string;
 }
 
+const LEVEL_ACCENTS: Record<string, string> = {
+    minor: "#4b5bd7",
+    major: "#d63232",
+    grave: "#7a1f2b",
+};
+
 export default function OffenseCard({
     offense,
     level,
@@ -14,8 +20,13 @@ export default function OffenseCard({
     status,
 }: OffenseCardProps) {
 
+    const accentColor = LEVEL_ACCENTS[level.toLowerCase()] ?? "#94a3b8";
+
     return (
-        <div className="offense-card shadow-sm">
+        <div
+            className="offense-card"
+            style={{ ["--offense-accent" as string]: accentColor } as React.CSSProperties}
+        >
 
             <div className="offense-header">
 
@@ -27,12 +38,15 @@ export default function OffenseCard({
 
             </div>
 
-            <hr />
+            <hr className="offense-divider" />
 
             <div className="offense-details">
 
                 <div>
-                    <small className="label">LEVEL</small>
+                    <small className="label">
+                        <i className="bi bi-flag"></i>
+                        Level
+                    </small>
 
                     <span className={`level-badge ${level.toLowerCase()}`}>
                         {level}
@@ -40,9 +54,12 @@ export default function OffenseCard({
                 </div>
 
                 <div>
-                    <small className="label">Date Filed</small>
+                    <small className="label">
+                        <i className="bi bi-calendar3"></i>
+                        Date Filed
+                    </small>
 
-                    <p>{dateFiled}</p>
+                    <p className="offense-date-value">{dateFiled}</p>
                 </div>
 
             </div>

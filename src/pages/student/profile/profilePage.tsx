@@ -91,7 +91,7 @@ function ProfilePage() {
         {
             label: "Pending Appeals",
             value: loading ? "—" : appeals.filter((a) => a.status?.toUpperCase() === "PENDING").length,
-            valueColor: "#e6a23c",
+            valueColor: "#E1AD01",
         },
         { label: "Year/Level", value: enrollment?.studentLevel || "—", valueColor: "#1a1a2e" },
     ];
