@@ -105,6 +105,19 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
         fileInputRef.current?.click();
     };
 
+    const handleRemoveFile = () => {
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    };
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
@@ -162,7 +175,12 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
             <div className="file-appeal-modal" onClick={(e) => e.stopPropagation()}>
 
                 <div className="file-appeal-modal-header">
-                    <h5>{hasFiled ? "Appeal Submitted" : "File a New Appeal"}</h5>
+                    <div className="file-appeal-header-left">
+                        <div className={`file-appeal-header-icon ${hasFiled ? "success" : ""}`}>
+                            <i className={`bi ${hasFiled ? "bi-check-lg" : "bi-file-earmark-text"}`}></i>
+                        </div>
+                        <h5>{hasFiled ? "Appeal Submitted" : "File a New Appeal"}</h5>
+                    </div>
                     <button
                         type="button"
                         className="file-appeal-close-btn"
@@ -177,6 +195,10 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                 {hasFiled ? (
                     <div className="file-appeal-modal-body">
 
+                        <div className="file-appeal-success-icon">
+                            <i className="bi bi-check-lg"></i>
+                        </div>
+
                         <p className="new-appeal-hint mb-4">
                             Your appeal has been filed and is now waiting for the Prefect's review.
                             {filedSuggestion
@@ -186,6 +208,9 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
 
                         {filedSuggestion && (
                             <div className="ai-suggestion-card mb-4">
+                                <div className="ai-suggestion-icon">
+                                    <i className="bi bi-stars"></i>
+                                </div>
                                 <div className="ai-suggestion-text">{filedSuggestion}</div>
                             </div>
                         )}
@@ -203,7 +228,10 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                             {loadError && <p className="text-danger">{loadError}</p>}
 
                             <div className="file-appeal-section">
-                                <div className="file-appeal-section-title">1. Select Offense</div>
+                                <div className="file-appeal-section-title">
+                                    <span className="file-appeal-step-num">1</span>
+                                    Select Offense
+                                </div>
                                 <label className="new-appeal-section-label" htmlFor="offenseSelect">
                                     Select Offense to Appeal <span className="required-asterisk">*</span>
                                 </label>
@@ -220,19 +248,16 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                     <option value="" disabled>
                                         {loading ? "Loading offenses..." : "Tap to choose offense"}
                                     </option>
-                                    {pendingRecords.map((record) => {
-                                        const alreadyAppealed = hasUnapprovedAppeal(record.recordId);
-                                        return (
+                                    {pendingRecords
+                                        .filter((record) => !hasUnapprovedAppeal(record.recordId))
+                                        .map((record) => (
                                             <option
                                                 key={record.recordId}
                                                 value={String(record.recordId)}
-                                                disabled={alreadyAppealed}
                                             >
                                                 {record.offense.offense} — filed {record.dateOfViolation}
-                                                {alreadyAppealed ? " — Appeal Pending" : ""}
                                             </option>
-                                        );
-                                    })}
+                                        ))}
                                 </select>
                                 {!loading && pendingRecords.length === 0 && (
                                     <p className="new-appeal-hint mb-0 mt-2">
@@ -250,25 +275,39 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
 
                             <div className="file-appeal-section">
                                 <div className="file-appeal-section-title">
-                                    2. Attach Appeal Letter <span className="required-asterisk">*</span>
+                                    <span className="file-appeal-step-num">2</span>
+                                    Attach Appeal Letter <span className="required-asterisk">*</span>
                                 </div>
                                 <p className="new-appeal-hint mb-2">
                                     Attach a scanned/photographed copy of your handwritten letter, or upload a PDF/DOCX directly.
                                 </p>
 
-                                <div className="upload-box">
-                                    <div className="upload-icon">
-                                        <i className="bi bi-upload"></i>
+                                <div className={`upload-box ${selectedFile ? "has-file" : ""}`}>
+                                    <div className={`upload-icon ${selectedFile ? "success" : ""}`}>
+                                        <i className={`bi ${selectedFile ? "bi-check-circle-fill" : "bi-upload"}`}></i>
                                     </div>
                                     <div className="upload-text">
                                         {selectedFile ? selectedFile.name : "No file attached yet"}
                                     </div>
                                     <div className="upload-subtext">
-                                        PDF, DOCX, JPG, PNG &nbsp;•&nbsp; Max 10MB per file
+                                        {selectedFile
+                                            ? formatFileSize(selectedFile.size)
+                                            : <>PDF, DOCX, JPG, PNG &nbsp;•&nbsp; Max 10MB per file</>}
                                     </div>
-                                    <button type="button" className="upload-browse-btn" onClick={handleBrowseClick}>
-                                        Browse Files
-                                    </button>
+                                    <div className="upload-actions">
+                                        <button type="button" className="upload-browse-btn" onClick={handleBrowseClick}>
+                                            {selectedFile ? "Replace File" : "Browse Files"}
+                                        </button>
+                                        {selectedFile && (
+                                            <button
+                                                type="button"
+                                                className="upload-remove-btn"
+                                                onClick={handleRemoveFile}
+                                            >
+                                                Remove
+                                            </button>
+                                        )}
+                                    </div>
                                     <input
                                         ref={fileInputRef}
                                         type="file"
@@ -281,14 +320,15 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
 
                             <div className="file-appeal-section">
                                 <div className="file-appeal-section-title">
-                                    3. Reason for Appeal <span className="required-asterisk">*</span>
+                                    <span className="file-appeal-step-num">3</span>
+                                    Reason for Appeal <span className="required-asterisk">*</span>
                                 </div>
                                 <p className="new-appeal-hint mb-2">
                                     Explain why you believe this offense should be reviewed.
                                 </p>
                                 <textarea
                                     id="appealMessage"
-                                    className="form-control"
+                                    className="form-control new-appeal-textarea"
                                     rows={4}
                                     placeholder="Type your appeal here..."
                                     value={message}
