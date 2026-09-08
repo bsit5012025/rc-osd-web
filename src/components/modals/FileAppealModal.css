@@ -75,6 +75,11 @@
     margin-bottom: 10px;
 }
 
+.required-asterisk {
+    color: #d9534f;
+    font-weight: 700;
+}
+
 .file-appeal-modal-footer {
     display: flex;
     justify-content: flex-end;
