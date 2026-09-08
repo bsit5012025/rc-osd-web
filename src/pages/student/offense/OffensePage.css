@@ -1,6 +1,8 @@
 .offenses-page {
     width: 100%;
+    min-height: 100%;
     overflow-x: hidden;
+    background: var(--color-bg-muted, #f4f4f7);
 }
 
 .offenses-content {
@@ -9,9 +11,43 @@
 }
 
 .stats-row {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    align-items: stretch;
     gap: 16px;
+}
+
+@media (max-width: 576px) {
+    .stats-row {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+}
+
+/* ===== Panel wrapping the list ===== */
+
+.offense-panel {
+    background: #fff;
+    border-radius: var(--radius-lg, 14px);
+    padding: 26px 28px;
+    box-shadow: 0 4px 18px rgba(20, 20, 43, 0.06);
+}
+
+.offense-panel-header {
+    margin-bottom: 20px;
+}
+
+.offense-panel-title {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #1a1a2e;
+}
+
+.offense-panel-subtitle {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: var(--color-text-muted, #8a8a94);
 }
 
 .offense-list {
@@ -23,8 +59,26 @@
 .offense-toolbar {
     display: flex;
     flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 18px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.offense-toolbar-filters {
+    display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     align-items: center;
+}
+
+.offense-toolbar-count {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text-muted, #8a8a94);
+    white-space: nowrap;
 }
 
 .offense-search {
@@ -78,6 +132,52 @@
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'><path d='M2 4l4 4 4-4' stroke='%231a1a2e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
     background-repeat: no-repeat;
     background-position: right 14px center;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.offense-select:focus {
+    outline: none;
+    border-color: var(--color-navy-accent, #1b1b8f);
+    box-shadow: 0 0 0 3px rgba(27, 27, 143, 0.1);
+}
+
+/* ===== Empty / loading state ===== */
+
+.offense-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 64px 20px;
+    text-align: center;
+    color: var(--color-text-faint, #a0a0aa);
+}
+
+.offense-state i {
+    font-size: 2rem;
+    color: #c7c7d1;
+    margin-bottom: 6px;
+}
+
+.offense-state strong {
+    font-size: 0.95rem;
+    color: #55555f;
+    font-weight: 600;
+}
+
+.offense-state span {
+    font-size: 0.82rem;
+}
+
+.offense-spinner {
+    animation: offense-spin 0.9s linear infinite;
+}
+
+@keyframes offense-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* ===== Responsive table (desktop) / cards (mobile) toggle ===== */
@@ -94,31 +194,38 @@
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    overflow: hidden;
 }
 
 .offense-table th {
-    background: #f8fafc;
-    color: #334155;
-    font-size: 14px;
+    background: transparent;
+    color: var(--color-text-muted, #8a8a94);
+    font-size: 12px;
     font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     text-align: left;
-    padding: 14px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .offense-table td {
-    padding: 14px;
-    color: #475569;
+    padding: 16px 14px;
+    color: #40404a;
     font-size: 14px;
-    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #f0f0f3;
     vertical-align: middle;
     overflow-wrap: break-word;
 }
 
-.offense-table tbody tr:hover {
+.offense-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.offense-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.offense-table tbody tr:hover td {
     background: #f8fafc;
 }
 
@@ -134,7 +241,7 @@
     }
 }
 
-/* ===== Pagination (matches Admin dashboard's technique) ===== */
+/* ===== Pagination ===== */
 
 .offense-pagination {
     display: flex;
@@ -179,13 +286,27 @@
 
 @media (max-width: 576px) {
 
-    .offenses-content h2 {
-        font-size: 24px;
+    .offense-panel {
+        padding: 18px 16px;
+        border-radius: 12px;
+    }
+
+    .offense-panel-title {
+        font-size: 1.2rem;
     }
 
     .offense-toolbar {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .offense-toolbar-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .offense-toolbar-count {
+        order: -1;
     }
 
     .offense-search {

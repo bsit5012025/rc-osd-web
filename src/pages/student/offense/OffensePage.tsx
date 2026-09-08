@@ -91,24 +91,18 @@ function OffensesPage() {
 
     const stats = [
         {
-            icon: "bi-exclamation-triangle-fill",
-            iconColor: "#6d6adf",
-            iconBg: "#ecebfc",
             value: totalViolations,
+            valueColor: "#1a1a2e",
             label: "Total Violations",
         },
         {
-            icon: "bi-clock-fill",
-            iconColor: "#e6a23c",
-            iconBg: "#fdf1e2",
             value: pendingAppeals,
+            valueColor: "#E1AD01",
             label: "Pending Appeals",
         },
         {
-            icon: "bi-calendar-check-fill",
-            iconColor: "#3cb371",
-            iconBg: "#e5f6ec",
             value: offensesToday,
+            valueColor: "#3cb371",
             label: "Offenses Today",
         },
     ];
@@ -169,126 +163,152 @@ function OffensesPage() {
                         {stats.map((stat) => (
                             <StatCard
                                 key={stat.label}
-                                icon={stat.icon}
-                                iconColor={stat.iconColor}
-                                iconBg={stat.iconBg}
                                 value={loading ? "—" : stat.value}
+                                valueColor={stat.valueColor}
                                 label={stat.label}
                             />
                         ))}
                     </div>
 
-                    <h2 className="mb-4 fw-bold">My Offenses</h2>
+                    <div className="offense-panel">
 
-                    <div className="offense-toolbar mb-4 mb-md-5">
-
-                        <div className="offense-search">
-                            <i className="bi bi-search"></i>
-                            <input
-                                type="text"
-                                placeholder="Search offense..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
+                        <div className="offense-panel-header">
+                            <h2 className="offense-panel-title">My Offenses</h2>
+                            <p className="offense-panel-subtitle">
+                                View your violation history and track appeal status
+                            </p>
                         </div>
 
-                        <select
-                            className="offense-select"
-                            value={levelFilter}
-                            onChange={(e) => setLevelFilter(e.target.value)}
-                        >
-                            <option value="All">All Levels</option>
-                            {levels.map((lvl) => (
-                                <option key={lvl} value={lvl}>{lvl}</option>
-                            ))}
-                        </select>
+                        <div className="offense-toolbar">
+
+                            <div className="offense-toolbar-filters">
+
+                                <div className="offense-search">
+                                    <i className="bi bi-search"></i>
+                                    <input
+                                        type="text"
+                                        placeholder="Search offense..."
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                    />
+                                </div>
+
+                                <select
+                                    className="offense-select"
+                                    value={levelFilter}
+                                    onChange={(e) => setLevelFilter(e.target.value)}
+                                >
+                                    <option value="All">All Levels</option>
+                                    {levels.map((lvl) => (
+                                        <option key={lvl} value={lvl}>{lvl}</option>
+                                    ))}
+                                </select>
+
+                            </div>
+
+                            {!loading && !error && (
+                                <span className="offense-toolbar-count">
+                                    {processedRecords.length} {processedRecords.length === 1 ? "record" : "records"}
+                                </span>
+                            )}
+
+                        </div>
+
+                        {loading && (
+                            <div className="offense-state">
+                                <i className="bi bi-arrow-repeat offense-spinner"></i>
+                                <strong>Loading offenses…</strong>
+                            </div>
+                        )}
+
+                        {!loading && !error && processedRecords.length === 0 && (
+                            <div className="offense-state">
+                                <i className="bi bi-inbox"></i>
+                                <strong>No offenses found</strong>
+                                <span>Try adjusting your search or filter.</span>
+                            </div>
+                        )}
+
+                        {!loading && !error && processedRecords.length > 0 && (
+                            <>
+                                <div className="offense-table-wrapper">
+                                    <table className="offense-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Offense</th>
+                                                <th>Level</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {pagedRecords.map((record) => (
+                                                <tr key={record.recordId}>
+                                                    <td>{record.dateOfViolation}</td>
+                                                    <td>{record.offense.offense}</td>
+                                                    <td>
+                                                        <span
+                                                            className={`level-badge ${record.offense.type.toLowerCase()}`}
+                                                        >
+                                                            {record.offense.type}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span
+                                                            className={`status-badge ${record.status.toLowerCase()}`}
+                                                        >
+                                                            {record.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div className="offense-cards-wrapper offense-list">
+                                    {pagedRecords.map((record) => (
+                                        <OffenseCard
+                                            key={record.recordId}
+                                            offense={record.offense.offense}
+                                            level={record.offense.type}
+                                            dateFiled={record.dateOfViolation}
+                                            status={record.status}
+                                        />
+                                    ))}
+                                </div>
+
+                                <div className="offense-pagination">
+
+                                    <button
+                                        type="button"
+                                        className="offense-pagination-btn"
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                                    >
+                                        <i className="bi bi-chevron-left"></i>
+                                        <span>Previous</span>
+                                    </button>
+
+                                    <span className="offense-pagination-info">
+                                        Page {currentPage} of {totalPages}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        className="offense-pagination-btn"
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                                    >
+                                        <span>Next</span>
+                                        <i className="bi bi-chevron-right"></i>
+                                    </button>
+
+                                </div>
+                            </>
+                        )}
 
                     </div>
-
-                    {loading && <p>Loading offenses...</p>}
-
-                    {!loading && !error && processedRecords.length === 0 && (
-                        <p>No offenses found.</p>
-                    )}
-
-                    {!loading && !error && processedRecords.length > 0 && (
-                        <>
-                            <div className="offense-table-wrapper">
-                                <table className="offense-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Offense</th>
-                                            <th>Level</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {pagedRecords.map((record) => (
-                                            <tr key={record.recordId}>
-                                                <td>{record.dateOfViolation}</td>
-                                                <td>{record.offense.offense}</td>
-                                                <td>
-                                                    <span
-                                                        className={`level-badge ${record.offense.type.toLowerCase()}`}
-                                                    >
-                                                        {record.offense.type}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        className={`status-badge ${record.status.toLowerCase()}`}
-                                                    >
-                                                        {record.status}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div className="offense-cards-wrapper offense-list">
-                                {pagedRecords.map((record) => (
-                                    <OffenseCard
-                                        key={record.recordId}
-                                        offense={record.offense.offense}
-                                        level={record.offense.type}
-                                        dateFiled={record.dateOfViolation}
-                                        status={record.status}
-                                    />
-                                ))}
-                            </div>
-
-                            <div className="offense-pagination">
-
-                                <button
-                                    type="button"
-                                    className="offense-pagination-btn"
-                                    disabled={currentPage === 1}
-                                    onClick={() => setCurrentPage((prev) => prev - 1)}
-                                >
-                                    <i className="bi bi-chevron-left"></i>
-                                    <span>Previous</span>
-                                </button>
-
-                                <span className="offense-pagination-info">
-                                    Page {currentPage} of {totalPages}
-                                </span>
-
-                                <button
-                                    type="button"
-                                    className="offense-pagination-btn"
-                                    disabled={currentPage === totalPages}
-                                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                                >
-                                    <span>Next</span>
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-
-                            </div>
-                        </>
-                    )}
 
                 </main>
 
