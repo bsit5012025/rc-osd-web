@@ -75,10 +75,33 @@ function AppealPage() {
 
         if (search.trim()) {
             const q = search.trim().toLowerCase();
-            result = result.filter((appeal) =>
-                (appeal.record?.offense?.offense ?? "").toLowerCase().includes(q)
-            );
+            result = result.filter((appeal) => {
+                const haystack = [
+                    `AP${String(appeal.appealId).padStart(4, "0")}`,
+                    appeal.record?.offense?.offense,
+                    appeal.record?.offense?.type,
+                    normalizeStatus(appeal.status),
+                    appeal.dateFiled,
+                    appeal.remarks,
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                return haystack.includes(q);
+            });
         }
+
+        result = [...result].sort((a, b) => {
+            const dateA = new Date(a.dateFiled).getTime();
+            const dateB = new Date(b.dateFiled).getTime();
+
+            if (!isNaN(dateA) && !isNaN(dateB) && dateA !== dateB) {
+                return dateB - dateA;
+            }
+
+            return Number(b.appealId) - Number(a.appealId);
+        });
 
         return result;
     }, [appeals, activeFilter, search]);
@@ -189,7 +212,7 @@ function AppealPage() {
                                     <i className="bi bi-search"></i>
                                     <input
                                         type="text"
-                                        placeholder="Search by offense..."
+                                        placeholder="Search appeals..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                     />
