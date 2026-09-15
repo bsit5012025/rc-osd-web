@@ -22,6 +22,8 @@ export default function OffenseCard({
 
     const accentColor = LEVEL_ACCENTS[level.toLowerCase()] ?? "#94a3b8";
 
+    const accentColor = LEVEL_ACCENTS[level.toLowerCase()] ?? "#94a3b8";
+
     return (
         <div
             className="offense-card"
