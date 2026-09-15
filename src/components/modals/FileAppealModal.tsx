@@ -164,13 +164,8 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
             submitStage === "filing" ? "Submitting appeal..." :
                 "Submit Appeal";
 
-    const handleOverlayClick = () => {
-        if (submitting) return;
-        onClose();
-    };
-
     return (
-        <div className="file-appeal-overlay" onClick={handleOverlayClick}>
+        <div className="file-appeal-overlay">
             <div className="file-appeal-modal" onClick={(e) => e.stopPropagation()}>
 
                 <div className="file-appeal-modal-header">
@@ -242,7 +237,7 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                         setSelectedRecordId(e.target.value);
                                         setSubmitError("");
                                     }}
-                                    disabled={loading}
+                                    disabled={loading || submitting}
                                 >
                                     <option value="" disabled>
                                         {loading ? "Loading offenses..." : "Tap to choose offense"}
@@ -294,7 +289,12 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                             : <>PDF, DOCX, JPG, PNG &nbsp;•&nbsp; Max 10MB per file</>}
                                     </div>
                                     <div className="upload-actions">
-                                        <button type="button" className="upload-browse-btn" onClick={handleBrowseClick}>
+                                        <button
+                                            type="button"
+                                            className="upload-browse-btn"
+                                            onClick={handleBrowseClick}
+                                            disabled={submitting}
+                                        >
                                             {selectedFile ? "Replace File" : "Browse Files"}
                                         </button>
                                         {selectedFile && (
@@ -302,6 +302,7 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                                 type="button"
                                                 className="upload-remove-btn"
                                                 onClick={handleRemoveFile}
+                                                disabled={submitting}
                                             >
                                                 Remove
                                             </button>
@@ -313,6 +314,7 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                         accept=".pdf,.docx,.doc,.jpg,.jpeg,.png"
                                         className="d-none"
                                         onChange={handleFileChange}
+                                        disabled={submitting}
                                     />
                                 </div>
                             </div>
@@ -332,6 +334,7 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                     placeholder="Type your appeal here..."
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
+                                    disabled={submitting}
                                 />
                             </div>
 

@@ -200,6 +200,12 @@
     box-shadow: 0 0 0 0.2rem rgba(26, 26, 46, 0.15);
 }
 
+.new-appeal-select:disabled {
+    background-color: #f4f4f7;
+    color: var(--color-text-muted, #8a8a94);
+    cursor: not-allowed;
+}
+
 .new-appeal-textarea {
     width: 100%;
     padding: 12px 14px;
@@ -215,6 +221,12 @@
     outline: none;
     border-color: var(--color-navy, #1a1a2e);
     box-shadow: 0 0 0 0.2rem rgba(26, 26, 46, 0.15);
+}
+
+.new-appeal-textarea:disabled {
+    background-color: #f4f4f7;
+    color: var(--color-text-muted, #8a8a94);
+    cursor: not-allowed;
 }
 
 
@@ -288,8 +300,13 @@
     transition: opacity 0.15s ease;
 }
 
-.upload-browse-btn:hover {
+.upload-browse-btn:hover:not(:disabled) {
     opacity: 0.8;
+}
+
+.upload-browse-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .upload-remove-btn {
@@ -304,8 +321,13 @@
     transition: background 0.15s ease;
 }
 
-.upload-remove-btn:hover {
+.upload-remove-btn:hover:not(:disabled) {
     background: #fcebea;
+}
+
+.upload-remove-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .submit-appeal-btn {
