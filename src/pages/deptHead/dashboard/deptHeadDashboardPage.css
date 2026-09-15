@@ -10,11 +10,6 @@
     margin: 0 auto;
 }
 
-.depthead-department-label {
-    font-size: 0.85rem;
-    color: var(--color-text-muted, #6b6b76);
-}
-
 .stats-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

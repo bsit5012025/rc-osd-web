@@ -90,13 +90,7 @@ function DeptHeadDashboardPage() {
 
                     {error && <p className="text-danger">{error}</p>}
 
-                    <div className="mt-4 mt-md-5 mb-2">
-                        <span className="depthead-department-label">
-                            Department: <strong>{loading ? "Loading..." : (departmentName || "—")}</strong>
-                        </span>
-                    </div>
-
-                    <div className="stats-row mt-3 mb-4 mb-md-5">
+                    <div className="stats-row mt-4 mt-md-5 mb-4 mb-md-5">
                         {stats.map((stat) => (
                             <StatCard
                                 key={stat.label}
