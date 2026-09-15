@@ -98,7 +98,7 @@ function AppealPage() {
         {
             label: "Pending",
             value: appeals.filter((a) => normalizeStatus(a.status) === "Pending").length,
-            valueColor: "#e6a23c",
+            valueColor: "#E1AD01",
         },
         {
             label: "Approved",

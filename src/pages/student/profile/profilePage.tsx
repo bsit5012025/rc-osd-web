@@ -67,8 +67,8 @@ function ProfilePage() {
 
     const fullName = student
         ? [student.person.firstName, student.person.middleName, student.person.lastName]
-              .filter(Boolean)
-              .join(" ")
+            .filter(Boolean)
+            .join(" ")
         : "";
 
     const initials = student
@@ -82,8 +82,8 @@ function ProfilePage() {
     const primaryGuardian = student?.guardians?.[0];
     const guardianContact = primaryGuardian
         ? `${primaryGuardian.contactNumber || "—"}${
-              primaryGuardian.relationship ? ` (${primaryGuardian.relationship})` : ""
-          }`
+            primaryGuardian.relationship ? ` (${primaryGuardian.relationship})` : ""
+        }`
         : "No guardian on file";
 
     const stats = [
@@ -91,7 +91,7 @@ function ProfilePage() {
         {
             label: "Pending Appeals",
             value: loading ? "—" : appeals.filter((a) => a.status?.toUpperCase() === "PENDING").length,
-            valueColor: "#e6a23c",
+            valueColor: "#E1AD01",
         },
         { label: "Year/Level", value: enrollment?.studentLevel || "—", valueColor: "#1a1a2e" },
     ];
