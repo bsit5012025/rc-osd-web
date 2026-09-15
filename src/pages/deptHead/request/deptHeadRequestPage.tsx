@@ -1,20 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
 import StatCard from "../../../components/cards/StatCard";
 import AppealCard from "../../../components/cards/AppealCard";
 
-import type { DeptHeadRequest } from "../../../types/deptHeadRequest";
+import { getMyDepartmentRequests } from "../../../services/requestApi";
+import type { RequestItem } from "../../../types/request";
 
 import "./deptHeadRequestPage.css";
 
-type FilterType = "All" | "Pending" | "Approved" | "Denied";
+type FilterType =
+    | "All"
+    | "Pending"
+    | "Approved"
+    | "Denied";
 
-const normalizeStatus = (status: string): "Pending" | "Approved" | "Denied" => {
+const normalizeStatus = (
+    status?: string
+): "Pending" | "Approved" | "Denied" => {
+
     switch (status?.toUpperCase()) {
+
         case "APPROVED":
             return "Approved";
+
         case "DENIED":
             return "Denied";
+
         default:
             return "Pending";
     }
@@ -22,34 +34,123 @@ const normalizeStatus = (status: string): "Pending" | "Approved" | "Denied" => {
 
 function DeptHeadRequestPage() {
 
-    const [requests] = useState<DeptHeadRequest[]>([]);
-    const [loading] = useState(false);
-    const [error] = useState("");
-    const [activeFilter, setActiveFilter] = useState<FilterType>("All");
+    const [requests, setRequests] =
+        useState<RequestItem[]>([]);
 
-    const filters: FilterType[] = ["All", "Pending", "Approved", "Denied"];
+    const [loading, setLoading] =
+        useState(true);
 
-    const filteredRequests = requests.filter((request) =>
-        activeFilter === "All" ? true : normalizeStatus(request.status) === activeFilter
-    );
+    const [error, setError] =
+        useState("");
+
+    const [activeFilter, setActiveFilter] =
+        useState<FilterType>("All");
+
+    useEffect(() => {
+
+        const fetchRequests = async () => {
+
+            try {
+
+                setLoading(true);
+                setError("");
+
+                const data =
+                    await getMyDepartmentRequests();
+
+                if (!Array.isArray(data)) {
+
+                    console.error(
+                        "getAllRequests returned non-array:",
+                        data
+                    );
+
+                    setRequests([]);
+
+                    setError(
+                        "Received unexpected data format from server."
+                    );
+
+                    return;
+                }
+
+                setRequests(data);
+
+            } catch (err) {
+
+                console.error(
+                    "Failed to fetch requests:",
+                    err
+                );
+
+                setError(
+                    "Failed to load requests."
+                );
+
+                setRequests([]);
+
+            } finally {
+
+                setLoading(false);
+            }
+        };
+
+        fetchRequests();
+
+    }, []);
+
+    const filters: FilterType[] = [
+        "All",
+        "Pending",
+        "Approved",
+        "Denied"
+    ];
+
+    const filteredRequests =
+        requests.filter((request) =>
+            activeFilter === "All"
+                ? true
+                : normalizeStatus(request.status)
+                === activeFilter
+        );
 
     const stats = [
-        { label: "Total Filed", value: requests.length, valueColor: "#1a1a2e" },
+
+        {
+            label: "Total Filed",
+            value: requests.length,
+            valueColor: "#1a1a2e"
+        },
+
         {
             label: "Pending",
-            value: requests.filter((r) => normalizeStatus(r.status) === "Pending").length,
-            valueColor: "#e6a23c",
+            value: requests.filter(
+                (r) =>
+                    normalizeStatus(r.status)
+                    === "Pending"
+            ).length,
+            valueColor: "#e6a23c"
         },
+
         {
             label: "Approved",
-            value: requests.filter((r) => normalizeStatus(r.status) === "Approved").length,
-            valueColor: "#3cb371",
+            value: requests.filter(
+                (r) =>
+                    normalizeStatus(r.status)
+                    === "Approved"
+            ).length,
+            valueColor: "#3cb371"
         },
+
         {
             label: "Denied",
-            value: requests.filter((r) => normalizeStatus(r.status) === "Denied").length,
-            valueColor: "#d9534f",
-        },
+            value: requests.filter(
+                (r) =>
+                    normalizeStatus(r.status)
+                    === "Denied"
+            ).length,
+            valueColor: "#d9534f"
+        }
     ];
 
     return (
@@ -59,41 +160,73 @@ function DeptHeadRequestPage() {
 
                 <main className="appeal-content">
 
-                    <h2 className="appeal-page-title mt-2">My Requests</h2>
+                    <h2 className="appeal-page-title mt-2">
+                        My Requests
+                    </h2>
+
                     <p className="appeal-page-subtitle mb-4">
                         Track and file department requests
                     </p>
 
                     {error && (
-                        <p className="text-danger mb-3">{error}</p>
+                        <p className="text-danger mb-3">
+                            {error}
+                        </p>
                     )}
 
                     <div className="appeal-stats-row mb-4">
+
                         {stats.map((stat) => (
+
                             <StatCard
                                 key={stat.label}
-                                value={loading ? "—" : stat.value}
+                                value={
+                                    loading
+                                        ? "—"
+                                        : stat.value
+                                }
                                 valueColor={stat.valueColor}
                                 label={stat.label}
                             />
+
                         ))}
+
                     </div>
 
-                    <Link to="/depthead/requests/file" className="appeal-cta mb-4">
+                    <Link
+                        to="/depthead/requests/file"
+                        className="appeal-cta mb-4"
+                    >
+
                         <div className="appeal-cta-left">
+
                             <div className="appeal-cta-icon">
                                 <i className="bi bi-plus-lg"></i>
                             </div>
+
                             <div>
-                                <div className="appeal-cta-title">File a New Request</div>
-                                <div className="appeal-cta-subtitle">Submit a new department request</div>
+
+                                <div className="appeal-cta-title">
+                                    File a New Request
+                                </div>
+
+                                <div className="appeal-cta-subtitle">
+                                    Request student records for
+                                    review by the Prefect
+                                </div>
+
                             </div>
+
                         </div>
+
                         <i className="bi bi-chevron-right"></i>
+
                     </Link>
 
                     <div className="appeal-filters mt-4 mb-4">
+
                         {filters.map((filter) => (
+
                             <button
                                 key={filter}
                                 className={`btn fw-bold ${
@@ -101,37 +234,81 @@ function DeptHeadRequestPage() {
                                         ? "btn-primary"
                                         : "border border-black"
                                 }`}
-                                onClick={() => setActiveFilter(filter)}
+                                onClick={() =>
+                                    setActiveFilter(filter)
+                                }
                             >
                                 {filter}
                             </button>
+
                         ))}
+
                     </div>
 
                     <div className="appeal-list">
 
-                        {loading && <div className="appeal-empty">Loading requests...</div>}
-
-                        {!loading && filteredRequests.length === 0 && (
-                            <div className="appeal-empty">No requests to show.</div>
+                        {loading && (
+                            <div className="appeal-empty">
+                                Loading requests...
+                            </div>
                         )}
 
-                        {!loading && filteredRequests.map((request) => (
-                            <AppealCard
-                                key={request.requestId}
-                                appealId={`REQ${String(request.requestId).padStart(4, "0")}`}
-                                title={request.type}
-                                status={normalizeStatus(request.status)}
-                                dateSubmitted={request.dateFiled}
-                                prefectName={request.reviewerName}
-                                prefectInitials={request.reviewerInitials}
-                                remarks={request.remarks}
-                                idLabel="REQUEST ID"
-                                reviewerRoleLabel="Reviewer"
-                                awaitingTitle="Awaiting Review"
-                                awaitingText="Your request hasn't been reviewed yet. You'll be notified once a decision is made."
-                            />
-                        ))}
+                        {!loading &&
+                            filteredRequests.length === 0 && (
+                                <div className="appeal-empty">
+                                    No requests to show.
+                                </div>
+                            )}
+
+                        {!loading &&
+                            filteredRequests.map((request) => (
+
+                                <AppealCard
+                                    key={request.requestId}
+
+                                    appealId={
+                                        `REQ${String(
+                                            request.requestId
+                                        ).padStart(4, "0")}`
+                                    }
+
+                                    title={request.type}
+
+                                    status={
+                                        normalizeStatus(
+                                            request.status
+                                        )
+                                    }
+
+                                    dateSubmitted={
+                                        request.dateFiled ?? "—"
+                                    }
+
+                                    details={
+                                        request.details
+                                    }
+
+                                    aiResponse={
+                                        request.aiResponse
+                                    }
+
+                                    remarks={
+                                        request.remarks
+                                        ?? undefined
+                                    }
+
+                                    idLabel="REQUEST ID"
+
+                                    reviewerRoleLabel="Prefect"
+
+                                    awaitingTitle="Awaiting Review"
+
+                                    awaitingText={
+                                        "Your request hasn't been reviewed yet. You'll be notified once a decision is made."
+                                    }
+                                />
+
+                            ))}
 
                     </div>
 

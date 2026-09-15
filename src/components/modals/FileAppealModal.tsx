@@ -36,7 +36,6 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
     useEffect(() => {
         if (!show) return;
 
-        // Reset state each time the modal opens
         setSelectedRecordId("");
         setMessage("");
         setSelectedFile(null);

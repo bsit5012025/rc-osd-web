@@ -14,17 +14,17 @@ interface OffenseTableProps {
 }
 
 function OffenseTable({
-    offenses,
-    paginatedOffenses,
-    loading,
-    offenseSearch,
-    offenseTypeFilter,
-    offenseTypes,
-    onSearchChange,
-    onTypeChange,
-    onAdd,
-    onEdit,
-}: OffenseTableProps) {
+                          offenses,
+                          paginatedOffenses,
+                          loading,
+                          offenseSearch,
+                          offenseTypeFilter,
+                          offenseTypes,
+                          onSearchChange,
+                          onTypeChange,
+                          onAdd,
+                          onEdit,
+                      }: OffenseTableProps) {
     return (
         <>
             <div className="dashboard-table-header">
@@ -85,60 +85,60 @@ function OffenseTable({
                     </colgroup>
 
                     <thead>
-                        <tr>
-                            <th>Offense</th>
-                            <th>Type</th>
-                            <th>Description</th>
-                            <th>Action</th>
-                        </tr>
+                    <tr>
+                        <th>Offense</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
                     </thead>
 
                     <tbody>
-                        {loading && (
-                            <tr>
-                                <td colSpan={4} className="admin-table-empty">
-                                    Loading offenses...
+                    {loading && (
+                        <tr>
+                            <td colSpan={4} className="admin-table-empty">
+                                Loading offenses...
+                            </td>
+                        </tr>
+                    )}
+
+                    {!loading && paginatedOffenses.length === 0 && (
+                        <tr>
+                            <td colSpan={4} className="admin-table-empty">
+                                No offenses found.
+                            </td>
+                        </tr>
+                    )}
+
+                    {!loading &&
+                        paginatedOffenses.map((offense) => (
+                            <tr key={offense.offenseId}>
+                                <td data-label="Offense">
+                                    {offense.offense}
                                 </td>
-                            </tr>
-                        )}
 
-                        {!loading && paginatedOffenses.length === 0 && (
-                            <tr>
-                                <td colSpan={4} className="admin-table-empty">
-                                    No offenses found.
-                                </td>
-                            </tr>
-                        )}
-
-                        {!loading &&
-                            paginatedOffenses.map((offense) => (
-                                <tr key={offense.offenseId}>
-                                    <td data-label="Offense">
-                                        {offense.offense}
-                                    </td>
-
-                                    <td data-label="Type">
+                                <td data-label="Type">
                                         <span className="offense-type-badge">
                                             {offense.type || "—"}
                                         </span>
-                                    </td>
+                                </td>
 
-                                    <td data-label="Description">
-                                        {offense.description || "—"}
-                                    </td>
+                                <td data-label="Description">
+                                    {offense.description || "—"}
+                                </td>
 
-                                    <td data-label="Action">
-                                        <button
-                                            type="button"
-                                            className="edit-action-btn"
-                                            onClick={() => onEdit(offense)}
-                                        >
-                                            <i className="bi bi-pencil-fill"></i>
-                                            <span>Edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                                <td data-label="Action">
+                                    <button
+                                        type="button"
+                                        className="edit-action-btn"
+                                        onClick={() => onEdit(offense)}
+                                    >
+                                        <i className="bi bi-pencil-fill"></i>
+                                        <span>Edit</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>

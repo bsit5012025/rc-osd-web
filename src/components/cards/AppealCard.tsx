@@ -25,19 +25,19 @@ const STATUS_ACCENTS: Record<string, string> = {
 };
 
 function AppealCard({
-    appealId,
-    title,
-    status,
-    dateSubmitted,
-    offenseType,
-    prefectName,
-    prefectInitials,
-    remarks,
-    idLabel = "APPEAL ID",
-    reviewerRoleLabel = "Prefect of Discipline",
-    awaitingTitle = "Awaiting Review",
-    awaitingText = "The prefect hasn't responded yet. You'll be notified once a decision is made.",
-}: AppealCardProps) {
+                        appealId,
+                        title,
+                        status,
+                        dateSubmitted,
+                        offenseType,
+                        prefectName,
+                        prefectInitials,
+                        remarks,
+                        idLabel = "APPEAL ID",
+                        reviewerRoleLabel = "Prefect of Discipline",
+                        awaitingTitle = "Awaiting Review",
+                        awaitingText = "The prefect hasn't responded yet. You'll be notified once a decision is made.",
+                    }: AppealCardProps) {
 
     const statusClass = status.toLowerCase();
     const accentColor = STATUS_ACCENTS[statusClass] ?? "#94a3b8";

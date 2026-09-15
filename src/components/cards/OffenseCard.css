@@ -72,12 +72,6 @@
     font-weight: 500;
 }
 
-/*
-*
-*   LEVEL / STATUS BADGES (shared with the offense table)
-*
-*/
-
 .level-badge,
 .status-badge {
     display: inline-flex;
@@ -101,11 +95,6 @@
     flex-shrink: 0;
 }
 
-/*
-*
-*   LEVEL
-*
-*/
 
 .level-badge.minor {
     background: #e8ecff;
@@ -121,12 +110,6 @@
     background: #f4d7d9;
     color: #7a1f2b;
 }
-
-/*
-*
-*   STATUS
-*
-*/
 
 .status-badge.pending {
     background: #fdf1d0;

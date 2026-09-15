@@ -12,6 +12,7 @@ import AdminDashboardPage from "./pages/admin/dashboard/adminDashboardPage";
 import AppLayout from "./components/layout/AppLayout";
 import DeptHeadLayout from "./components/layout/DeptHeadLayout";
 import AdminLayout from "./components/layout/AdminLayout";
+import FileDeptHeadRequestPage from "./pages/deptHead/request/fileDeptHeadRequestPage";
 {/* import ProtectedRoute from "./components/routing/ProtectedRoute";*/}
 
 
@@ -20,7 +21,6 @@ function App() {
         <BrowserRouter>
             <Routes>
 
-                {/* Login */}
                 <Route
                     path="/login"
                     element={<LoginPage />}
@@ -37,7 +37,6 @@ function App() {
                 >
                 */}
 
-                {/* Student Routes */}
                 <Route element={<AppLayout />}>
 
                     <Route
@@ -68,7 +67,6 @@ function App() {
                 >
                 */}
 
-                {/* Department Head Routes */}
                 <Route element={<DeptHeadLayout />}>
 
                     <Route
@@ -86,10 +84,14 @@ function App() {
                         element={<DeptHeadRequestPage />}
                     />
 
+                    <Route
+                        path="/depthead/requests/file"
+                        element={<FileDeptHeadRequestPage />}
+                    />
+
                 </Route>
 
 
-                {/* Admin Routes */}
                 <Route element={<AdminLayout />}>
 
                     <Route
@@ -100,7 +102,7 @@ function App() {
                 </Route>
 
 
-                {/* Default Routes */}
+
                 <Route
                     path="/"
                     element={<Navigate to="/login" replace />}

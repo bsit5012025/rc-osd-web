@@ -14,11 +14,13 @@ const LEVEL_ACCENTS: Record<string, string> = {
 };
 
 export default function OffenseCard({
-    offense,
-    level,
-    dateFiled,
-    status,
-}: OffenseCardProps) {
+                                        offense,
+                                        level,
+                                        dateFiled,
+                                        status,
+                                    }: OffenseCardProps) {
+
+    const accentColor = LEVEL_ACCENTS[level.toLowerCase()] ?? "#94a3b8";
 
     const accentColor = LEVEL_ACCENTS[level.toLowerCase()] ?? "#94a3b8";
 

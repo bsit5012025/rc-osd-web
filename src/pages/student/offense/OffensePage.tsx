@@ -234,34 +234,34 @@ function OffensesPage() {
                                 <div className="offense-table-wrapper">
                                     <table className="offense-table">
                                         <thead>
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Offense</th>
-                                                <th>Level</th>
-                                                <th>Status</th>
-                                            </tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Offense</th>
+                                            <th>Level</th>
+                                            <th>Status</th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            {pagedRecords.map((record) => (
-                                                <tr key={record.recordId}>
-                                                    <td>{record.dateOfViolation}</td>
-                                                    <td>{record.offense.offense}</td>
-                                                    <td>
+                                        {pagedRecords.map((record) => (
+                                            <tr key={record.recordId}>
+                                                <td>{record.dateOfViolation}</td>
+                                                <td>{record.offense.offense}</td>
+                                                <td>
                                                         <span
                                                             className={`level-badge ${record.offense.type.toLowerCase()}`}
                                                         >
                                                             {record.offense.type}
                                                         </span>
-                                                    </td>
-                                                    <td>
+                                                </td>
+                                                <td>
                                                         <span
                                                             className={`status-badge ${record.status.toLowerCase()}`}
                                                         >
                                                             {record.status}
                                                         </span>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                                </td>
+                                            </tr>
+                                        ))}
                                         </tbody>
                                     </table>
                                 </div>

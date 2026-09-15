@@ -171,8 +171,6 @@
     cursor: not-allowed;
 }
 
-/* ===== Reused field styling ===== */
-
 .new-appeal-section-label {
     font-weight: 700;
     font-size: 0.85rem;
@@ -219,7 +217,6 @@
     box-shadow: 0 0 0 0.2rem rgba(26, 26, 46, 0.15);
 }
 
-/* ===== Upload box ===== */
 
 .upload-box {
     border: 1.5px dashed var(--color-border, #d8d8e2);
@@ -332,7 +329,6 @@
     transform: translateY(-1px);
 }
 
-/* ===== AI suggestion ===== */
 
 .ai-suggestion-card {
     display: flex;
@@ -363,7 +359,6 @@
     line-height: 1.5;
 }
 
-/* ===== Success state ===== */
 
 .file-appeal-success-icon {
     width: 56px;

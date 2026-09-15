@@ -14,17 +14,17 @@ interface StudentTableProps {
 }
 
 function StudentTable({
-    students,
-    paginatedStudents,
-    loading,
-    studentSearch,
-    departmentFilter,
-    departments,
-    onSearchChange,
-    onDepartmentChange,
-    onAdd,
-    onEdit,
-}: StudentTableProps) {
+                          students,
+                          paginatedStudents,
+                          loading,
+                          studentSearch,
+                          departmentFilter,
+                          departments,
+                          onSearchChange,
+                          onDepartmentChange,
+                          onAdd,
+                          onEdit,
+                      }: StudentTableProps) {
     return (
         <>
             <div className="dashboard-table-header">
@@ -86,73 +86,73 @@ function StudentTable({
                     </colgroup>
 
                     <thead>
-                        <tr>
-                            <th>Student ID</th>
-                            <th>Name</th>
-                            <th>Department</th>
-                            <th>Contact</th>
-                            <th>Action</th>
-                        </tr>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Contact</th>
+                        <th>Action</th>
+                    </tr>
                     </thead>
 
                     <tbody>
-                        {loading && (
-                            <tr>
-                                <td colSpan={5} className="admin-table-empty">
-                                    Loading students...
-                                </td>
-                            </tr>
-                        )}
+                    {loading && (
+                        <tr>
+                            <td colSpan={5} className="admin-table-empty">
+                                Loading students...
+                            </td>
+                        </tr>
+                    )}
 
-                        {!loading && paginatedStudents.length === 0 && (
-                            <tr>
-                                <td colSpan={5} className="admin-table-empty">
-                                    No students found.
-                                </td>
-                            </tr>
-                        )}
+                    {!loading && paginatedStudents.length === 0 && (
+                        <tr>
+                            <td colSpan={5} className="admin-table-empty">
+                                No students found.
+                            </td>
+                        </tr>
+                    )}
 
-                        {!loading &&
-                            paginatedStudents.map((student) => {
-                                const fullName = [
-                                    student.person?.firstName,
-                                    student.person?.middleName,
-                                    student.person?.lastName,
-                                ]
-                                    .filter(Boolean)
-                                    .join(" ");
+                    {!loading &&
+                        paginatedStudents.map((student) => {
+                            const fullName = [
+                                student.person?.firstName,
+                                student.person?.middleName,
+                                student.person?.lastName,
+                            ]
+                                .filter(Boolean)
+                                .join(" ");
 
-                                return (
-                                    <tr key={student.studentId}>
-                                        <td data-label="Student ID">
-                                            {student.studentId}
-                                        </td>
+                            return (
+                                <tr key={student.studentId}>
+                                    <td data-label="Student ID">
+                                        {student.studentId}
+                                    </td>
 
-                                        <td data-label="Name">
-                                            {fullName || "—"}
-                                        </td>
+                                    <td data-label="Name">
+                                        {fullName || "—"}
+                                    </td>
 
-                                        <td data-label="Department">
-                                            {student.department || "—"}
-                                        </td>
+                                    <td data-label="Department">
+                                        {student.department || "—"}
+                                    </td>
 
-                                        <td data-label="Contact">
-                                            {student.contactNumber || "—"}
-                                        </td>
+                                    <td data-label="Contact">
+                                        {student.contactNumber || "—"}
+                                    </td>
 
-                                        <td data-label="Action">
-                                            <button
-                                                type="button"
-                                                className="edit-action-btn"
-                                                onClick={() => onEdit(student)}
-                                            >
-                                                <i className="bi bi-pencil-fill"></i>
-                                                <span>Edit</span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                                    <td data-label="Action">
+                                        <button
+                                            type="button"
+                                            className="edit-action-btn"
+                                            onClick={() => onEdit(student)}
+                                        >
+                                            <i className="bi bi-pencil-fill"></i>
+                                            <span>Edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
