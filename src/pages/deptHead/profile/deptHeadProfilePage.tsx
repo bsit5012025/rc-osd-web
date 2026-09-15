@@ -3,42 +3,36 @@ import TopBar from "../../../components/navigation/TopBar";
 import ProfileHeader from "../../../components/navigation/ProfileHeader";
 import InfoList from "../../../components/cards/InfoList";
 import ActionListItem from "../../../components/cards/ActionList";
-import { getMyEmployeeInfo } from "../../../services/employeeApi";
+import { getMyEmployeeInfo, type EmployeeSummary, } from "../../../services/employeeApi";
 import "./deptHeadProfilePage.css";
 
 function DeptHeadProfilePage() {
-
-    const [fullName, setFullName] = useState("");
-    const [employeeId, setEmployeeId] = useState("");
-    const [departmentName, setDepartmentName] = useState("");
-    const [employeeRole, setEmployeeRole] = useState("");
-    const [dateOfBirth, setDateOfBirth] = useState("");
+    const [profile, setProfile] = useState<EmployeeSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const fetchProfileData = async () => {
+        const fetchProfile = async () => {
             try {
-                setLoading(true);
-                setError("");
+                const data = await getMyEmployeeInfo();
 
-                const employeeInfo = await getMyEmployeeInfo();
+                console.log("Employee profile:", data);
 
-                setFullName(employeeInfo.fullName ?? "");
-                setEmployeeId(employeeInfo.employeeId ?? "");
-                setDepartmentName(employeeInfo.department ?? "");
-                setEmployeeRole(employeeInfo.employeeRole ?? "");
-                setDateOfBirth(employeeInfo.dateOfBirth ?? "");
+                setProfile(data);
             } catch (err) {
-                console.error("Failed to fetch department head profile data:", err);
-                setError("Failed to load profile data.");
+                console.error("Failed to fetch employee profile:", err);
+                setError("Failed to load employee profile.");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProfileData();
+        fetchProfile();
     }, []);
+
+    const fullName = profile?.fullName ?? "";
+    const employeeId = profile?.employeeId ?? "";
+    const employeeRole = profile?.employeeRole ?? "";
 
     const initials = fullName
         ? fullName
@@ -51,15 +45,40 @@ function DeptHeadProfilePage() {
         : "";
 
     const personalInfo = [
-        { icon: "bi-person", label: "Name", value: loading ? "Loading..." : (fullName || "—") },
-        { icon: "bi-calendar3", label: "Date of Birth", value: loading ? "Loading..." : (dateOfBirth || "—") },
-        { icon: "bi-building", label: "Department", value: loading ? "Loading..." : (departmentName || "—") },
-        { icon: "bi-briefcase", label: "Employee Role", value: loading ? "Loading..." : (employeeRole || "—") },
+        {
+            icon: "bi-person",
+            label: "Name",
+            value: fullName || "—",
+        },
+        {
+            icon: "bi-briefcase",
+            label: "Employee Role",
+            value: employeeRole || "—",
+        },
     ];
+
+    if (loading) {
+        return (
+            <div className="depthead-profile-page">
+                <div className="container-fluid px-3 px-md-4 py-3 py-md-4">
+                    <p>Loading profile...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="depthead-profile-page">
+                <div className="container-fluid px-3 px-md-4 py-3 py-md-4">
+                    <p>{error}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="depthead-profile-page">
-
             <div className="container-fluid px-3 px-md-4 py-3 py-md-4">
 
                 <TopBar>
@@ -67,8 +86,10 @@ function DeptHeadProfilePage() {
                         initials={initials}
                         name={fullName || "Department Head"}
                         infoItems={[
-                            { label: "Employee ID", value: employeeId || "—" },
-                            { label: "Department", value: departmentName || "—" },
+                            {
+                                label: "Employee ID",
+                                value: employeeId || "—",
+                            },
                         ]}
                     />
                 </TopBar>
@@ -82,34 +103,45 @@ function DeptHeadProfilePage() {
                     <div className="profile-lower-sections mt-4 mt-md-5">
 
                         <div className="profile-section mb-4">
-                            <h5 className="mb-3">Personal Information</h5>
+                            <h5 className="mb-3">
+                                Personal Information
+                            </h5>
+
                             <InfoList items={personalInfo} />
                         </div>
 
                         <div>
-
                             <div className="profile-section mb-4">
-                                <h5 className="mb-3">Account</h5>
+                                <h5 className="mb-3">
+                                    Account
+                                </h5>
+
                                 <div className="action-list">
-                                    <ActionListItem icon="bi-lock" label="Change Password" />
+                                    <ActionListItem
+                                        icon="bi-lock"
+                                        label="Change Password"
+                                    />
                                 </div>
                             </div>
 
                             <div className="profile-section mb-4">
-                                <h5 className="mb-3">Support</h5>
+                                <h5 className="mb-3">
+                                    Support
+                                </h5>
+
                                 <div className="action-list">
-                                    <ActionListItem icon="bi-file-earmark-text" label="Student Handbook" />
+                                    <ActionListItem
+                                        icon="bi-file-earmark-text"
+                                        label="Student Handbook"
+                                    />
                                 </div>
                             </div>
-
                         </div>
 
                     </div>
 
                 </main>
-
             </div>
-
         </div>
     );
 }
