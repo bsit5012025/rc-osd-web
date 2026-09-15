@@ -102,9 +102,19 @@ function DeptHeadRequestPage() {
             });
         }
 
-        result = [...result].sort((a, b) =>
-            (b.dateFiled ?? "").localeCompare(a.dateFiled ?? "")
-        );
+        result = [...result].sort((a, b) => {
+            const dateA = a.dateFiled ? new Date(a.dateFiled).getTime() : 0;
+            const dateB = b.dateFiled ? new Date(b.dateFiled).getTime() : 0;
+
+            if (dateB !== dateA) {
+                return dateB - dateA;
+            }
+
+            // Same date (dateFiled has no time component on the backend) —
+            // fall back to requestId, which is a DB auto-increment value,
+            // so a higher ID always means it was filed more recently.
+            return Number(b.requestId) - Number(a.requestId);
+        });
 
         return result;
     }, [requests, activeFilter, search]);
