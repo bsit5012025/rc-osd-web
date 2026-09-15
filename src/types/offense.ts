@@ -3,4 +3,5 @@ export interface Offense {
     offense: string;
     description: string;
     type: string;
+    isActive: boolean;
 }

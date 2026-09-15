@@ -5,6 +5,7 @@ export interface OffenseInput {
 offense: string;
 type: string;
 description: string;
+isActive?: boolean;
 }
 
 const OFFENSE_API_URL = "/api/offenses";
