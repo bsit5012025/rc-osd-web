@@ -36,12 +36,12 @@ function DeptHeadProfilePage() {
 
     const initials = fullName
         ? fullName
-              .split(" ")
-              .filter(Boolean)
-              .map((part) => part[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()
+            .split(" ")
+            .filter(Boolean)
+            .map((part) => part[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase()
         : "";
 
     const personalInfo = [
@@ -95,6 +95,10 @@ function DeptHeadProfilePage() {
                 </TopBar>
 
                 <main className="depthead-profile-content">
+
+                    {error && (
+                        <p className="text-danger mt-3">{error}</p>
+                    )}
 
                     <div className="profile-lower-sections mt-4 mt-md-5">
 

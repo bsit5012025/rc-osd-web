@@ -24,8 +24,6 @@
     }
 }
 
-/* ===== Panel wrapping the list ===== */
-
 .offense-panel {
     background: #fff;
     border-radius: var(--radius-lg, 14px);
@@ -53,8 +51,6 @@
 .offense-list {
     width: 100%;
 }
-
-/* ===== Toolbar: search + filter ===== */
 
 .offense-toolbar {
     display: flex;
@@ -141,8 +137,6 @@
     box-shadow: 0 0 0 3px rgba(27, 27, 143, 0.1);
 }
 
-/* ===== Empty / loading state ===== */
-
 .offense-state {
     display: flex;
     flex-direction: column;
@@ -180,7 +174,6 @@
     }
 }
 
-/* ===== Responsive table (desktop) / cards (mobile) toggle ===== */
 
 .offense-table-wrapper {
     display: none;
@@ -241,7 +234,6 @@
     }
 }
 
-/* ===== Pagination ===== */
 
 .offense-pagination {
     display: flex;

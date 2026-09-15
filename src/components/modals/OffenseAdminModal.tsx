@@ -14,16 +14,16 @@ interface OffenseAdminModalProps {
 }
 
 function OffenseAdminModal({
-    show,
-    editingId,
-    form,
-    error,
-    saving,
-    offenseTypes,
-    onClose,
-    onSubmit,
-    onChange,
-}: OffenseAdminModalProps) {
+                               show,
+                               editingId,
+                               form,
+                               error,
+                               saving,
+                               offenseTypes,
+                               onClose,
+                               onSubmit,
+                               onChange,
+                           }: OffenseAdminModalProps) {
     if (!show) {
         return null;
     }

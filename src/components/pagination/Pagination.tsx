@@ -6,11 +6,11 @@ interface PaginationProps {
 }
 
 function Pagination({
-    currentPage,
-    totalPages,
-    onPrevious,
-    onNext,
-}: PaginationProps) {
+                        currentPage,
+                        totalPages,
+                        onPrevious,
+                        onNext,
+                    }: PaginationProps) {
     return (
         <div className="dashboard-pagination">
             <button
