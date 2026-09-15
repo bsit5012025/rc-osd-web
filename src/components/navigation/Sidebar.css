@@ -216,11 +216,7 @@
 
 
     .nav-item-custom:last-child {
-        margin-top: auto;
-
         border-bottom: none;
-
-        border-top: 1px solid rgba(27, 27, 143, 0.15);
     }
 
 
