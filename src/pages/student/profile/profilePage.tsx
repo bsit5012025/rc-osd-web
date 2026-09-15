@@ -67,8 +67,8 @@ function ProfilePage() {
 
     const fullName = student
         ? [student.person.firstName, student.person.middleName, student.person.lastName]
-              .filter(Boolean)
-              .join(" ")
+            .filter(Boolean)
+            .join(" ")
         : "";
 
     const initials = student
@@ -82,8 +82,8 @@ function ProfilePage() {
     const primaryGuardian = student?.guardians?.[0];
     const guardianContact = primaryGuardian
         ? `${primaryGuardian.contactNumber || "—"}${
-              primaryGuardian.relationship ? ` (${primaryGuardian.relationship})` : ""
-          }`
+            primaryGuardian.relationship ? ` (${primaryGuardian.relationship})` : ""
+        }`
         : "No guardian on file";
 
     const stats = [

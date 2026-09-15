@@ -20,7 +20,6 @@ function App() {
         <BrowserRouter>
             <Routes>
 
-                {/* Login */}
                 <Route
                     path="/login"
                     element={<LoginPage />}
@@ -37,7 +36,6 @@ function App() {
                 >
                 */}
 
-                {/* Student Routes */}
                 <Route element={<AppLayout />}>
 
                     <Route
@@ -68,7 +66,6 @@ function App() {
                 >
                 */}
 
-                {/* Department Head Routes */}
                 <Route element={<DeptHeadLayout />}>
 
                     <Route
@@ -89,7 +86,6 @@ function App() {
                 </Route>
 
 
-                {/* Admin Routes */}
                 <Route element={<AdminLayout />}>
 
                     <Route
@@ -100,7 +96,7 @@ function App() {
                 </Route>
 
 
-                {/* Default Routes */}
+
                 <Route
                     path="/"
                     element={<Navigate to="/login" replace />}

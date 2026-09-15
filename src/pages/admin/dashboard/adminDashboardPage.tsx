@@ -394,9 +394,9 @@ function AdminDashboardPage() {
             const duplicateOffense = offenses.some(
                 (offense) =>
                     offense.offense?.trim().toLowerCase() ===
-                        offenseForm.offense.trim().toLowerCase() &&
+                    offenseForm.offense.trim().toLowerCase() &&
                     offense.type?.trim().toLowerCase() ===
-                        offenseForm.type.trim().toLowerCase()
+                    offenseForm.type.trim().toLowerCase()
             );
 
             if (duplicateOffense) {

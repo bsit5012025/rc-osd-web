@@ -26,7 +26,6 @@ function OffensesPage() {
     const [student, setStudent] = useState<Student | null>(null);
 
     const [search, setSearch] = useState("");
-    const [levelFilter, setLevelFilter] = useState("All");
     const [currentPage, setCurrentPage] = useState(1);
 
     const [loading, setLoading] = useState(true);
@@ -107,31 +106,34 @@ function OffensesPage() {
         },
     ];
 
-    const levels = useMemo(
-        () => Array.from(new Set(records.map((r) => r.offense.type))).sort(),
-        [records]
-    );
-
     const processedRecords = useMemo(() => {
         let result = [...records];
 
         if (search.trim()) {
             const q = search.trim().toLowerCase();
-            result = result.filter((r) => r.offense.offense.toLowerCase().includes(q));
-        }
+            result = result.filter((r) => {
+                const haystack = [
+                    r.offense.offense,
+                    r.offense.type,
+                    r.status,
+                    r.dateOfViolation,
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
 
-        if (levelFilter !== "All") {
-            result = result.filter((r) => r.offense.type === levelFilter);
+                return haystack.includes(q);
+            });
         }
 
         result.sort((a, b) => (b.dateOfViolation || "").localeCompare(a.dateOfViolation || ""));
 
         return result;
-    }, [records, search, levelFilter]);
+    }, [records, search]);
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, levelFilter]);
+    }, [search]);
 
     const totalPages = Math.max(1, Math.ceil(processedRecords.length / PAGE_SIZE));
     const pagedRecords = processedRecords.slice(
@@ -187,22 +189,11 @@ function OffensesPage() {
                                     <i className="bi bi-search"></i>
                                     <input
                                         type="text"
-                                        placeholder="Search offense..."
+                                        placeholder="Search offenses..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                     />
                                 </div>
-
-                                <select
-                                    className="offense-select"
-                                    value={levelFilter}
-                                    onChange={(e) => setLevelFilter(e.target.value)}
-                                >
-                                    <option value="All">All Levels</option>
-                                    {levels.map((lvl) => (
-                                        <option key={lvl} value={lvl}>{lvl}</option>
-                                    ))}
-                                </select>
 
                             </div>
 
@@ -234,34 +225,34 @@ function OffensesPage() {
                                 <div className="offense-table-wrapper">
                                     <table className="offense-table">
                                         <thead>
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Offense</th>
-                                                <th>Level</th>
-                                                <th>Status</th>
-                                            </tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Offense</th>
+                                            <th>Level</th>
+                                            <th>Status</th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            {pagedRecords.map((record) => (
-                                                <tr key={record.recordId}>
-                                                    <td>{record.dateOfViolation}</td>
-                                                    <td>{record.offense.offense}</td>
-                                                    <td>
+                                        {pagedRecords.map((record) => (
+                                            <tr key={record.recordId}>
+                                                <td>{record.dateOfViolation}</td>
+                                                <td>{record.offense.offense}</td>
+                                                <td>
                                                         <span
                                                             className={`level-badge ${record.offense.type.toLowerCase()}`}
                                                         >
                                                             {record.offense.type}
                                                         </span>
-                                                    </td>
-                                                    <td>
+                                                </td>
+                                                <td>
                                                         <span
                                                             className={`status-badge ${record.status.toLowerCase()}`}
                                                         >
                                                             {record.status}
                                                         </span>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                                </td>
+                                            </tr>
+                                        ))}
                                         </tbody>
                                     </table>
                                 </div>

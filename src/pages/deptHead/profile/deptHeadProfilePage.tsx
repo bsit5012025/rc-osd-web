@@ -1,34 +1,60 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TopBar from "../../../components/navigation/TopBar";
 import ProfileHeader from "../../../components/navigation/ProfileHeader";
 import InfoList from "../../../components/cards/InfoList";
 import ActionListItem from "../../../components/cards/ActionList";
-import "./deptHeadProfilePage.css";
+import { getMyEmployeeInfo } from "../../../services/employeeApi";
 import "./deptHeadProfilePage.css";
 
 function DeptHeadProfilePage() {
 
-    const [fullName] = useState("");
-    const [employeeId] = useState("");
-    const [departmentName] = useState("");
-    const [employeeRole] = useState("");
-    const [dateOfBirth] = useState("");
+    const [fullName, setFullName] = useState("");
+    const [employeeId, setEmployeeId] = useState("");
+    const [departmentName, setDepartmentName] = useState("");
+    const [employeeRole, setEmployeeRole] = useState("");
+    const [dateOfBirth, setDateOfBirth] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                setLoading(true);
+                setError("");
+
+                const employeeInfo = await getMyEmployeeInfo();
+
+                setFullName(employeeInfo.fullName ?? "");
+                setEmployeeId(employeeInfo.employeeId ?? "");
+                setDepartmentName(employeeInfo.department ?? "");
+                setEmployeeRole(employeeInfo.employeeRole ?? "");
+                setDateOfBirth(employeeInfo.dateOfBirth ?? "");
+            } catch (err) {
+                console.error("Failed to fetch department head profile data:", err);
+                setError("Failed to load profile data.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfileData();
+    }, []);
 
     const initials = fullName
         ? fullName
-              .split(" ")
-              .filter(Boolean)
-              .map((part) => part[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()
+            .split(" ")
+            .filter(Boolean)
+            .map((part) => part[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase()
         : "";
 
     const personalInfo = [
-        { icon: "bi-person", label: "Name", value: fullName || "—" },
-        { icon: "bi-calendar3", label: "Date of Birth", value: dateOfBirth || "—" },
-        { icon: "bi-building", label: "Department", value: departmentName || "—" },
-        { icon: "bi-briefcase", label: "Employee Role", value: employeeRole || "—" },
+        { icon: "bi-person", label: "Name", value: loading ? "Loading..." : (fullName || "—") },
+        { icon: "bi-calendar3", label: "Date of Birth", value: loading ? "Loading..." : (dateOfBirth || "—") },
+        { icon: "bi-building", label: "Department", value: loading ? "Loading..." : (departmentName || "—") },
+        { icon: "bi-briefcase", label: "Employee Role", value: loading ? "Loading..." : (employeeRole || "—") },
     ];
 
     return (
@@ -48,6 +74,10 @@ function DeptHeadProfilePage() {
                 </TopBar>
 
                 <main className="depthead-profile-content">
+
+                    {error && (
+                        <p className="text-danger mt-3">{error}</p>
+                    )}
 
                     <div className="profile-lower-sections mt-4 mt-md-5">
 

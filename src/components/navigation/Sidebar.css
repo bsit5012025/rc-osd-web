@@ -62,9 +62,6 @@
 
 @media (min-width: 992px) {
 
-    /*
-     * Expanded sidebar
-     */
     .bottom-nav {
         position: fixed;
 
@@ -93,9 +90,6 @@
     }
 
 
-    /*
-     * Collapsed sidebar
-     */
     .bottom-nav.collapsed {
         width: 72px;
     }
@@ -183,8 +177,8 @@
         color: #1b1b8f;
 
         transition:
-            background-color 0.15s ease,
-            padding 0.2s ease;
+                background-color 0.15s ease,
+                padding 0.2s ease;
 
         white-space: nowrap;
 
@@ -222,11 +216,7 @@
 
 
     .nav-item-custom:last-child {
-        margin-top: auto;
-
         border-bottom: none;
-
-        border-top: 1px solid rgba(27, 27, 143, 0.15);
     }
 
 

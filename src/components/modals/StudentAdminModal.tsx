@@ -15,17 +15,17 @@ interface StudentAdminModalProps {
 }
 
 function StudentAdminModal({
-    show,
-    editingId,
-    form,
-    error,
-    saving,
-    departments,
-    studentTypes,
-    onClose,
-    onSubmit,
-    onChange,
-}: StudentAdminModalProps) {
+                               show,
+                               editingId,
+                               form,
+                               error,
+                               saving,
+                               departments,
+                               studentTypes,
+                               onClose,
+                               onSubmit,
+                               onChange,
+                           }: StudentAdminModalProps) {
     if (!show) {
         return null;
     }
