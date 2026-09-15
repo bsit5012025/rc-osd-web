@@ -31,8 +31,8 @@ function StudentAdminModal({
     }
 
     return (
-        <div className="admin-modal-overlay" onClick={onClose}>
-            <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-modal-overlay">
+            <div className="admin-modal">
                 <div className="admin-modal-header">
                     <h4>
                         {editingId !== null ? "Edit Student" : "Add Student"}
