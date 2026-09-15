@@ -12,7 +12,6 @@ import AdminDashboardPage from "./pages/admin/dashboard/adminDashboardPage";
 import AppLayout from "./components/layout/AppLayout";
 import DeptHeadLayout from "./components/layout/DeptHeadLayout";
 import AdminLayout from "./components/layout/AdminLayout";
-import FileDeptHeadRequestPage from "./pages/deptHead/request/fileDeptHeadRequestPage";
 {/* import ProtectedRoute from "./components/routing/ProtectedRoute";*/}
 
 
@@ -82,11 +81,6 @@ function App() {
                     <Route
                         path="/depthead/requests"
                         element={<DeptHeadRequestPage />}
-                    />
-
-                    <Route
-                        path="/depthead/requests/file"
-                        element={<FileDeptHeadRequestPage />}
                     />
 
                 </Route>

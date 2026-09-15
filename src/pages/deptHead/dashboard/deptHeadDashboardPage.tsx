@@ -51,31 +51,25 @@ function DeptHeadDashboardPage() {
 
     const stats = [
         {
-            icon: "bi-inbox-fill",
-            iconColor: "#6d6adf",
-            iconBg: "#ecebfc",
             value: requests.length,
+            valueColor: "#1a1a2e",
             label: "Total Requests",
         },
         {
-            icon: "bi-hourglass-split",
-            iconColor: "#e6a23c",
-            iconBg: "#fdf1e2",
             value: requests.filter((r) => r.status?.toUpperCase() === "PENDING").length,
+            valueColor: "#E1AD01",
             label: "Pending Requests",
         },
         {
-            icon: "bi-calendar-check-fill",
-            iconColor: "#3cb371",
-            iconBg: "#e5f6ec",
             value: requests.filter((r) => r.dateFiled === todayIso).length,
+            valueColor: "#3cb371",
             label: "Requests Today",
         },
     ];
 
     const recentRequests = [...requests]
         .sort((a, b) => (b.dateFiled ?? "").localeCompare(a.dateFiled ?? ""))
-        .slice(0, 10);
+        .slice(0, 5);
 
     return (
         <div className="depthead-dashboard-page">
@@ -102,53 +96,92 @@ function DeptHeadDashboardPage() {
                         </span>
                     </div>
 
-
                     <div className="stats-row mt-3 mb-4 mb-md-5">
                         {stats.map((stat) => (
                             <StatCard
                                 key={stat.label}
-                                icon={stat.icon}
-                                iconColor={stat.iconColor}
-                                iconBg={stat.iconBg}
                                 value={loading ? "—" : stat.value}
+                                valueColor={stat.valueColor}
                                 label={stat.label}
                             />
                         ))}
                     </div>
 
+                    <div className="dashboard-panel">
 
-                    <div className="mb-4">
-                        <h5 className="mb-3">Recent Requests</h5>
-
-                        <div className="dashboard-section p-0">
-                            <div className="recent-requests-scroll">
-                                <table className="recent-requests-table">
-                                    <thead>
-                                    <tr>
-                                        <th>Date Filed</th>
-                                        <th>Type</th>
-                                        <th>Status</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {!loading && recentRequests.length === 0 && (
-                                        <tr>
-                                            <td colSpan={3} className="recent-requests-empty">
-                                                No requests recorded yet.
-                                            </td>
-                                        </tr>
-                                    )}
-                                    {recentRequests.map((req) => (
-                                        <tr key={req.requestId}>
-                                            <td>{req.dateFiled ?? "—"}</td>
-                                            <td>{req.type}</td>
-                                            <td>{req.status}</td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div className="dashboard-panel-header">
+                            <h2 className="dashboard-panel-title">Recent Requests</h2>
+                            <p className="dashboard-panel-subtitle">
+                                Latest requests filed within your department
+                            </p>
                         </div>
+
+                        {loading && (
+                            <div className="dashboard-state">
+                                <i className="bi bi-arrow-repeat dashboard-spinner"></i>
+                                <strong>Loading requests…</strong>
+                            </div>
+                        )}
+
+                        {!loading && !error && recentRequests.length === 0 && (
+                            <div className="dashboard-state">
+                                <i className="bi bi-inbox"></i>
+                                <strong>No requests found</strong>
+                                <span>Requests filed by your department will show up here.</span>
+                            </div>
+                        )}
+
+                        {!loading && !error && recentRequests.length > 0 && (
+                            <>
+                                <div className="recent-requests-table-wrapper">
+                                    <div className="recent-requests-scroll">
+                                        <table className="recent-requests-table">
+                                            <thead>
+                                            <tr>
+                                                <th>Date Filed</th>
+                                                <th>Type</th>
+                                                <th>Status</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {recentRequests.map((req) => (
+                                                <tr key={req.requestId}>
+                                                    <td>{req.dateFiled ?? "—"}</td>
+                                                    <td>{req.type}</td>
+                                                    <td>
+                                                        <span
+                                                            className={`status-badge ${req.status?.toLowerCase() ?? ""}`}
+                                                        >
+                                                            {req.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div className="recent-requests-cards-wrapper">
+                                    {recentRequests.map((req) => (
+                                        <div className="recent-request-card" key={req.requestId}>
+                                            <div className="recent-request-card-top">
+                                                <span className="recent-request-card-type">{req.type}</span>
+                                                <span
+                                                    className={`status-badge ${req.status?.toLowerCase() ?? ""}`}
+                                                >
+                                                    {req.status}
+                                                </span>
+                                            </div>
+                                            <span className="recent-request-card-date">
+                                                {req.dateFiled ?? "—"}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
                     </div>
 
                 </main>
