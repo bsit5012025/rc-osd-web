@@ -9,7 +9,7 @@ import BulkImportModal, {
     type BulkImportColumn,
 } from "../../../components/modals/BulkImportModal";
 import Pagination from "../../../components/pagination/Pagination";
-import { getAllStudents, createStudent, updateStudent, } from "../../../services/studentApi";
+import { getAllStudents, createStudent, updateStudent, setStudentActive } from "../../../services/studentApi";
 import type { Student, StudentInput, } from "../../../services/studentApi";
 import { getOffenses, createOffense, updateOffense, setOffenseActive} from "../../../services/offenseApi";
 import type { OffenseInput } from "../../../services/offenseApi";
@@ -460,57 +460,36 @@ function AdminDashboardPage() {
     };
 
     const handleToggleStudentStatus = async (student: Student) => {
-        const nextStatus = !student.isActive;
+    const newStatus = !student.isActive;
+    const studentId = student.studentId;
 
-        setSavingStudentStatusIds((previous) => {
-            const next = new Set(previous);
-            next.add(student.studentId);
-            return next;
-        });
+    setSavingStudentStatusIds((previous) => {
+        const next = new Set(previous);
+        next.add(studentId);
+        return next;
+    });
+
+    try {
+        await setStudentActive(studentId, newStatus);
 
         setStudents((previous) =>
-            previous.map((s) =>
-                s.studentId === student.studentId
-                    ? { ...s, isActive: nextStatus }
-                    : s
+            previous.map((item) =>
+                item.studentId === studentId
+                    ? { ...item, isActive: newStatus }
+                    : item
             )
         );
-
-        try {
-            await updateStudent(student.studentId, {
-                studentId: student.studentId,
-                address: student.address,
-                department: student.department,
-                studentType: student.studentType,
-                contactNumber: student.contactNumber,
-                isActive: nextStatus,
-                person: {
-                    firstName: student.person?.firstName || "",
-                    middleName: student.person?.middleName || "",
-                    lastName: student.person?.lastName || "",
-                    dateOfBirth: student.person?.dateOfBirth || null,
-                },
-            });
-        } catch (err) {
-            console.error("Failed to update student status:", err);
-
-            setStudents((previous) =>
-                previous.map((s) =>
-                    s.studentId === student.studentId
-                        ? { ...s, isActive: student.isActive }
-                        : s
-                )
-            );
-
-            setError("Failed to update student status. Please try again.");
-        } finally {
-            setSavingStudentStatusIds((previous) => {
-                const next = new Set(previous);
-                next.delete(student.studentId);
-                return next;
-            });
-        }
-    };
+    } catch (err) {
+        console.error("Failed to change student status:", err);
+        setError("Failed to change student status. Please try again.");
+    } finally {
+        setSavingStudentStatusIds((previous) => {
+            const next = new Set(previous);
+            next.delete(studentId);
+            return next;
+        });
+    }
+};
 
     const openAddOffenseModal = () => {
         setEditingOffenseId(null);
