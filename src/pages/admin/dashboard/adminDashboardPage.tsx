@@ -11,7 +11,7 @@ import BulkImportModal, {
 import Pagination from "../../../components/pagination/Pagination";
 import { getAllStudents, createStudent, updateStudent, } from "../../../services/studentApi";
 import type { Student, StudentInput, } from "../../../services/studentApi";
-import { getOffenses, createOffense, updateOffense, } from "../../../services/offenseApi";
+import { getOffenses, createOffense, updateOffense, setOffenseActive} from "../../../services/offenseApi";
 import type { OffenseInput } from "../../../services/offenseApi";
 import type { Offense } from "../../../types/offense";
 import "./adminDashboardPage.css";
@@ -144,6 +144,7 @@ function AdminDashboardPage() {
     const [offenseForm, setOffenseForm] = useState<OffenseInput>(emptyOffenseForm);
     const [offenseFormError, setOffenseFormError] = useState("");
     const [savingOffense, setSavingOffense] = useState(false);
+    const [savingStatusIds, setSavingStatusIds] = useState<Set<number>>( new Set());
     const [savingStudentStatusIds, setSavingStudentStatusIds] = useState<Set<string>>(new Set());
     const [savingOffenseStatusIds, setSavingOffenseStatusIds] = useState<Set<number>>(new Set());
     const [showStudentImportModal, setShowStudentImportModal] = useState(false);
@@ -615,7 +616,8 @@ function AdminDashboardPage() {
     };
 
     const handleToggleOffenseStatus = async (offense: Offense) => {
-        const nextStatus = !offense.isActive;
+        const newStatus = !offense.isActive;
+        const offenseId = offense.offenseId;
 
         setSavingOffenseStatusIds((previous) => {
             const next = new Set(previous);
@@ -623,41 +625,28 @@ function AdminDashboardPage() {
             return next;
         });
 
+        try {
+        await setOffenseActive(offenseId, newStatus);
+
         setOffenses((previous) =>
-            previous.map((o) =>
-                o.offenseId === offense.offenseId
-                    ? { ...o, isActive: nextStatus }
-                    : o
+            previous.map((item) =>
+                item.offenseId === offenseId
+                    ? { ...item, isActive: newStatus }
+                    : item
             )
         );
 
-        try {
-            await updateOffense(offense.offenseId, {
-                offense: offense.offense,
-                type: offense.type,
-                description: offense.description,
-                isActive: nextStatus,
-            });
-        } catch (err) {
-            console.error("Failed to update offense status:", err);
-
-            setOffenses((previous) =>
-                previous.map((o) =>
-                    o.offenseId === offense.offenseId
-                        ? { ...o, isActive: offense.isActive }
-                        : o
-                )
-            );
-
-            setError("Failed to update offense status. Please try again.");
-        } finally {
-            setSavingOffenseStatusIds((previous) => {
-                const next = new Set(previous);
-                next.delete(offense.offenseId);
-                return next;
-            });
-        }
-    };
+    } catch (err) {
+        console.error("Failed to change offense status:", err);
+        setError("Failed to change offense status. Please try again.");
+    } finally {
+        setSavingOffenseStatusIds((previous) => {
+            const next = new Set(previous);
+            next.delete(offenseId);
+            return next;
+});
+    }
+};
 
     return (
         <div className="admin-dashboard-page">
