@@ -67,6 +67,19 @@ export const getAllStudents = async (
     return response.data;
 };
 
+export const getActiveStudents = async (
+    department?: string
+): Promise<Student[]> => {
+    const response = await apiClient.get<Student[]>(
+        "/api/students/active",
+        {
+            params: department ? { department } : {},
+        }
+    );
+
+    return response.data;
+};
+
 export const createStudent = async (
     student: StudentInput
 ): Promise<Student> => {
@@ -85,6 +98,21 @@ export const updateStudent = async (
     const response = await apiClient.put<Student>(
         `/api/students/${studentId}`,
         student
+    );
+
+    return response.data;
+};
+
+export const setStudentActive = async (
+    studentId: string,
+    active: boolean
+): Promise<Student> => {
+    const response = await apiClient.patch<Student>(
+        `/api/students/${studentId}/active`,
+        null,
+        {
+            params: { active },
+        }
     );
 
     return response.data;
