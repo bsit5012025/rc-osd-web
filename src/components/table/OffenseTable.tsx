@@ -7,10 +7,12 @@ interface OffenseTableProps {
     offenseSearch: string;
     offenseTypeFilter: string;
     offenseTypes: string[];
+    savingStatusIds?: Set<number>;
     onSearchChange: (value: string) => void;
     onTypeChange: (value: string) => void;
     onAdd: () => void;
-    onEdit: (offense: Offense) => void;
+    onImport: () => void;
+    onToggleStatus: (offense: Offense) => void;
 }
 
 function OffenseTable({
@@ -20,10 +22,12 @@ function OffenseTable({
                           offenseSearch,
                           offenseTypeFilter,
                           offenseTypes,
+                          savingStatusIds,
                           onSearchChange,
                           onTypeChange,
                           onAdd,
-                          onEdit,
+                          onImport,
+                          onToggleStatus,
                       }: OffenseTableProps) {
     return (
         <>
@@ -41,14 +45,25 @@ function OffenseTable({
                     <p>Manage offense categories.</p>
                 </div>
 
-                <button
-                    type="button"
-                    className="add-btn"
-                    onClick={onAdd}
-                >
-                    <i className="bi bi-plus-lg"></i>
-                    <span>Add Offense</span>
-                </button>
+                <div className="dashboard-header-actions">
+                    <button
+                        type="button"
+                        className="import-btn"
+                        onClick={onImport}
+                    >
+                        <i className="bi bi-file-earmark-arrow-up-fill"></i>
+                        <span>Import</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="add-btn"
+                        onClick={onAdd}
+                    >
+                        <i className="bi bi-plus-lg"></i>
+                        <span>Add Offense</span>
+                    </button>
+                </div>
             </div>
 
             <div className="admin-filter-row">
@@ -89,7 +104,7 @@ function OffenseTable({
                         <th>Offense</th>
                         <th>Type</th>
                         <th>Description</th>
-                        <th>Action</th>
+                        <th>Status</th>
                     </tr>
                     </thead>
 
@@ -127,15 +142,39 @@ function OffenseTable({
                                     {offense.description || "—"}
                                 </td>
 
-                                <td data-label="Action">
-                                    <button
-                                        type="button"
-                                        className="edit-action-btn"
-                                        onClick={() => onEdit(offense)}
+                                <td data-label="Status">
+                                    <label
+                                        className={
+                                            offense.isActive
+                                                ? "status-switch is-active"
+                                                : "status-switch"
+                                        }
                                     >
-                                        <i className="bi bi-pencil-fill"></i>
-                                        <span>Edit</span>
-                                    </button>
+                                        <input
+                                            type="checkbox"
+                                            checked={offense.isActive}
+                                            disabled={savingStatusIds?.has(
+                                                offense.offenseId
+                                            )}
+                                            onChange={() =>
+                                                onToggleStatus(offense)
+                                            }
+                                        />
+
+                                        <span className="status-switch-track">
+                                            <span className="status-switch-thumb"></span>
+                                        </span>
+
+                                        <span className="status-switch-label">
+                                            {savingStatusIds?.has(
+                                                offense.offenseId
+                                            )
+                                                ? "Saving..."
+                                                : offense.isActive
+                                                    ? "Active"
+                                                    : "Inactive"}
+                                        </span>
+                                    </label>
                                 </td>
                             </tr>
                         ))}

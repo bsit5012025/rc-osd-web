@@ -7,10 +7,12 @@ interface StudentTableProps {
     studentSearch: string;
     departmentFilter: string;
     departments: string[];
+    savingStatusIds?: Set<string>;
     onSearchChange: (value: string) => void;
     onDepartmentChange: (value: string) => void;
     onAdd: () => void;
-    onEdit: (student: Student) => void;
+    onImport: () => void;
+    onToggleStatus: (student: Student) => void;
 }
 
 function StudentTable({
@@ -20,10 +22,12 @@ function StudentTable({
                           studentSearch,
                           departmentFilter,
                           departments,
+                          savingStatusIds,
                           onSearchChange,
                           onDepartmentChange,
                           onAdd,
-                          onEdit,
+                          onImport,
+                          onToggleStatus,
                       }: StudentTableProps) {
     return (
         <>
@@ -41,14 +45,25 @@ function StudentTable({
                     <p>Manage student records.</p>
                 </div>
 
-                <button
-                    type="button"
-                    className="add-btn"
-                    onClick={onAdd}
-                >
-                    <i className="bi bi-plus-lg"></i>
-                    <span>Add Student</span>
-                </button>
+                <div className="dashboard-header-actions">
+                    <button
+                        type="button"
+                        className="import-btn"
+                        onClick={onImport}
+                    >
+                        <i className="bi bi-file-earmark-arrow-up-fill"></i>
+                        <span>Import</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="add-btn"
+                        onClick={onAdd}
+                    >
+                        <i className="bi bi-plus-lg"></i>
+                        <span>Add Student</span>
+                    </button>
+                </div>
             </div>
 
             <div className="admin-filter-row">
@@ -91,7 +106,7 @@ function StudentTable({
                         <th>Name</th>
                         <th>Department</th>
                         <th>Contact</th>
-                        <th>Action</th>
+                        <th>Status</th>
                     </tr>
                     </thead>
 
@@ -140,15 +155,39 @@ function StudentTable({
                                         {student.contactNumber || "—"}
                                     </td>
 
-                                    <td data-label="Action">
-                                        <button
-                                            type="button"
-                                            className="edit-action-btn"
-                                            onClick={() => onEdit(student)}
+                                    <td data-label="Status">
+                                        <label
+                                            className={
+                                                student.isActive
+                                                    ? "status-switch is-active"
+                                                    : "status-switch"
+                                            }
                                         >
-                                            <i className="bi bi-pencil-fill"></i>
-                                            <span>Edit</span>
-                                        </button>
+                                            <input
+                                                type="checkbox"
+                                                checked={student.isActive}
+                                                disabled={savingStatusIds?.has(
+                                                    student.studentId
+                                                )}
+                                                onChange={() =>
+                                                    onToggleStatus(student)
+                                                }
+                                            />
+
+                                            <span className="status-switch-track">
+                                                <span className="status-switch-thumb"></span>
+                                            </span>
+
+                                            <span className="status-switch-label">
+                                                {savingStatusIds?.has(
+                                                    student.studentId
+                                                )
+                                                    ? "Saving..."
+                                                    : student.isActive
+                                                        ? "Active"
+                                                        : "Inactive"}
+                                            </span>
+                                        </label>
                                     </td>
                                 </tr>
                             );

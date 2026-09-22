@@ -18,6 +18,7 @@ export interface Student {
     department: string;
     studentType: string;
     contactNumber: string;
+    isActive: boolean;
     guardians: Guardian[];
     person: {
         personId: number;
@@ -34,6 +35,7 @@ export interface StudentInput {
     department: string;
     studentType: string;
     contactNumber: string;
+    isActive?: boolean;
     person: {
         firstName: string;
         middleName: string;
