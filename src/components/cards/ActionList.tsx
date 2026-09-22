@@ -4,11 +4,19 @@ interface ActionListProps {
     icon: string;
     label: string;
     href?: string;
+    onClick?: () => void;
 }
 
-function ActionList({ icon, label, href = "#" }: ActionListProps) {
+function ActionList({ icon, label, href = "#", onClick }: ActionListProps) {
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        if (onClick) {
+            e.preventDefault();
+            onClick();
+        }
+    };
+
     return (
-        <a href={href} className="action-item">
+        <a href={href} className="action-item" onClick={handleClick}>
 
             <div className="action-item-left">
                 <div className="action-item-icon">

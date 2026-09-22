@@ -3,6 +3,7 @@ import TopBar from "../../../components/navigation/TopBar";
 import ProfileHeader from "../../../components/navigation/ProfileHeader";
 import InfoList from "../../../components/cards/InfoList";
 import ActionListItem from "../../../components/cards/ActionList";
+import ChangePasswordModal from "../../../components/modals/ChangePasswordModal";
 import { getMyEmployeeInfo } from "../../../services/employeeApi";
 import "./deptHeadProfilePage.css";
 
@@ -15,6 +16,7 @@ function DeptHeadProfilePage() {
     const [dateOfBirth, setDateOfBirth] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -91,7 +93,11 @@ function DeptHeadProfilePage() {
                             <div className="profile-section mb-4">
                                 <h5 className="mb-3">Account</h5>
                                 <div className="action-list">
-                                    <ActionListItem icon="bi-lock" label="Change Password" />
+                                    <ActionListItem
+                                        icon="bi-lock"
+                                        label="Change Password"
+                                        onClick={() => setIsChangePasswordOpen(true)}
+                                    />
                                 </div>
                             </div>
 
@@ -109,6 +115,11 @@ function DeptHeadProfilePage() {
                 </main>
 
             </div>
+
+            <ChangePasswordModal
+                isOpen={isChangePasswordOpen}
+                onClose={() => setIsChangePasswordOpen(false)}
+            />
 
         </div>
     );

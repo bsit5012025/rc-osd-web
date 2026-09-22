@@ -11,6 +11,11 @@ export interface LoginResponse {
   role: string | null;
 }
 
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export const login = async (request: LoginRequest): Promise<LoginResponse> => {
   const response = await apiClient.post<LoginResponse>("/login",request);
   return response.data;
@@ -19,6 +24,10 @@ export const login = async (request: LoginRequest): Promise<LoginResponse> => {
 export const refreshToken = async (): Promise<LoginResponse> => {
   const response = await apiClient.post<LoginResponse>("/login/refresh");
   return response.data;
+};
+
+export const changePassword = async (request: ChangePasswordRequest): Promise<void> => {
+  await apiClient.post("/login/change-password", request);
 };
 
 export const logout = async (): Promise<void> => {
