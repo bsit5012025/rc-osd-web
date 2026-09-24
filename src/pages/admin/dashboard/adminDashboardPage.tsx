@@ -5,9 +5,7 @@ import StudentTable from "../../../components/table/StudentTable";
 import OffenseTable from "../../../components/table/OffenseTable";
 import StudentAdminModal from "../../../components/modals/StudentAdminModal";
 import OffenseAdminModal from "../../../components/modals/OffenseAdminModal";
-import BulkImportModal, {
-    type BulkImportColumn,
-} from "../../../components/modals/BulkImportModal";
+import BulkImportModal, {type BulkImportColumn,} from "../../../components/modals/BulkImportModal";
 import Pagination from "../../../components/pagination/Pagination";
 import { getAllStudents, createStudent, updateStudent, setStudentActive } from "../../../services/studentApi";
 import type { Student, StudentInput, } from "../../../services/studentApi";
@@ -15,6 +13,7 @@ import { getOffenses, createOffense, updateOffense, setOffenseActive} from "../.
 import type { OffenseInput } from "../../../services/offenseApi";
 import type { Offense } from "../../../types/offense";
 import "./adminDashboardPage.css";
+import StudentContactBirthdayModal from "../../../components/modals/AdminEditModal";
 
 type ActiveTable = "students" | "offenses";
 
@@ -149,6 +148,11 @@ function AdminDashboardPage() {
     const [savingOffenseStatusIds, setSavingOffenseStatusIds] = useState<Set<number>>(new Set());
     const [showStudentImportModal, setShowStudentImportModal] = useState(false);
     const [showOffenseImportModal, setShowOffenseImportModal] = useState(false);
+    const [showStudentInfoModal, setShowStudentInfoModal] = useState(false);
+    const [editingStudentInfoId, setEditingStudentInfoId] = useState<string | null>(null);
+    const [studentInfoForm, setStudentInfoForm] = useState<StudentInput>(emptyStudentForm);
+    const [studentInfoFormError, setStudentInfoFormError] = useState("");
+    const [savingStudentInfo, setSavingStudentInfo] = useState(false);
 
     const fetchDashboardData = async () => {
         try {
@@ -459,6 +463,88 @@ function AdminDashboardPage() {
         }
     };
 
+    const openStudentInfoModal = (student: Student) => {
+        setEditingStudentInfoId(student.studentId);
+
+        setStudentInfoForm({
+            studentId: student.studentId,
+            address: student.address || "",
+            department: student.department || "",
+            studentType: student.studentType || "",
+            contactNumber: student.contactNumber || "",
+            isActive: student.isActive ?? true,
+            person: {
+                firstName: student.person?.firstName || "",
+                middleName: student.person?.middleName || "",
+                lastName: student.person?.lastName || "",
+                dateOfBirth: student.person?.dateOfBirth || null,
+            },
+        });
+
+        setStudentInfoFormError("");
+        setShowStudentInfoModal(true);
+    };
+    const closeStudentInfoModal = () => {
+        if (!savingStudentInfo) {
+            setShowStudentInfoModal(false);
+        }
+    };
+
+    const handleStudentInfoSubmit = async (
+        e: FormEvent<HTMLFormElement>
+    ) => {
+        e.preventDefault();
+        setStudentInfoFormError("");
+
+        if (!studentInfoForm.contactNumber.trim()) {
+            setStudentInfoFormError("Contact Number is required.");
+            return;
+        }
+
+        if (!studentInfoForm.person.dateOfBirth) {
+            setStudentInfoFormError("Date of Birth is required.");
+            return;
+        }
+
+        if (!editingStudentInfoId) {
+            setStudentInfoFormError("Student not found.");
+            return;
+        }
+
+        try {
+            setSavingStudentInfo(true);
+
+            await updateStudent(
+                editingStudentInfoId,
+                studentInfoForm
+            );
+
+            setShowStudentInfoModal(false);
+
+            await fetchDashboardData();
+        } catch (err: any) {
+            console.error(
+                "Failed to update student information:",
+                err
+            );
+
+            const message =
+                err?.response?.data?.message ||
+                err?.response?.data ||
+                "";
+
+            if (typeof message === "string" && message.trim()) {
+                setStudentInfoFormError(message);
+            } else {
+                setStudentInfoFormError(
+                    "Failed to update student information. Please try again."
+                );
+            }
+        } finally {
+            setSavingStudentInfo(false);
+        }
+    };
+
     const handleToggleStudentStatus = async (student: Student) => {
     const newStatus = !student.isActive;
     const studentId = student.studentId;
@@ -691,18 +777,14 @@ function AdminDashboardPage() {
                                     studentSearch={studentSearch}
                                     departmentFilter={departmentFilter}
                                     departments={departments}
-                                    onSearchChange={
-                                        handleStudentSearchChange
-                                    }
-                                    onDepartmentChange={
-                                        handleDepartmentChange
-                                    }
+                                    onSearchChange={handleStudentSearchChange}
+                                    onDepartmentChange={handleDepartmentChange}
                                     onAdd={openAddStudentModal}
                                     onImport={openStudentImportModal}
+                                    onEdit={openStudentInfoModal}
                                     onToggleStatus={handleToggleStudentStatus}
                                     savingStatusIds={savingStudentStatusIds}
                                 />
-
                                 <Pagination
                                     currentPage={currentPage}
                                     totalPages={totalPages}
@@ -794,6 +876,36 @@ function AdminDashboardPage() {
                 onClose={closeStudentModal}
                 onSubmit={handleStudentSubmit}
                 onChange={setStudentForm}
+            />
+            <StudentContactBirthdayModal
+                show={showStudentInfoModal}
+                studentName={
+                    editingStudentInfoId
+                        ? (() => {
+                            const student = students.find(
+                                (s) =>
+                                    s.studentId ===
+                                    editingStudentInfoId
+                            );
+
+                            return student
+                                ? [
+                                        student.person?.firstName,
+                                        student.person?.middleName,
+                                        student.person?.lastName,
+                                    ]
+                                        .filter(Boolean)
+                                        .join(" ")
+                                : "";
+                        })()
+                        : ""
+                }
+                form={studentInfoForm}
+                error={studentInfoFormError}
+                saving={savingStudentInfo}
+                onClose={closeStudentInfoModal}
+                onSubmit={handleStudentInfoSubmit}
+                onChange={setStudentInfoForm}
             />
 
             <OffenseAdminModal
