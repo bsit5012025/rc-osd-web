@@ -4,6 +4,7 @@ import ProfileHeader from "../../../components/navigation/ProfileHeader";
 import InfoList from "../../../components/cards/InfoList";
 import StatCard from "../../../components/cards/StatCard";
 import ActionListItem from "../../../components/cards/ActionList";
+import ChangePasswordModal from "../../../components/modals/ChangePasswordModal";
 
 import { getStudent } from "../../../services/studentApi";
 import type { Student } from "../../../services/studentApi";
@@ -26,6 +27,7 @@ function ProfilePage() {
     const [appeals, setAppeals] = useState<Appeal[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -149,7 +151,11 @@ function ProfilePage() {
                             <div className="profile-section mb-4">
                                 <h5 className="mb-3">Account</h5>
                                 <div className="action-list">
-                                    <ActionListItem icon="bi-lock" label="Change Password" />
+                                    <ActionListItem
+                                        icon="bi-lock"
+                                        label="Change Password"
+                                        onClick={() => setIsChangePasswordOpen(true)}
+                                    />
                                 </div>
                             </div>
 
@@ -167,6 +173,11 @@ function ProfilePage() {
                 </main>
 
             </div>
+
+            <ChangePasswordModal
+                isOpen={isChangePasswordOpen}
+                onClose={() => setIsChangePasswordOpen(false)}
+            />
 
         </div>
     );
