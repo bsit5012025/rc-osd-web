@@ -157,6 +157,11 @@ function StudentTable({
                                     .filter(Boolean)
                                     .join(" ");
 
+                                const isSaving =
+                                    savingStatusIds.has(
+                                        student.studentId
+                                    );
+
                                 return (
                                     <tr key={student.studentId}>
                                         <td data-label="Student ID">
@@ -188,9 +193,7 @@ function StudentTable({
                                                     checked={
                                                         student.isActive
                                                     }
-                                                    disabled={savingStatusIds?.has(
-                                                        student.studentId
-                                                    )}
+                                                    disabled={isSaving}
                                                     onChange={() =>
                                                         onToggleStatus(
                                                             student
@@ -203,9 +206,7 @@ function StudentTable({
                                                 </span>
 
                                                 <span className="status-switch-label">
-                                                    {savingStatusIds?.has(
-                                                        student.studentId
-                                                    )
+                                                    {isSaving
                                                         ? "Saving..."
                                                         : student.isActive
                                                             ? "Active"
