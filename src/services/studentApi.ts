@@ -105,14 +105,11 @@ export const updateStudent = async (
 
 export const setStudentActive = async (
     studentId: string,
-    active: boolean
+    isActive: boolean
 ): Promise<Student> => {
     const response = await apiClient.patch<Student>(
-        `/api/students/${studentId}/active`,
-        null,
-        {
-            params: { active },
-        }
+        `/api/students/${studentId}/status`,
+        { isActive }
     );
 
     return response.data;
