@@ -87,6 +87,42 @@ function BulkImportModal({
         onClose();
     };
 
+    function normalizeDate(value: string): string {
+        if (!value) {
+            return "";
+        }
+
+        const parts = value.split("/");
+
+        if (parts.length !== 3) {
+            return value;
+        }
+
+        const [month, day, year] = parts;
+
+        const monthNumber = Number(month);
+        const dayNumber = Number(day);
+        let yearNumber = Number(year);
+
+        if (
+            !Number.isInteger(monthNumber) ||
+            !Number.isInteger(dayNumber) ||
+            !Number.isInteger(yearNumber)
+        ) {
+            return value;
+        }
+
+        if (yearNumber < 100) {
+            yearNumber += yearNumber >= 50 ? 1900 : 2000;
+        }
+
+        return [
+            yearNumber.toString().padStart(4, "0"),
+            monthNumber.toString().padStart(2, "0"),
+            dayNumber.toString().padStart(2, "0"),
+        ].join("-");
+    }
+
     const parseFile = async (file: File) => {
         setFileName(file.name);
         setParseError("");
@@ -104,7 +140,10 @@ function BulkImportModal({
             const sheet = workbook.Sheets[firstSheetName];
             const raw = XLSX.utils.sheet_to_json<Record<string, unknown>>(
                 sheet,
-                { defval: "" }
+                {
+                    defval: "",
+                    raw: false,
+                }
             );
 
             if (raw.length === 0) {
@@ -144,9 +183,13 @@ function BulkImportModal({
                         normalizeHeader(col.label)
                     );
 
-                    const value = sourceHeader
+                    let value = sourceHeader
                         ? String(rawRow[sourceHeader] ?? "").trim()
                         : "";
+
+                    if (col.key === "dateOfBirth") {
+                        value = normalizeDate(value);
+                    }
 
                     data[col.key] = value;
                 });
