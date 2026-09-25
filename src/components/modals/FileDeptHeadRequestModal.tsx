@@ -1,8 +1,10 @@
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent, ChangeEvent } from "react";
 import axios from "axios";
 
 import { submitRequest } from "../../services/requestApi";
 import type { RequestItem } from "../../types/request";
+
+import SearchableDropdown from "./SearchableDropdown";
 
 import "./FileDeptHeadRequestModal.css";
 
@@ -13,6 +15,13 @@ interface FileDeptHeadRequestModalProps {
     onClose: () => void;
     onFiled: () => void;
 }
+
+// TODO: replace these with real data (student IDs, sections, batches/levels)
+// once fetching is wired up. Kept as plain arrays for now so the dropdown
+// UI/behavior can be reviewed on its own first.
+const PLACEHOLDER_STUDENT_OPTIONS = ["JHS-0046", "JHS-0102", "SHS-0017", "SHS-0088"];
+const PLACEHOLDER_SECTION_OPTIONS = ["St. Augustine", "St. Benedict", "St. Cecilia", "St. Dominic"];
+const PLACEHOLDER_BATCH_OPTIONS = ["Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 
 function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadRequestModalProps) {
 
@@ -51,6 +60,19 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
             : scopeType === "By Section"
                 ? "e.g. St. Augustine"
                 : "e.g. Grade 10";
+
+    const currentOptions =
+        scopeType === "By Student"
+            ? PLACEHOLDER_STUDENT_OPTIONS
+            : scopeType === "By Section"
+                ? PLACEHOLDER_SECTION_OPTIONS
+                : PLACEHOLDER_BATCH_OPTIONS;
+
+    const handleScopeChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setScopeType(e.target.value as ScopeType);
+        // Clear the selection since the available options change with scope.
+        setDetails("");
+    };
 
     const canSubmit =
         details.trim() !== "" &&
@@ -168,7 +190,7 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
                                     id="scopeType"
                                     className="form-select new-request-select"
                                     value={scopeType}
-                                    onChange={(e) => setScopeType(e.target.value as ScopeType)}
+                                    onChange={handleScopeChange}
                                     disabled={submitting}
                                 >
                                     <option value="By Student">By Student</option>
@@ -182,15 +204,14 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
                                     <span className="file-request-step-num">2</span>
                                     {detailsLabel} <span className="required-asterisk">*</span>
                                 </div>
-                                <input
+                                <SearchableDropdown
                                     id="requestDetails"
-                                    type="text"
-                                    className="form-control new-request-select"
-                                    placeholder={detailsPlaceholder}
                                     value={details}
-                                    onChange={(e) => setDetails(e.target.value)}
-                                    maxLength={100}
+                                    onChange={setDetails}
+                                    options={currentOptions}
+                                    placeholder={detailsPlaceholder}
                                     disabled={submitting}
+                                    emptyLabel={`No matching ${detailsLabel.toLowerCase()} found`}
                                 />
                             </div>
 
