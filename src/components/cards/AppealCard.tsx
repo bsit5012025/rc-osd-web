@@ -24,48 +24,87 @@ const STATUS_ACCENTS: Record<string, string> = {
     denied: "#c62828",
 };
 
+function formatDateTime(dateValue: string): string {
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return dateValue;
+    }
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+
+    const hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    const hour12 = hours % 12 || 12;
+    const period = hours >= 12 ? "PM" : "AM";
+
+    return `${month}-${day}-${year}, ${hour12}:${minutes} ${period}`;
+}
+
 function AppealCard({
-                        appealId,
-                        title,
-                        status,
-                        dateSubmitted,
-                        offenseType,
-                        prefectName,
-                        prefectInitials,
-                        remarks,
-                        idLabel = "APPEAL ID",
-                        reviewerRoleLabel = "Prefect of Discipline",
-                        awaitingTitle = "Awaiting Review",
-                        awaitingText = "The prefect hasn't responded yet. You'll be notified once a decision is made.",
-                    }: AppealCardProps) {
+    appealId,
+    title,
+    status,
+    dateSubmitted,
+    offenseType,
+    prefectName,
+    prefectInitials,
+    remarks,
+    idLabel = "APPEAL ID",
+    reviewerRoleLabel = "Prefect of Discipline",
+    awaitingTitle = "Awaiting Review",
+    awaitingText = "The prefect hasn't responded yet. You'll be notified once a decision is made.",
+}: AppealCardProps) {
 
     const statusClass = status.toLowerCase();
-    const accentColor = STATUS_ACCENTS[statusClass] ?? "#94a3b8";
+    const accentColor =
+        STATUS_ACCENTS[statusClass] ?? "#94a3b8";
 
     return (
         <div
             className="appeal-card mb-3"
-            style={{ ["--appeal-accent" as string]: accentColor } as React.CSSProperties}
+            style={
+                {
+                    ["--appeal-accent" as string]: accentColor,
+                } as React.CSSProperties
+            }
         >
 
             <div className="appeal-card-header">
-                <span className="appeal-card-id">{idLabel}: {appealId}</span>
-                <span className={`appeal-status-badge ${statusClass}`}>
+                <span className="appeal-card-id">
+                    {idLabel}: {appealId}
+                </span>
+
+                <span
+                    className={`appeal-status-badge ${statusClass}`}
+                >
                     {status.toUpperCase()}
                 </span>
             </div>
 
-            <h5 className="appeal-card-title">{title}</h5>
+            <h5 className="appeal-card-title">
+                {title}
+            </h5>
 
             {offenseType && (
-                <span className={`level-badge ${offenseType.toLowerCase()} appeal-offense-type-badge`}>
+                <span
+                    className={`level-badge ${
+                        offenseType.toLowerCase()
+                    } appeal-offense-type-badge`}
+                >
                     {offenseType}
                 </span>
             )}
 
             {status === "Pending" && (
                 <div className="appeal-awaiting-box">
-                    <div className="appeal-awaiting-title">{awaitingTitle}</div>
+                    <div className="appeal-awaiting-title">
+                        {awaitingTitle}
+                    </div>
+
                     <p className="appeal-awaiting-text">
                         {awaitingText}
                     </p>
@@ -75,21 +114,34 @@ function AppealCard({
             {status !== "Pending" && (
                 <div className="appeal-prefect-box">
                     <div className="appeal-prefect-header">
-                        <div className="appeal-prefect-avatar">{prefectInitials}</div>
+                        <div className="appeal-prefect-avatar">
+                            {prefectInitials}
+                        </div>
+
                         <div>
-                            <div className="appeal-prefect-name">{prefectName}</div>
-                            <div className="appeal-prefect-role">{reviewerRoleLabel}</div>
+                            <div className="appeal-prefect-name">
+                                {prefectName}
+                            </div>
+
+                            <div className="appeal-prefect-role">
+                                {reviewerRoleLabel}
+                            </div>
                         </div>
                     </div>
 
-                    <div className="appeal-remarks-label">Remarks:</div>
-                    <p className="appeal-remarks-text">{remarks}</p>
+                    <div className="appeal-remarks-label">
+                        Remarks:
+                    </div>
+
+                    <p className="appeal-remarks-text">
+                        {remarks}
+                    </p>
                 </div>
             )}
 
             <div className="appeal-card-date">
                 <i className="bi bi-calendar3"></i>
-                Submitted {dateSubmitted}
+                Submitted {formatDateTime(dateSubmitted)}
             </div>
 
         </div>
