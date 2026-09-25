@@ -123,6 +123,24 @@ function BulkImportModal({
         ].join("-");
     }
 
+    function getDepartmentFromStudentId(studentId: string): string {
+        const normalizedId = studentId.trim().toUpperCase();
+
+        if (normalizedId.startsWith("JHS")) {
+            return "JUNIOR_HIGH_SCHOOL";
+        }
+
+        if (normalizedId.startsWith("SHS")) {
+            return "SENIOR_HIGH_SCHOOL";
+        }
+
+        if (normalizedId.startsWith("CT")) {
+            return "COLLEGE";
+        }
+
+        return "";
+    }    
+
     const parseFile = async (file: File) => {
         setFileName(file.name);
         setParseError("");
@@ -194,6 +212,14 @@ function BulkImportModal({
                     data[col.key] = value;
                 });
 
+                const department = getDepartmentFromStudentId(
+                    data.studentId
+                );
+
+                if (department) {
+                    data.department = department;
+                }
+
                 const errors: string[] = [];
 
                 columns.forEach((col) => {
@@ -208,7 +234,9 @@ function BulkImportModal({
                         const validationError = col.validate(value);
 
                         if (validationError) {
-                            errors.push(`${col.label}: ${validationError}`);
+                            errors.push(
+                                `${col.label}: ${validationError}`
+                            );
                         }
                     }
                 });
@@ -225,7 +253,11 @@ function BulkImportModal({
                     }
                 }
 
-                return { index: i + 2, data, errors };
+                return {
+                    index: i + 2,
+                    data,
+                    errors,
+                };
             });
 
             setRows(parsedRows);
