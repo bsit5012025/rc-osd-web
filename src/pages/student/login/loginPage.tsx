@@ -1,5 +1,6 @@
 import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import { login } from "../../../services/authenticationApi";
 import "./loginPage.css";
@@ -44,7 +45,18 @@ function LoginPage() {
 
         } catch (error) {
             console.error("Login failed:", error);
-            setError("Invalid username or password.");
+
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data?.message;
+
+                if (message) {
+                    setError(message);
+                } else {
+                    setError("Invalid username or password.");
+                }
+            } else {
+                setError("Invalid username or password.");
+            }
         }
     };
 

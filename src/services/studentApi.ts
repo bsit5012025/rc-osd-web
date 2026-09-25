@@ -18,6 +18,7 @@ export interface Student {
     department: string;
     studentType: string;
     contactNumber: string;
+    isActive: boolean;
     guardians: Guardian[];
     person: {
         personId: number;
@@ -34,6 +35,7 @@ export interface StudentInput {
     department: string;
     studentType: string;
     contactNumber: string;
+    isActive?: boolean;
     person: {
         firstName: string;
         middleName: string;
@@ -83,6 +85,18 @@ export const updateStudent = async (
     const response = await apiClient.put<Student>(
         `/api/students/${studentId}`,
         student
+    );
+
+    return response.data;
+};
+
+export const setStudentActive = async (
+    studentId: string,
+    isActive: boolean
+): Promise<Student> => {
+    const response = await apiClient.patch<Student>(
+        `/api/students/${studentId}/status`,
+        { isActive }
     );
 
     return response.data;

@@ -5,6 +5,7 @@ export interface OffenseInput {
 offense: string;
 type: string;
 description: string;
+isActive?: boolean;
 }
 
 const OFFENSE_API_URL = "/api/offenses";
@@ -38,4 +39,19 @@ export const updateOffense = async (offenseId: number,offense: OffenseInput): Pr
 
 export const deleteOffense = async (offenseId: number): Promise<void> => {
     await apiClient.delete(`${OFFENSE_API_URL}/${offenseId}`);
+};
+
+export const setOffenseActive = async (
+    offenseId: number,
+    active: boolean
+): Promise<Offense> => {
+    const response = await apiClient.patch<Offense>(
+        `${OFFENSE_API_URL}/${offenseId}/active`,
+        null,
+        {
+            params: { active },
+        }
+    );
+
+    return response.data;
 };

@@ -3,13 +3,15 @@ import TopBar from "../../../components/navigation/TopBar";
 import ProfileHeader from "../../../components/navigation/ProfileHeader";
 import InfoList from "../../../components/cards/InfoList";
 import ActionListItem from "../../../components/cards/ActionList";
-import { getMyEmployeeInfo, type EmployeeSummary, } from "../../../services/employeeApi";
+import ChangePasswordModal from "../../../components/modals/ChangePasswordModal";
+import { getMyEmployeeInfo } from "../../../services/employeeApi";
 import "./deptHeadProfilePage.css";
 
 function DeptHeadProfilePage() {
     const [profile, setProfile] = useState<EmployeeSummary | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -120,6 +122,7 @@ function DeptHeadProfilePage() {
                                     <ActionListItem
                                         icon="bi-lock"
                                         label="Change Password"
+                                        onClick={() => setIsChangePasswordOpen(true)}
                                     />
                                 </div>
                             </div>
@@ -142,6 +145,12 @@ function DeptHeadProfilePage() {
 
                 </main>
             </div>
+
+            <ChangePasswordModal
+                isOpen={isChangePasswordOpen}
+                onClose={() => setIsChangePasswordOpen(false)}
+            />
+
         </div>
     );
 }

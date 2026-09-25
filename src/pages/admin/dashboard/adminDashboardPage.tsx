@@ -5,13 +5,15 @@ import StudentTable from "../../../components/table/StudentTable";
 import OffenseTable from "../../../components/table/OffenseTable";
 import StudentAdminModal from "../../../components/modals/StudentAdminModal";
 import OffenseAdminModal from "../../../components/modals/OffenseAdminModal";
+import BulkImportModal, {type BulkImportColumn,} from "../../../components/modals/BulkImportModal";
 import Pagination from "../../../components/pagination/Pagination";
-import { getAllStudents, createStudent, updateStudent, } from "../../../services/studentApi";
+import { getAllStudents, createStudent, updateStudent, setStudentActive } from "../../../services/studentApi";
 import type { Student, StudentInput, } from "../../../services/studentApi";
-import { getOffenses, createOffense, updateOffense, } from "../../../services/offenseApi";
+import { getOffenses, createOffense, updateOffense, setOffenseActive} from "../../../services/offenseApi";
 import type { OffenseInput } from "../../../services/offenseApi";
 import type { Offense } from "../../../types/offense";
 import "./adminDashboardPage.css";
+import StudentContactBirthdayModal from "../../../components/modals/AdminEditModal";
 
 type ActiveTable = "students" | "offenses";
 
@@ -33,12 +35,77 @@ const offenseTypesList = [
     "Major Offense",
 ];
 
+function matchOption(value: string, options: string[]): string | null {
+    return (
+        options.find(
+            (option) => option.toLowerCase() === value.trim().toLowerCase()
+        ) ?? null
+    );
+}
+
+const studentImportColumns: BulkImportColumn[] = [
+    { key: "studentId", label: "Student ID", required: true },
+    { key: "firstName", label: "First Name", required: true },
+    { key: "middleName", label: "Middle Name", required: true },
+    { key: "lastName", label: "Last Name", required: true },
+    {
+        key: "dateOfBirth",
+        label: "Date of Birth",
+        required: true,
+        validate: (value) =>
+            Number.isNaN(new Date(value).getTime())
+                ? "Use a valid date (e.g. 2008-05-21)"
+                : null,
+    },
+    {
+        key: "department",
+        label: "Department",
+        required: true,
+        validate: (value) =>
+            matchOption(value, departments)
+                ? null
+                : `Must be one of ${departments.join(", ")}`,
+    },
+    {
+        key: "studentType",
+        label: "Student Type",
+        required: true,
+        validate: (value) =>
+            matchOption(value, studentTypes)
+                ? null
+                : `Must be one of ${studentTypes.join(", ")}`,
+    },
+    { key: "contactNumber", label: "Contact Number", required: true },
+    { key: "address", label: "Address", required: true },
+];
+
+const offenseImportColumns: BulkImportColumn[] = [
+    { key: "offense", label: "Offense", required: true },
+    {
+        key: "type",
+        label: "Type",
+        required: true,
+        validate: (value) =>
+            matchOption(value, offenseTypesList)
+                ? null
+                : `Must be one of ${offenseTypesList.join(", ")}`,
+    },
+    { key: "description", label: "Description", required: true },
+];
+
+const getStudentRowKey = (row: Record<string, string>) =>
+    row.studentId?.trim().toLowerCase() || "";
+
+const getOffenseRowKey = (row: Record<string, string>) =>
+    `${row.offense?.trim().toLowerCase()}|${row.type?.trim().toLowerCase()}`;
+
 const emptyStudentForm: StudentInput = {
     studentId: "",
     address: "",
     department: "",
     studentType: "",
     contactNumber: "",
+    isActive: true,
     person: {
         firstName: "",
         middleName: "",
@@ -51,6 +118,7 @@ const emptyOffenseForm: OffenseInput = {
     offense: "",
     type: "",
     description: "",
+    isActive: true,
 };
 
 function AdminDashboardPage() {
@@ -75,6 +143,16 @@ function AdminDashboardPage() {
     const [offenseForm, setOffenseForm] = useState<OffenseInput>(emptyOffenseForm);
     const [offenseFormError, setOffenseFormError] = useState("");
     const [savingOffense, setSavingOffense] = useState(false);
+    const [savingStatusIds, setSavingStatusIds] = useState<Set<number>>( new Set());
+    const [savingStudentStatusIds, setSavingStudentStatusIds] = useState<Set<string>>(new Set());
+    const [savingOffenseStatusIds, setSavingOffenseStatusIds] = useState<Set<number>>(new Set());
+    const [showStudentImportModal, setShowStudentImportModal] = useState(false);
+    const [showOffenseImportModal, setShowOffenseImportModal] = useState(false);
+    const [showStudentInfoModal, setShowStudentInfoModal] = useState(false);
+    const [editingStudentInfoId, setEditingStudentInfoId] = useState<string | null>(null);
+    const [studentInfoForm, setStudentInfoForm] = useState<StudentInput>(emptyStudentForm);
+    const [studentInfoFormError, setStudentInfoFormError] = useState("");
+    const [savingStudentInfo, setSavingStudentInfo] = useState(false);
 
     const fetchDashboardData = async () => {
         try {
@@ -86,8 +164,19 @@ function AdminDashboardPage() {
                 getOffenses(),
             ]);
 
-            setStudents(studentData);
-            setOffenses(offenseData);
+            setStudents(
+                studentData.map((student) => ({
+                    ...student,
+                    isActive: student.isActive ?? true,
+                }))
+            );
+
+            setOffenses(
+                offenseData.map((offense) => ({
+                    ...offense,
+                    isActive: offense.isActive ?? true,
+                }))
+            );
         } catch (err) {
             console.error("Failed to fetch dashboard data:", err);
             setError("Failed to load dashboard data.");
@@ -143,6 +232,29 @@ function AdminDashboardPage() {
         });
     }, [offenses, offenseSearch, offenseTypeFilter]);
 
+    const existingStudentIds = useMemo(
+        () =>
+            new Set(
+                students.map((student) =>
+                    student.studentId.trim().toLowerCase()
+                )
+            ),
+        [students]
+    );
+
+    const existingOffenseKeys = useMemo(
+        () =>
+            new Set(
+                offenses.map(
+                    (offense) =>
+                        `${offense.offense.trim().toLowerCase()}|${offense.type
+                            .trim()
+                            .toLowerCase()}`
+                )
+            ),
+        [offenses]
+    );
+
     const totalItems =
         activeTable === "students"
             ? filteredStudents.length
@@ -188,6 +300,43 @@ function AdminDashboardPage() {
         setCurrentPage(1);
     };
 
+    const openStudentImportModal = () => setShowStudentImportModal(true);
+    const closeStudentImportModal = () => setShowStudentImportModal(false);
+    const openOffenseImportModal = () => setShowOffenseImportModal(true);
+    const closeOffenseImportModal = () => setShowOffenseImportModal(false);
+
+    const importStudentRow = async (row: Record<string, string>) => {
+        await createStudent({
+            studentId: row.studentId.trim(),
+            address: row.address.trim(),
+            department:
+                matchOption(row.department, departments) ||
+                row.department.trim(),
+            studentType:
+                matchOption(row.studentType, studentTypes) ||
+                row.studentType.trim(),
+            contactNumber: row.contactNumber.trim(),
+            isActive: true,
+            person: {
+                firstName: row.firstName.trim(),
+                middleName: row.middleName.trim(),
+                lastName: row.lastName.trim(),
+                dateOfBirth: row.dateOfBirth.trim(),
+            },
+        });
+    };
+
+    const importOffenseRow = async (row: Record<string, string>) => {
+        await createOffense({
+            offense: row.offense.trim(),
+            type:
+                matchOption(row.type, offenseTypesList) ||
+                row.type.trim(),
+            description: row.description.trim(),
+            isActive: true,
+        });
+    };
+
     const openAddStudentModal = () => {
         setEditingStudentId(null);
         setStudentForm({
@@ -196,27 +345,6 @@ function AdminDashboardPage() {
                 ...emptyStudentForm.person,
             },
         });
-        setStudentFormError("");
-        setShowStudentModal(true);
-    };
-
-    const openEditStudentModal = (student: Student) => {
-        setEditingStudentId(student.studentId);
-
-        setStudentForm({
-            studentId: student.studentId,
-            address: student.address || "",
-            department: student.department || "",
-            studentType: student.studentType || "",
-            contactNumber: student.contactNumber || "",
-            person: {
-                firstName: student.person?.firstName || "",
-                middleName: student.person?.middleName || "",
-                lastName: student.person?.lastName || "",
-                dateOfBirth: student.person?.dateOfBirth || null,
-            },
-        });
-
         setStudentFormError("");
         setShowStudentModal(true);
     };
@@ -335,6 +463,120 @@ function AdminDashboardPage() {
         }
     };
 
+    const openStudentInfoModal = (student: Student) => {
+        setEditingStudentInfoId(student.studentId);
+
+        setStudentInfoForm({
+            studentId: student.studentId,
+            address: student.address || "",
+            department: student.department || "",
+            studentType: student.studentType || "",
+            contactNumber: student.contactNumber || "",
+            isActive: student.isActive ?? true,
+            person: {
+                firstName: student.person?.firstName || "",
+                middleName: student.person?.middleName || "",
+                lastName: student.person?.lastName || "",
+                dateOfBirth: student.person?.dateOfBirth || null,
+            },
+        });
+
+        setStudentInfoFormError("");
+        setShowStudentInfoModal(true);
+    };
+    const closeStudentInfoModal = () => {
+        if (!savingStudentInfo) {
+            setShowStudentInfoModal(false);
+        }
+    };
+
+    const handleStudentInfoSubmit = async (
+        e: FormEvent<HTMLFormElement>
+    ) => {
+        e.preventDefault();
+        setStudentInfoFormError("");
+
+        if (!studentInfoForm.contactNumber.trim()) {
+            setStudentInfoFormError("Contact Number is required.");
+            return;
+        }
+
+        if (!studentInfoForm.person.dateOfBirth) {
+            setStudentInfoFormError("Date of Birth is required.");
+            return;
+        }
+
+        if (!editingStudentInfoId) {
+            setStudentInfoFormError("Student not found.");
+            return;
+        }
+
+        try {
+            setSavingStudentInfo(true);
+
+            await updateStudent(
+                editingStudentInfoId,
+                studentInfoForm
+            );
+
+            setShowStudentInfoModal(false);
+
+            await fetchDashboardData();
+        } catch (err: any) {
+            console.error(
+                "Failed to update student information:",
+                err
+            );
+
+            const message =
+                err?.response?.data?.message ||
+                err?.response?.data ||
+                "";
+
+            if (typeof message === "string" && message.trim()) {
+                setStudentInfoFormError(message);
+            } else {
+                setStudentInfoFormError(
+                    "Failed to update student information. Please try again."
+                );
+            }
+        } finally {
+            setSavingStudentInfo(false);
+        }
+    };
+
+    const handleToggleStudentStatus = async (student: Student) => {
+    const newStatus = !student.isActive;
+    const studentId = student.studentId;
+
+    setSavingStudentStatusIds((previous) => {
+        const next = new Set(previous);
+        next.add(studentId);
+        return next;
+    });
+
+    try {
+        await setStudentActive(studentId, newStatus);
+
+        setStudents((previous) =>
+            previous.map((item) =>
+                item.studentId === studentId
+                    ? { ...item, isActive: newStatus }
+                    : item
+            )
+        );
+    } catch (err) {
+        console.error("Failed to change student status:", err);
+        setError("Failed to change student status. Please try again.");
+    } finally {
+        setSavingStudentStatusIds((previous) => {
+            const next = new Set(previous);
+            next.delete(studentId);
+            return next;
+        });
+    }
+};
+
     const openAddOffenseModal = () => {
         setEditingOffenseId(null);
 
@@ -342,19 +584,7 @@ function AdminDashboardPage() {
             offense: "",
             type: "",
             description: "",
-        });
-
-        setOffenseFormError("");
-        setShowOffenseModal(true);
-    };
-
-    const openEditOffenseModal = (offense: Offense) => {
-        setEditingOffenseId(offense.offenseId);
-
-        setOffenseForm({
-            offense: offense.offense || "",
-            type: offense.type || "",
-            description: offense.description || "",
+            isActive: true,
         });
 
         setOffenseFormError("");
@@ -450,6 +680,39 @@ function AdminDashboardPage() {
         }
     };
 
+    const handleToggleOffenseStatus = async (offense: Offense) => {
+        const newStatus = !offense.isActive;
+        const offenseId = offense.offenseId;
+
+        setSavingOffenseStatusIds((previous) => {
+            const next = new Set(previous);
+            next.add(offense.offenseId);
+            return next;
+        });
+
+        try {
+        await setOffenseActive(offenseId, newStatus);
+
+        setOffenses((previous) =>
+            previous.map((item) =>
+                item.offenseId === offenseId
+                    ? { ...item, isActive: newStatus }
+                    : item
+            )
+        );
+
+    } catch (err) {
+        console.error("Failed to change offense status:", err);
+        setError("Failed to change offense status. Please try again.");
+    } finally {
+        setSavingOffenseStatusIds((previous) => {
+            const next = new Set(previous);
+            next.delete(offenseId);
+            return next;
+});
+    }
+};
+
     return (
         <div className="admin-dashboard-page">
             <div className="container-fluid px-3 px-md-4 py-3 py-md-4">
@@ -514,16 +777,14 @@ function AdminDashboardPage() {
                                     studentSearch={studentSearch}
                                     departmentFilter={departmentFilter}
                                     departments={departments}
-                                    onSearchChange={
-                                        handleStudentSearchChange
-                                    }
-                                    onDepartmentChange={
-                                        handleDepartmentChange
-                                    }
+                                    onSearchChange={handleStudentSearchChange}
+                                    onDepartmentChange={handleDepartmentChange}
                                     onAdd={openAddStudentModal}
-                                    onEdit={openEditStudentModal}
+                                    onImport={openStudentImportModal}
+                                    onEdit={openStudentInfoModal}
+                                    onToggleStatus={handleToggleStudentStatus}
+                                    savingStatusIds={savingStudentStatusIds}
                                 />
-
                                 <Pagination
                                     currentPage={currentPage}
                                     totalPages={totalPages}
@@ -571,7 +832,9 @@ function AdminDashboardPage() {
                                         handleOffenseTypeChange
                                     }
                                     onAdd={openAddOffenseModal}
-                                    onEdit={openEditOffenseModal}
+                                    onImport={openOffenseImportModal}
+                                    onToggleStatus={handleToggleOffenseStatus}
+                                    savingStatusIds={savingOffenseStatusIds}
                                 />
 
                                 <Pagination
@@ -614,6 +877,36 @@ function AdminDashboardPage() {
                 onSubmit={handleStudentSubmit}
                 onChange={setStudentForm}
             />
+            <StudentContactBirthdayModal
+                show={showStudentInfoModal}
+                studentName={
+                    editingStudentInfoId
+                        ? (() => {
+                            const student = students.find(
+                                (s) =>
+                                    s.studentId ===
+                                    editingStudentInfoId
+                            );
+
+                            return student
+                                ? [
+                                        student.person?.firstName,
+                                        student.person?.middleName,
+                                        student.person?.lastName,
+                                    ]
+                                        .filter(Boolean)
+                                        .join(" ")
+                                : "";
+                        })()
+                        : ""
+                }
+                form={studentInfoForm}
+                error={studentInfoFormError}
+                saving={savingStudentInfo}
+                onClose={closeStudentInfoModal}
+                onSubmit={handleStudentInfoSubmit}
+                onChange={setStudentInfoForm}
+            />
 
             <OffenseAdminModal
                 show={showOffenseModal}
@@ -625,6 +918,32 @@ function AdminDashboardPage() {
                 onClose={closeOffenseModal}
                 onSubmit={handleOffenseSubmit}
                 onChange={setOffenseForm}
+            />
+
+            <BulkImportModal
+                show={showStudentImportModal}
+                title="Bulk Import Students"
+                subtitle="Upload an Excel or CSV file to add many students at once."
+                columns={studentImportColumns}
+                templateFileName="students-import-template.xlsx"
+                existingKeys={existingStudentIds}
+                getRowKey={getStudentRowKey}
+                onImportRow={importStudentRow}
+                onClose={closeStudentImportModal}
+                onComplete={fetchDashboardData}
+            />
+
+            <BulkImportModal
+                show={showOffenseImportModal}
+                title="Bulk Import Offenses"
+                subtitle="Upload an Excel or CSV file to add many offense categories at once."
+                columns={offenseImportColumns}
+                templateFileName="offenses-import-template.xlsx"
+                existingKeys={existingOffenseKeys}
+                getRowKey={getOffenseRowKey}
+                onImportRow={importOffenseRow}
+                onClose={closeOffenseImportModal}
+                onComplete={fetchDashboardData}
             />
         </div>
     );
