@@ -341,11 +341,8 @@ function BulkImportModal({
     };
 
     return (
-        <div className="admin-modal-overlay" onClick={handleClose}>
-            <div
-                className="admin-modal bulk-import-modal"
-                onClick={(e) => e.stopPropagation()}
-            >
+        <div className="admin-modal-overlay">
+            <div className="admin-modal bulk-import-modal">
                 <div className="admin-modal-header">
                     <div>
                         <h4>{title}</h4>

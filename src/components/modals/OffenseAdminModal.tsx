@@ -111,6 +111,7 @@ function OffenseAdminModal({
                         <textarea
                             className="form-control"
                             rows={5}
+                            style={{ resize: "none" }}
                             value={form.description}
                             onChange={(e) =>
                                 onChange({
