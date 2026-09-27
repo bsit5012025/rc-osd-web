@@ -143,7 +143,6 @@ function AdminDashboardPage() {
     const [offenseForm, setOffenseForm] = useState<OffenseInput>(emptyOffenseForm);
     const [offenseFormError, setOffenseFormError] = useState("");
     const [savingOffense, setSavingOffense] = useState(false);
-    const [savingStatusIds, setSavingStatusIds] = useState<Set<number>>( new Set());
     const [savingStudentStatusIds, setSavingStudentStatusIds] = useState<Set<string>>(new Set());
     const [savingOffenseStatusIds, setSavingOffenseStatusIds] = useState<Set<number>>(new Set());
     const [showStudentImportModal, setShowStudentImportModal] = useState(false);
@@ -546,36 +545,36 @@ function AdminDashboardPage() {
     };
 
     const handleToggleStudentStatus = async (student: Student) => {
-    const newStatus = !student.isActive;
-    const studentId = student.studentId;
+        const newStatus = !student.isActive;
+        const studentId = student.studentId;
 
-    setSavingStudentStatusIds((previous) => {
-        const next = new Set(previous);
-        next.add(studentId);
-        return next;
-    });
-
-    try {
-        await setStudentActive(studentId, newStatus);
-
-        setStudents((previous) =>
-            previous.map((item) =>
-                item.studentId === studentId
-                    ? { ...item, isActive: newStatus }
-                    : item
-            )
-        );
-    } catch (err) {
-        console.error("Failed to change student status:", err);
-        setError("Failed to change student status. Please try again.");
-    } finally {
         setSavingStudentStatusIds((previous) => {
             const next = new Set(previous);
-            next.delete(studentId);
+            next.add(studentId);
             return next;
         });
-    }
-};
+
+        try {
+            await setStudentActive(studentId, newStatus);
+
+            setStudents((previous) =>
+                previous.map((item) =>
+                    item.studentId === studentId
+                        ? { ...item, isActive: newStatus }
+                        : item
+                )
+            );
+        } catch (err) {
+            console.error("Failed to change student status:", err);
+            setError("Failed to change student status. Please try again.");
+        } finally {
+            setSavingStudentStatusIds((previous) => {
+                const next = new Set(previous);
+                next.delete(studentId);
+                return next;
+            });
+        }
+    };
 
     const openAddOffenseModal = () => {
         setEditingOffenseId(null);
@@ -691,27 +690,27 @@ function AdminDashboardPage() {
         });
 
         try {
-        await setOffenseActive(offenseId, newStatus);
+            await setOffenseActive(offenseId, newStatus);
 
-        setOffenses((previous) =>
-            previous.map((item) =>
-                item.offenseId === offenseId
-                    ? { ...item, isActive: newStatus }
-                    : item
-            )
-        );
+            setOffenses((previous) =>
+                previous.map((item) =>
+                    item.offenseId === offenseId
+                        ? { ...item, isActive: newStatus }
+                        : item
+                )
+            );
 
-    } catch (err) {
-        console.error("Failed to change offense status:", err);
-        setError("Failed to change offense status. Please try again.");
-    } finally {
-        setSavingOffenseStatusIds((previous) => {
-            const next = new Set(previous);
-            next.delete(offenseId);
-            return next;
-});
-    }
-};
+        } catch (err) {
+            console.error("Failed to change offense status:", err);
+            setError("Failed to change offense status. Please try again.");
+        } finally {
+            setSavingOffenseStatusIds((previous) => {
+                const next = new Set(previous);
+                next.delete(offenseId);
+                return next;
+            });
+        }
+    };
 
     return (
         <div className="admin-dashboard-page">
@@ -890,12 +889,12 @@ function AdminDashboardPage() {
 
                             return student
                                 ? [
-                                        student.person?.firstName,
-                                        student.person?.middleName,
-                                        student.person?.lastName,
-                                    ]
-                                        .filter(Boolean)
-                                        .join(" ")
+                                    student.person?.firstName,
+                                    student.person?.middleName,
+                                    student.person?.lastName,
+                                ]
+                                    .filter(Boolean)
+                                    .join(" ")
                                 : "";
                         })()
                         : ""
