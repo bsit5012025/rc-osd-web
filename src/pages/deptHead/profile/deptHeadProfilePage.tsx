@@ -5,6 +5,8 @@ import InfoList from "../../../components/cards/InfoList";
 import ActionListItem from "../../../components/cards/ActionList";
 import ChangePasswordModal from "../../../components/modals/ChangePasswordModal";
 import { getMyEmployeeInfo } from "../../../services/employeeApi";
+import { getHandbookDeptFromDepartmentName, getHandbookLabel, getHandbookUrl } from "../../../services/handbookutils";
+import HandbookModal from "../../../components/modals/HandbookModal";
 import "./deptHeadProfilePage.css";
 
 function DeptHeadProfilePage() {
@@ -17,6 +19,7 @@ function DeptHeadProfilePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+    const [isHandbookOpen, setIsHandbookOpen] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -51,6 +54,11 @@ function DeptHeadProfilePage() {
             .slice(0, 2)
             .toUpperCase()
         : "";
+
+    // The dept head's department (e.g. "JHS") tells us which handbook applies.
+    const handbookDept = getHandbookDeptFromDepartmentName(departmentName);
+    const handbookLabel = getHandbookLabel(handbookDept);
+    const handbookUrl = getHandbookUrl(handbookDept);
 
     const personalInfo = [
         { icon: "bi-person", label: "Name", value: loading ? "Loading..." : (fullName || "—") },
@@ -104,7 +112,11 @@ function DeptHeadProfilePage() {
                             <div className="profile-section mb-4">
                                 <h5 className="mb-3">Support</h5>
                                 <div className="action-list">
-                                    <ActionListItem icon="bi-file-earmark-text" label="Student Handbook" />
+                                    <ActionListItem
+                                        icon="bi-file-earmark-text"
+                                        label={handbookLabel}
+                                        onClick={() => setIsHandbookOpen(true)}
+                                    />
                                 </div>
                             </div>
 
@@ -119,6 +131,13 @@ function DeptHeadProfilePage() {
             <ChangePasswordModal
                 isOpen={isChangePasswordOpen}
                 onClose={() => setIsChangePasswordOpen(false)}
+            />
+
+            <HandbookModal
+                isOpen={isHandbookOpen}
+                onClose={() => setIsHandbookOpen(false)}
+                url={handbookUrl}
+                title={handbookLabel}
             />
 
         </div>

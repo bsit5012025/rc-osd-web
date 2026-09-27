@@ -1,0 +1,97 @@
+.handbook-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 6, 47, 0.55);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 20px;
+    animation: handbook-fade-in 0.15s ease;
+}
+
+.handbook-modal {
+    width: 100%;
+    max-width: 860px;
+    height: 90vh;
+    background: #fff;
+    border-radius: var(--radius-lg, 14px);
+    box-shadow: var(--shadow-modal, 0 20px 60px rgba(0, 0, 0, 0.25));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: handbook-scale-in 0.2s ease;
+}
+
+@keyframes handbook-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes handbook-scale-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.handbook-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border, #e2e2e8);
+    flex-shrink: 0;
+}
+
+.handbook-modal-header h5 {
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-navy, #1a1a2e);
+}
+
+.handbook-modal-close-btn {
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted, #8a8a94);
+    font-size: 1.1rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s ease;
+}
+
+.handbook-modal-close-btn:hover {
+    color: var(--color-navy, #1a1a2e);
+}
+
+.handbook-modal-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+.handbook-modal-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.handbook-modal-empty {
+    margin: auto;
+    color: var(--color-text-muted, #8a8a94);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 24px;
+}
+
+@media (max-width: 576px) {
+
+    .handbook-modal-overlay {
+        padding: 0;
+    }
+
+    .handbook-modal {
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+    }
+}
