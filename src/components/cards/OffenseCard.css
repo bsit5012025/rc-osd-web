@@ -125,3 +125,8 @@
     background: #ffe0e0;
     color: #c62828;
 }
+
+.status-badge.unresolved {
+    background: #f0f0f0;
+    color: #555;
+}

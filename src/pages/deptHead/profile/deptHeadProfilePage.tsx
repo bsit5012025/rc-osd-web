@@ -5,6 +5,8 @@ import InfoList from "../../../components/cards/InfoList";
 import ActionListItem from "../../../components/cards/ActionList";
 import ChangePasswordModal from "../../../components/modals/ChangePasswordModal";
 import { getMyEmployeeInfo } from "../../../services/employeeApi";
+import { getHandbookDeptFromDepartmentName, getHandbookLabel, getHandbookUrl } from "../../../services/handbookutils";
+import HandbookModal from "../../../components/modals/HandbookModal";
 import "./deptHeadProfilePage.css";
 
 function DeptHeadProfilePage() {
@@ -13,10 +15,11 @@ function DeptHeadProfilePage() {
     const [employeeId, setEmployeeId] = useState("");
     const [departmentName, setDepartmentName] = useState("");
     const [employeeRole, setEmployeeRole] = useState("");
-    const [dateOfBirth, setDateOfBirth] = useState("");
+    const [birthDate, setDateOfBirth] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+    const [isHandbookOpen, setIsHandbookOpen] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -30,7 +33,7 @@ function DeptHeadProfilePage() {
                 setEmployeeId(employeeInfo.employeeId ?? "");
                 setDepartmentName(employeeInfo.department ?? "");
                 setEmployeeRole(employeeInfo.employeeRole ?? "");
-                setDateOfBirth(employeeInfo.dateOfBirth ?? "");
+                setDateOfBirth(employeeInfo.birthDate ?? "");
             } catch (err) {
                 console.error("Failed to fetch department head profile data:", err);
                 setError("Failed to load profile data.");
@@ -52,9 +55,14 @@ function DeptHeadProfilePage() {
             .toUpperCase()
         : "";
 
+    // The dept head's department (e.g. "JHS") tells us which handbook applies.
+    const handbookDept = getHandbookDeptFromDepartmentName(departmentName);
+    const handbookLabel = getHandbookLabel(handbookDept);
+    const handbookUrl = getHandbookUrl(handbookDept);
+
     const personalInfo = [
         { icon: "bi-person", label: "Name", value: loading ? "Loading..." : (fullName || "—") },
-        { icon: "bi-calendar3", label: "Date of Birth", value: loading ? "Loading..." : (dateOfBirth || "—") },
+        { icon: "bi-calendar3", label: "Date of Birth", value: loading ? "Loading..." : (birthDate || "—") },
         { icon: "bi-building", label: "Department", value: loading ? "Loading..." : (departmentName || "—") },
         { icon: "bi-briefcase", label: "Employee Role", value: loading ? "Loading..." : (employeeRole || "—") },
     ];
@@ -104,7 +112,11 @@ function DeptHeadProfilePage() {
                             <div className="profile-section mb-4">
                                 <h5 className="mb-3">Support</h5>
                                 <div className="action-list">
-                                    <ActionListItem icon="bi-file-earmark-text" label="Student Handbook" />
+                                    <ActionListItem
+                                        icon="bi-file-earmark-text"
+                                        label={handbookLabel}
+                                        onClick={() => setIsHandbookOpen(true)}
+                                    />
                                 </div>
                             </div>
 
@@ -119,6 +131,13 @@ function DeptHeadProfilePage() {
             <ChangePasswordModal
                 isOpen={isChangePasswordOpen}
                 onClose={() => setIsChangePasswordOpen(false)}
+            />
+
+            <HandbookModal
+                isOpen={isHandbookOpen}
+                onClose={() => setIsHandbookOpen(false)}
+                url={handbookUrl}
+                title={handbookLabel}
             />
 
         </div>

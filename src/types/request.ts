@@ -6,7 +6,6 @@ export interface RequestItem {
     type: string;
     status: string;
     dateFiled: string | null;
-    aiResponse: string | null;
     dateProcessed: string | null;
     remarks: string | null;
 }

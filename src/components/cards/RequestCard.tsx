@@ -10,7 +10,6 @@ interface RequestCardProps {
     status: RequestStatus;
     dateFiled: string;
     dateProcessed?: string | null;
-    aiResponse?: string | null;
     remarks?: string | null;
     reviewerRoleLabel?: string;
     awaitingTitle?: string;
@@ -23,6 +22,23 @@ const STATUS_ACCENTS: Record<string, string> = {
     denied: "#c62828",
 };
 
+function formatDate(dateString?: string | null): string {
+    if (!dateString) return dateString ?? "";
+
+    const isoParts = dateString.split("-");
+    if (isoParts.length === 3 && isoParts[0].length === 4) {
+        const [year, month, day] = isoParts;
+        return `${month}/${day}/${year}`;
+    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${month}/${day}/${date.getFullYear()}`;
+}
+
 function RequestCard({
     requestId,
     type,
@@ -31,7 +47,6 @@ function RequestCard({
     status,
     dateFiled,
     dateProcessed,
-    aiResponse,
     remarks,
     awaitingTitle = "Awaiting Review",
     awaitingText = "Your request hasn't been reviewed yet. You'll be notified once a decision is made.",
@@ -84,24 +99,15 @@ function RequestCard({
                     {dateProcessed && (
                         <div className="request-processed-date">
                             <i className="bi bi-calendar-check"></i>
-                            Reviewed {dateProcessed}
+                            Reviewed {formatDate(dateProcessed)}
                         </div>
                     )}
                 </div>
             )}
 
-            {aiResponse && (
-                <div className="request-ai-note">
-                    <div className="request-ai-note-icon">
-                        <i className="bi bi-stars"></i>
-                    </div>
-                    <div className="request-ai-note-text">{aiResponse}</div>
-                </div>
-            )}
-
             <div className="request-card-date">
                 <i className="bi bi-calendar3"></i>
-                Submitted {dateFiled}
+                Submitted {formatDate(dateFiled)}
             </div>
 
         </div>

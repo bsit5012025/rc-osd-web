@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 
 import StatCard from "../../../components/cards/StatCard";
-import RequestCard from "../../../components/cards/RequestCard";
 import FileDeptHeadRequestModal from "../../../components/modals/FileDeptHeadRequestModal";
-
+import RequestCard from "../../../components/cards/RequestCard";
 import { getMyDepartmentRequests } from "../../../services/requestApi";
 import type { RequestItem } from "../../../types/request";
 
@@ -93,7 +92,6 @@ function DeptHeadRequestPage() {
                     request.dateFiled,
                     request.dateProcessed,
                     request.remarks,
-                    request.aiResponse,
                 ];
 
                 return searchableFields.some((field) =>
@@ -270,7 +268,6 @@ function DeptHeadRequestPage() {
                                     status={normalizeStatus(request.status)}
                                     dateFiled={request.dateFiled ?? "—"}
                                     dateProcessed={request.dateProcessed}
-                                    aiResponse={request.aiResponse}
                                     remarks={request.remarks}
                                 />
                             ))}

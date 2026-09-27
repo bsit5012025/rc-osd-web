@@ -1,8 +1,9 @@
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent, ChangeEvent } from "react";
 import axios from "axios";
 
 import { submitRequest } from "../../services/requestApi";
-import type { RequestItem } from "../../types/request";
+
+import SearchableDropdown from "./SearchableDropdown";
 
 import "./FileDeptHeadRequestModal.css";
 
@@ -14,6 +15,13 @@ interface FileDeptHeadRequestModalProps {
     onFiled: () => void;
 }
 
+// TODO: fetch these from the backend (student IDs, sections, batches/levels)
+// and populate accordingly. Left empty for now — the dropdown UI/behavior
+// can still be reviewed, it'll just have nothing to show until then.
+const STUDENT_OPTIONS: string[] = [];
+const SECTION_OPTIONS: string[] = [];
+const BATCH_OPTIONS: string[] = [];
+
 function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadRequestModalProps) {
 
     const [scopeType, setScopeType] = useState<ScopeType>("By Section");
@@ -23,7 +31,6 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState("");
     const [hasFiled, setHasFiled] = useState(false);
-    const [submittedRequest, setSubmittedRequest] = useState<RequestItem | null>(null);
 
     useEffect(() => {
         if (!show) return;
@@ -33,7 +40,6 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
         setMessage("");
         setSubmitError("");
         setHasFiled(false);
-        setSubmittedRequest(null);
     }, [show]);
 
     if (!show) return null;
@@ -52,6 +58,19 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
                 ? "e.g. St. Augustine"
                 : "e.g. Grade 10";
 
+    const currentOptions =
+        scopeType === "By Student"
+            ? STUDENT_OPTIONS
+            : scopeType === "By Section"
+                ? SECTION_OPTIONS
+                : BATCH_OPTIONS;
+
+    const handleScopeChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setScopeType(e.target.value as ScopeType);
+        // Clear the selection since the available options change with scope.
+        setDetails("");
+    };
+
     const canSubmit =
         details.trim() !== "" &&
         message.trim() !== "" &&
@@ -69,13 +88,12 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
             setSubmitting(true);
             setSubmitError("");
 
-            const submitted = await submitRequest({
+            await submitRequest({
                 type: scopeType,
                 details: details.trim(),
                 message: message.trim(),
             });
 
-            setSubmittedRequest(submitted);
             setHasFiled(true);
         } catch (err) {
             console.error("Failed to submit request:", err);
@@ -127,21 +145,7 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
 
                         <p className="new-request-hint mb-4">
                             Your request has been filed and is now waiting for the Prefect's approval.
-                            {submittedRequest?.aiResponse
-                                ? " Here's what our system noticed:"
-                                : ""}
                         </p>
-
-                        {submittedRequest?.aiResponse && (
-                            <div className="request-ai-suggestion-card mb-4">
-                                <div className="request-ai-suggestion-icon">
-                                    <i className="bi bi-stars"></i>
-                                </div>
-                                <div className="request-ai-suggestion-text">
-                                    {submittedRequest.aiResponse}
-                                </div>
-                            </div>
-                        )}
 
                         <p className="new-request-hint mb-0">
                             You'll be able to track its status from your Requests page.
@@ -168,7 +172,7 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
                                     id="scopeType"
                                     className="form-select new-request-select"
                                     value={scopeType}
-                                    onChange={(e) => setScopeType(e.target.value as ScopeType)}
+                                    onChange={handleScopeChange}
                                     disabled={submitting}
                                 >
                                     <option value="By Student">By Student</option>
@@ -182,15 +186,14 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
                                     <span className="file-request-step-num">2</span>
                                     {detailsLabel} <span className="required-asterisk">*</span>
                                 </div>
-                                <input
+                                <SearchableDropdown
                                     id="requestDetails"
-                                    type="text"
-                                    className="form-control new-request-select"
-                                    placeholder={detailsPlaceholder}
                                     value={details}
-                                    onChange={(e) => setDetails(e.target.value)}
-                                    maxLength={100}
+                                    onChange={setDetails}
+                                    options={currentOptions}
+                                    placeholder={detailsPlaceholder}
                                     disabled={submitting}
+                                    emptyLabel={`No matching ${detailsLabel.toLowerCase()} found`}
                                 />
                             </div>
 

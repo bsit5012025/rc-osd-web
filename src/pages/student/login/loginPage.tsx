@@ -130,16 +130,7 @@ function LoginPage() {
 
                         </div>
 
-                        <div className="text-end mb-4">
-
-                            <a
-                                href="#"
-                                className="login-forgot fw-bold"
-                            >
-                                Forgot password?
-                            </a>
-
-                        </div>
+                        <div className="mb-4"></div>
 
                         {error && (
                             <div className="alert alert-danger">

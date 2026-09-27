@@ -248,6 +248,7 @@ function StudentAdminModal({
                             <textarea
                                 className="form-control"
                                 rows={3}
+                                style={{ resize: "none" }}
                                 value={form.address}
                                 onChange={(e) =>
                                     onChange({
