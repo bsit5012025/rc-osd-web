@@ -13,7 +13,7 @@ function DeptHeadProfilePage() {
     const [employeeId, setEmployeeId] = useState("");
     const [departmentName, setDepartmentName] = useState("");
     const [employeeRole, setEmployeeRole] = useState("");
-    const [dateOfBirth, setDateOfBirth] = useState("");
+    const [birthDate, setDateOfBirth] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -30,7 +30,7 @@ function DeptHeadProfilePage() {
                 setEmployeeId(employeeInfo.employeeId ?? "");
                 setDepartmentName(employeeInfo.department ?? "");
                 setEmployeeRole(employeeInfo.employeeRole ?? "");
-                setDateOfBirth(employeeInfo.dateOfBirth ?? "");
+                setDateOfBirth(employeeInfo.birthDate ?? "");
             } catch (err) {
                 console.error("Failed to fetch department head profile data:", err);
                 setError("Failed to load profile data.");
@@ -54,7 +54,7 @@ function DeptHeadProfilePage() {
 
     const personalInfo = [
         { icon: "bi-person", label: "Name", value: loading ? "Loading..." : (fullName || "—") },
-        { icon: "bi-calendar3", label: "Date of Birth", value: loading ? "Loading..." : (dateOfBirth || "—") },
+        { icon: "bi-calendar3", label: "Date of Birth", value: loading ? "Loading..." : (birthDate || "—") },
         { icon: "bi-building", label: "Department", value: loading ? "Loading..." : (departmentName || "—") },
         { icon: "bi-briefcase", label: "Employee Role", value: loading ? "Loading..." : (employeeRole || "—") },
     ];

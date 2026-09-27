@@ -3,5 +3,5 @@ export interface EmployeeSummary {
     fullName: string;
     employeeRole: string;
     department: string | null;
-    dateOfBirth: string | null;
+    birthDate: string | null;
 }
