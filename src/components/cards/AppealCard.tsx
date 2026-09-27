@@ -41,7 +41,7 @@ function formatDateTime(dateValue: string): string {
     const hour12 = hours % 12 || 12;
     const period = hours >= 12 ? "PM" : "AM";
 
-    return `${month}-${day}-${year}, ${hour12}:${minutes} ${period}`;
+    return `${month}/${day}/${year}, ${hour12}:${minutes} ${period}`;
 }
 
 function AppealCard({

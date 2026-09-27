@@ -18,6 +18,23 @@ import "./OffensePage.css";
 
 const PAGE_SIZE = 8;
 
+function formatDate(dateString: string): string {
+    if (!dateString) return dateString;
+
+    const isoParts = dateString.split("-");
+    if (isoParts.length === 3 && isoParts[0].length === 4) {
+        const [year, month, day] = isoParts;
+        return `${month}/${day}/${year}`;
+    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${month}/${day}/${date.getFullYear()}`;
+}
+
 function OffensesPage() {
     const studentId = localStorage.getItem("username") || "";
 
@@ -235,7 +252,7 @@ function OffensesPage() {
                                         <tbody>
                                         {pagedRecords.map((record) => (
                                             <tr key={record.recordId}>
-                                                <td>{record.dateOfViolation}</td>
+                                                <td>{formatDate(record.dateOfViolation)}</td>
                                                 <td>{record.offense.offense}</td>
                                                 <td>
                                                         <span

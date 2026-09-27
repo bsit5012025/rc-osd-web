@@ -13,6 +13,23 @@ const LEVEL_ACCENTS: Record<string, string> = {
     grave: "#7a1f2b",
 };
 
+function formatDate(dateString: string): string {
+    if (!dateString) return dateString;
+
+    const isoParts = dateString.split("-");
+    if (isoParts.length === 3 && isoParts[0].length === 4) {
+        const [year, month, day] = isoParts;
+        return `${month}/${day}/${year}`;
+    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${month}/${day}/${date.getFullYear()}`;
+}
+
 export default function OffenseCard({
                                         offense,
                                         level,
@@ -59,11 +76,11 @@ export default function OffenseCard({
                         Date Filed
                     </small>
 
-                    <p className="offense-date-value">{dateFiled}</p>
+                    <p className="offense-date-value">{formatDate(dateFiled)}</p>
                 </div>
 
             </div>
 
         </div>
     );
-}   
+}
