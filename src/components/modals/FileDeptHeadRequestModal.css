@@ -238,35 +238,6 @@
     transform: translateY(-1px);
 }
 
-.request-ai-suggestion-card {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    border: 1px solid var(--color-border, #e2e2e8);
-    border-radius: var(--radius-md, 12px);
-    padding: 16px;
-    background: #faf9fc;
-}
-
-.request-ai-suggestion-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: #ecebfc;
-    color: var(--color-navy-accent, #1b1b8f);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-}
-
-.request-ai-suggestion-text {
-    font-size: 0.85rem;
-    color: var(--color-navy, #1a1a2e);
-    line-height: 1.5;
-}
-
 .file-request-success-icon {
     width: 56px;
     height: 56px;

@@ -10,7 +10,6 @@ interface RequestCardProps {
     status: RequestStatus;
     dateFiled: string;
     dateProcessed?: string | null;
-    aiResponse?: string | null;
     remarks?: string | null;
     reviewerRoleLabel?: string;
     awaitingTitle?: string;
@@ -31,7 +30,6 @@ function RequestCard({
     status,
     dateFiled,
     dateProcessed,
-    aiResponse,
     remarks,
     awaitingTitle = "Awaiting Review",
     awaitingText = "Your request hasn't been reviewed yet. You'll be notified once a decision is made.",
@@ -87,15 +85,6 @@ function RequestCard({
                             Reviewed {dateProcessed}
                         </div>
                     )}
-                </div>
-            )}
-
-            {aiResponse && (
-                <div className="request-ai-note">
-                    <div className="request-ai-note-icon">
-                        <i className="bi bi-stars"></i>
-                    </div>
-                    <div className="request-ai-note-text">{aiResponse}</div>
                 </div>
             )}
 
