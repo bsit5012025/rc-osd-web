@@ -16,12 +16,12 @@ interface FileDeptHeadRequestModalProps {
     onFiled: () => void;
 }
 
-// TODO: replace these with real data (student IDs, sections, batches/levels)
-// once fetching is wired up. Kept as plain arrays for now so the dropdown
-// UI/behavior can be reviewed on its own first.
-const PLACEHOLDER_STUDENT_OPTIONS = ["JHS-0046", "JHS-0102", "SHS-0017", "SHS-0088"];
-const PLACEHOLDER_SECTION_OPTIONS = ["St. Augustine", "St. Benedict", "St. Cecilia", "St. Dominic"];
-const PLACEHOLDER_BATCH_OPTIONS = ["Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
+// TODO: fetch these from the backend (student IDs, sections, batches/levels)
+// and populate accordingly. Left empty for now — the dropdown UI/behavior
+// can still be reviewed, it'll just have nothing to show until then.
+const STUDENT_OPTIONS: string[] = [];
+const SECTION_OPTIONS: string[] = [];
+const BATCH_OPTIONS: string[] = [];
 
 function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadRequestModalProps) {
 
@@ -63,10 +63,10 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
 
     const currentOptions =
         scopeType === "By Student"
-            ? PLACEHOLDER_STUDENT_OPTIONS
+            ? STUDENT_OPTIONS
             : scopeType === "By Section"
-                ? PLACEHOLDER_SECTION_OPTIONS
-                : PLACEHOLDER_BATCH_OPTIONS;
+                ? SECTION_OPTIONS
+                : BATCH_OPTIONS;
 
     const handleScopeChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setScopeType(e.target.value as ScopeType);
