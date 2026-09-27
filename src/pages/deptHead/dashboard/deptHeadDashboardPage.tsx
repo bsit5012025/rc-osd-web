@@ -9,6 +9,23 @@ import { getMyEmployeeInfo } from "../../../services/employeeApi";
 
 import "./deptHeadDashboardPage.css";
 
+function formatDate(dateString?: string | null): string {
+    if (!dateString) return dateString ?? "";
+
+    const isoParts = dateString.split("-");
+    if (isoParts.length === 3 && isoParts[0].length === 4) {
+        const [year, month, day] = isoParts;
+        return `${month}/${day}/${year}`;
+    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${month}/${day}/${date.getFullYear()}`;
+}
+
 function DeptHeadDashboardPage() {
 
     const [deptHeadName, setDeptHeadName] = useState("");
@@ -140,7 +157,7 @@ function DeptHeadDashboardPage() {
                                             <tbody>
                                             {recentRequests.map((req) => (
                                                 <tr key={req.requestId}>
-                                                    <td>{req.dateFiled ?? "—"}</td>
+                                                    <td>{formatDate(req.dateFiled) || "—"}</td>
                                                     <td>{req.type}</td>
                                                     <td>
                                                         <span
@@ -168,7 +185,7 @@ function DeptHeadDashboardPage() {
                                                 </span>
                                             </div>
                                             <span className="recent-request-card-date">
-                                                {req.dateFiled ?? "—"}
+                                                {formatDate(req.dateFiled) || "—"}
                                             </span>
                                         </div>
                                     ))}

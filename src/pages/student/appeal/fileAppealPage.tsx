@@ -9,6 +9,23 @@ import { uploadAppealDocument } from "../../../services/documentApi";
 
 import "./fileAppealPage.css";
 
+function formatDate(dateString: string): string {
+    if (!dateString) return dateString;
+
+    const isoParts = dateString.split("-");
+    if (isoParts.length === 3 && isoParts[0].length === 4) {
+        const [year, month, day] = isoParts;
+        return `${month}/${day}/${year}`;
+    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${month}/${day}/${date.getFullYear()}`;
+}
+
 function FileAppealPage() {
     const navigate = useNavigate();
     const studentId = localStorage.getItem("username") || "";
@@ -218,7 +235,7 @@ function FileAppealPage() {
                                             value={String(record.recordId)}
                                             disabled={alreadyAppealed}
                                         >
-                                            {record.offense.offense} — filed {record.dateOfViolation}
+                                            {record.offense.offense} — filed {formatDate(record.dateOfViolation)}
                                             {alreadyAppealed ? " — Appeal Pending" : ""}
                                         </option>
                                     );
