@@ -15,6 +15,7 @@ export interface Guardian {
 export interface Student {
     studentId: string;
     address: string;
+    section: string;
     department: string;
     studentType: string;
     contactNumber: string;
@@ -32,6 +33,7 @@ export interface Student {
 export interface StudentInput {
     studentId: string;
     address: string;
+    section: string;
     department: string;
     studentType: string;
     contactNumber: string;
