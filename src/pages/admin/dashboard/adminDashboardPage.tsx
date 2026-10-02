@@ -1,21 +1,24 @@
-import { useEffect, useMemo, useState, type FormEvent, } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import TopBar from "../../../components/navigation/TopBar";
 import UserGreeting from "../../../components/navigation/UserGreeting";
 import StudentTable from "../../../components/table/StudentTable";
 import OffenseTable from "../../../components/table/OffenseTable";
+import LockedAccountTable from "../../../components/table/LockedAccountTable";
 import StudentAdminModal from "../../../components/modals/StudentAdminModal";
 import OffenseAdminModal from "../../../components/modals/OffenseAdminModal";
-import BulkImportModal, {type BulkImportColumn,} from "../../../components/modals/BulkImportModal";
+import BulkImportModal, { type BulkImportColumn } from "../../../components/modals/BulkImportModal";
 import Pagination from "../../../components/pagination/Pagination";
 import { getAllStudents, createStudent, updateStudent, setStudentActive } from "../../../services/studentApi";
-import type { Student, StudentInput, } from "../../../services/studentApi";
-import { getOffenses, createOffense, updateOffense, setOffenseActive} from "../../../services/offenseApi";
+import type { Student, StudentInput } from "../../../services/studentApi";
+import { getOffenses, createOffense, updateOffense, setOffenseActive } from "../../../services/offenseApi";
 import type { OffenseInput } from "../../../services/offenseApi";
 import type { Offense } from "../../../types/offense";
+import { getLockedAccounts, unlockAccount } from "../../../services/lockedAccountApi";
+import type { LockedAccount } from "../../../services/lockedAccountApi";
 import "./adminDashboardPage.css";
 import StudentContactBirthdayModal from "../../../components/modals/AdminEditModal";
 
-type ActiveTable = "students" | "offenses";
+type ActiveTable = "students" | "offenses" | "locked";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -125,7 +128,9 @@ function AdminDashboardPage() {
     const username = localStorage.getItem("username") || "";
     const [students, setStudents] = useState<Student[]>([]);
     const [offenses, setOffenses] = useState<Offense[]>([]);
+    const [lockedAccounts, setLockedAccounts] = useState<LockedAccount[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadingLockedAccounts, setLoadingLockedAccounts] = useState(false);
     const [error, setError] = useState("");
     const [activeTable, setActiveTable] = useState<ActiveTable>("students");
     const [currentPage, setCurrentPage] = useState(1);
@@ -152,24 +157,22 @@ function AdminDashboardPage() {
     const [studentInfoForm, setStudentInfoForm] = useState<StudentInput>(emptyStudentForm);
     const [studentInfoFormError, setStudentInfoFormError] = useState("");
     const [savingStudentInfo, setSavingStudentInfo] = useState(false);
+    const [unlockingUsername, setUnlockingUsername] = useState<string | null>(null);
 
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
             setError("");
-
             const [studentData, offenseData] = await Promise.all([
                 getAllStudents(),
                 getOffenses(),
             ]);
-
             setStudents(
                 studentData.map((student) => ({
                     ...student,
                     isActive: student.isActive ?? true,
                 }))
             );
-
             setOffenses(
                 offenseData.map((offense) => ({
                     ...offense,
@@ -184,14 +187,27 @@ function AdminDashboardPage() {
         }
     };
 
+    const fetchLockedAccounts = async () => {
+        try {
+            setLoadingLockedAccounts(true);
+            const data = await getLockedAccounts();
+            setLockedAccounts(data);
+        } catch (err) {
+            console.error("Failed to fetch locked accounts:", err);
+            setError("Failed to load locked accounts.");
+        } finally {
+            setLoadingLockedAccounts(false);
+        }
+    };
+
     useEffect(() => {
         fetchDashboardData();
+        fetchLockedAccounts();
     }, []);
 
     const filteredStudents = useMemo(() => {
         return students.filter((student) => {
             const search = studentSearch.trim().toLowerCase();
-
             const fullName = [
                 student.person?.firstName,
                 student.person?.middleName,
@@ -200,16 +216,13 @@ function AdminDashboardPage() {
                 .filter(Boolean)
                 .join(" ")
                 .toLowerCase();
-
             const matchesSearch =
                 !search ||
                 student.studentId?.toLowerCase().includes(search) ||
                 fullName.includes(search);
-
             const matchesDepartment =
                 !departmentFilter ||
                 student.department === departmentFilter;
-
             return matchesSearch && matchesDepartment;
         });
     }, [students, studentSearch, departmentFilter]);
@@ -217,16 +230,13 @@ function AdminDashboardPage() {
     const filteredOffenses = useMemo(() => {
         return offenses.filter((offense) => {
             const search = offenseSearch.trim().toLowerCase();
-
             const matchesSearch =
                 !search ||
                 offense.offense?.toLowerCase().includes(search) ||
                 offense.description?.toLowerCase().includes(search);
-
             const matchesType =
                 !offenseTypeFilter ||
                 offense.type === offenseTypeFilter;
-
             return matchesSearch && matchesType;
         });
     }, [offenses, offenseSearch, offenseTypeFilter]);
@@ -257,7 +267,9 @@ function AdminDashboardPage() {
     const totalItems =
         activeTable === "students"
             ? filteredStudents.length
-            : filteredOffenses.length;
+            : activeTable === "offenses"
+                ? filteredOffenses.length
+                : lockedAccounts.length;
 
     const totalPages = Math.max(
         1,
@@ -270,6 +282,11 @@ function AdminDashboardPage() {
     );
 
     const paginatedOffenses = filteredOffenses.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    const paginatedLockedAccounts = lockedAccounts.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
@@ -355,7 +372,8 @@ function AdminDashboardPage() {
     };
 
     const handleStudentSubmit = async (
-        e: FormEvent<HTMLFormElement>) => {
+        e: FormEvent<HTMLFormElement>
+    ) => {
         e.preventDefault();
         setStudentFormError("");
 
@@ -483,6 +501,7 @@ function AdminDashboardPage() {
         setStudentInfoFormError("");
         setShowStudentInfoModal(true);
     };
+
     const closeStudentInfoModal = () => {
         if (!savingStudentInfo) {
             setShowStudentInfoModal(false);
@@ -699,7 +718,6 @@ function AdminDashboardPage() {
                         : item
                 )
             );
-
         } catch (err) {
             console.error("Failed to change offense status:", err);
             setError("Failed to change offense status. Please try again.");
@@ -709,6 +727,36 @@ function AdminDashboardPage() {
                 next.delete(offenseId);
                 return next;
             });
+        }
+    };
+
+    const handleUnlockAccount = async (username: string) => {
+        try {
+            setError("");
+            setUnlockingUsername(username);
+
+            await unlockAccount(username);
+
+            setLockedAccounts((previous) =>
+                previous.filter(
+                    (account) => account.username !== username
+                )
+            );
+        } catch (err: any) {
+            console.error("Failed to unlock account:", err);
+
+            const message =
+                err?.response?.data?.message ||
+                err?.response?.data ||
+                "Failed to unlock account. Please try again.";
+
+            setError(
+                typeof message === "string"
+                    ? message
+                    : "Failed to unlock account. Please try again."
+            );
+        } finally {
+            setUnlockingUsername(null);
         }
     };
 
@@ -726,14 +774,12 @@ function AdminDashboardPage() {
                         ]}
                     />
                 </TopBar>
-
                 <main className="admin-dashboard-content">
                     {error && (
                         <div className="alert alert-danger mt-3">
                             {error}
                         </div>
                     )}
-
                     <section className="dashboard-management-section">
                         <div className="dashboard-table-tabs">
                             <button
@@ -750,7 +796,6 @@ function AdminDashboardPage() {
                                 <i className="bi bi-people-fill"></i>
                                 <span>Students</span>
                             </button>
-
                             <button
                                 type="button"
                                 className={
@@ -765,8 +810,26 @@ function AdminDashboardPage() {
                                 <i className="bi bi-exclamation-triangle-fill"></i>
                                 <span>Offenses</span>
                             </button>
+                            <button
+                                type="button"
+                                className={
+                                    activeTable === "locked"
+                                        ? "dashboard-tab active"
+                                        : "dashboard-tab"
+                                }
+                                onClick={() =>
+                                    changeTable("locked")
+                                }
+                            >
+                                <i className="bi bi-lock-fill"></i>
+                                <span>Locked Accounts</span>
+                                {lockedAccounts.length > 0 && (
+                                    <span className="badge bg-danger ms-2">
+                                        {lockedAccounts.length}
+                                    </span>
+                                )}
+                            </button>
                         </div>
-
                         {activeTable === "students" && (
                             <section>
                                 <StudentTable
@@ -808,7 +871,6 @@ function AdminDashboardPage() {
                                 />
                             </section>
                         )}
-
                         {activeTable === "offenses" && (
                             <section>
                                 <OffenseTable
@@ -835,7 +897,38 @@ function AdminDashboardPage() {
                                     onToggleStatus={handleToggleOffenseStatus}
                                     savingStatusIds={savingOffenseStatusIds}
                                 />
-
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPrevious={() =>
+                                        setCurrentPage(
+                                            (previous) =>
+                                                Math.max(
+                                                    1,
+                                                    previous - 1
+                                                )
+                                        )
+                                    }
+                                    onNext={() =>
+                                        setCurrentPage(
+                                            (previous) =>
+                                                Math.min(
+                                                    totalPages,
+                                                    previous + 1
+                                                )
+                                        )
+                                    }
+                                />
+                            </section>
+                        )}
+                        {activeTable === "locked" && (
+                            <section>
+                                <LockedAccountTable
+                                    accounts={paginatedLockedAccounts}
+                                    loading={loadingLockedAccounts}
+                                    onUnlock={handleUnlockAccount}
+                                    unlockingUsername={unlockingUsername}
+                                />
                                 <Pagination
                                     currentPage={currentPage}
                                     totalPages={totalPages}
@@ -863,7 +956,6 @@ function AdminDashboardPage() {
                     </section>
                 </main>
             </div>
-
             <StudentAdminModal
                 show={showStudentModal}
                 editingId={editingStudentId}
@@ -886,7 +978,6 @@ function AdminDashboardPage() {
                                     s.studentId ===
                                     editingStudentInfoId
                             );
-
                             return student
                                 ? [
                                     student.person?.firstName,
@@ -906,7 +997,6 @@ function AdminDashboardPage() {
                 onSubmit={handleStudentInfoSubmit}
                 onChange={setStudentInfoForm}
             />
-
             <OffenseAdminModal
                 show={showOffenseModal}
                 editingId={editingOffenseId}
@@ -918,7 +1008,6 @@ function AdminDashboardPage() {
                 onSubmit={handleOffenseSubmit}
                 onChange={setOffenseForm}
             />
-
             <BulkImportModal
                 show={showStudentImportModal}
                 title="Bulk Import Students"
@@ -931,7 +1020,6 @@ function AdminDashboardPage() {
                 onClose={closeStudentImportModal}
                 onComplete={fetchDashboardData}
             />
-
             <BulkImportModal
                 show={showOffenseImportModal}
                 title="Bulk Import Offenses"
