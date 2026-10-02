@@ -70,6 +70,11 @@ const studentImportColumns: BulkImportColumn[] = [
                 : `Must be one of ${departments.join(", ")}`,
     },
     {
+        key: "section",
+        label: "Section",
+        required: true,
+    },
+    {
         key: "studentType",
         label: "Student Type",
         required: true,
@@ -105,6 +110,7 @@ const getOffenseRowKey = (row: Record<string, string>) =>
 const emptyStudentForm: StudentInput = {
     studentId: "",
     address: "",
+    section: "",
     department: "",
     studentType: "",
     contactNumber: "",
@@ -325,6 +331,7 @@ function AdminDashboardPage() {
         await createStudent({
             studentId: row.studentId.trim(),
             address: row.address.trim(),
+            section: row.section.trim(),
             department:
                 matchOption(row.department, departments) ||
                 row.department.trim(),
@@ -407,6 +414,11 @@ function AdminDashboardPage() {
             return;
         }
 
+        if (!studentForm.section.trim()) {
+            setStudentFormError("Section is required.");
+            return;
+        }
+
         if (!studentForm.studentType.trim()) {
             setStudentFormError("Student Type is required.");
             return;
@@ -486,6 +498,7 @@ function AdminDashboardPage() {
         setStudentInfoForm({
             studentId: student.studentId,
             address: student.address || "",
+            section: student.section || "",
             department: student.department || "",
             studentType: student.studentType || "",
             contactNumber: student.contactNumber || "",
@@ -513,6 +526,11 @@ function AdminDashboardPage() {
     ) => {
         e.preventDefault();
         setStudentInfoFormError("");
+
+        if (!studentInfoForm.section.trim()) {
+            setStudentInfoFormError("Section is required.");
+            return;
+        }
 
         if (!studentInfoForm.contactNumber.trim()) {
             setStudentInfoFormError("Contact Number is required.");
