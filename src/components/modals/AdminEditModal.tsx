@@ -41,7 +41,6 @@ export default function AdminEditModal({
                                 <h5 className="modal-title">
                                     Edit Student Information
                                 </h5>
-
                                 <small className="text-muted">
                                     {studentName}
                                 </small>
@@ -92,10 +91,7 @@ export default function AdminEditModal({
                                     className="form-control"
                                     value={
                                         form.person.dateOfBirth
-                                            ? String(form.person.dateOfBirth).substring(
-                                                  0,
-                                                  10
-                                              )
+                                            ? String(form.person.dateOfBirth).substring(0, 10)
                                             : ""
                                     }
                                     onChange={(e) =>
@@ -103,13 +99,51 @@ export default function AdminEditModal({
                                             ...form,
                                             person: {
                                                 ...form.person,
-                                                dateOfBirth:
-                                                    e.target.value,
+                                                dateOfBirth: e.target.value,
                                             },
                                         })
                                     }
                                     required
                                 />
+                            </div>
+
+                            <div className="border rounded p-3 mt-4 bg-light">
+                                <div className="d-flex align-items-center mb-3">
+                                    <i className="bi bi-person-lock me-2"></i>
+                                    <strong>Login Account</strong>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label">
+                                        Username
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={form.studentId}
+                                        disabled
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="form-label">
+                                        Password
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value="Managed automatically"
+                                        disabled
+                                    />
+                                </div>
+
+                                <div className="form-text mt-2">
+                                    The username is based on the Student ID. Editing
+                                    student information does not change the account
+                                    password.
+                                </div>
                             </div>
                         </div>
 

@@ -15,17 +15,17 @@ interface StudentAdminModalProps {
 }
 
 function StudentAdminModal({
-                               show,
-                               editingId,
-                               form,
-                               error,
-                               saving,
-                               departments,
-                               studentTypes,
-                               onClose,
-                               onSubmit,
-                               onChange,
-                           }: StudentAdminModalProps) {
+    show,
+    editingId,
+    form,
+    error,
+    saving,
+    departments,
+    studentTypes,
+    onClose,
+    onSubmit,
+    onChange,
+}: StudentAdminModalProps) {
     if (!show) {
         return null;
     }
@@ -37,7 +37,6 @@ function StudentAdminModal({
                     <h4>
                         {editingId !== null ? "Edit Student" : "Add Student"}
                     </h4>
-
                     <button
                         type="button"
                         className="modal-close-btn"
@@ -46,7 +45,6 @@ function StudentAdminModal({
                         <i className="bi bi-x-lg"></i>
                     </button>
                 </div>
-
                 <form onSubmit={onSubmit}>
                     {error && (
                         <div className="alert alert-danger" role="alert">
@@ -59,13 +57,11 @@ function StudentAdminModal({
                             </div>
                         </div>
                     )}
-
                     <div className="row g-3">
                         <div className="col-12">
                             <label className="form-label">
                                 Student ID <span className="text-danger">*</span>
                             </label>
-
                             <input
                                 type="text"
                                 className="form-control"
@@ -80,12 +76,10 @@ function StudentAdminModal({
                                 required
                             />
                         </div>
-
                         <div className="col-md-6">
                             <label className="form-label">
                                 First Name <span className="text-danger">*</span>
                             </label>
-
                             <input
                                 type="text"
                                 className="form-control"
@@ -102,12 +96,10 @@ function StudentAdminModal({
                                 required
                             />
                         </div>
-
                         <div className="col-md-6">
                             <label className="form-label">
                                 Middle Name <span className="text-danger">*</span>
                             </label>
-
                             <input
                                 type="text"
                                 className="form-control"
@@ -124,12 +116,10 @@ function StudentAdminModal({
                                 required
                             />
                         </div>
-
                         <div className="col-md-6">
                             <label className="form-label">
                                 Last Name <span className="text-danger">*</span>
                             </label>
-
                             <input
                                 type="text"
                                 className="form-control"
@@ -146,12 +136,10 @@ function StudentAdminModal({
                                 required
                             />
                         </div>
-
                         <div className="col-md-6">
                             <label className="form-label">
                                 Date of Birth <span className="text-danger">*</span>
                             </label>
-
                             <input
                                 type="date"
                                 className="form-control"
@@ -168,12 +156,10 @@ function StudentAdminModal({
                                 required
                             />
                         </div>
-
                         <div className="col-md-6">
                             <label className="form-label">
                                 Department <span className="text-danger">*</span>
                             </label>
-
                             <select
                                 className="form-select"
                                 value={form.department}
@@ -186,7 +172,6 @@ function StudentAdminModal({
                                 required
                             >
                                 <option value="">Select department</option>
-
                                 {departments.map((department) => (
                                     <option key={department} value={department}>
                                         {department}
@@ -194,12 +179,28 @@ function StudentAdminModal({
                                 ))}
                             </select>
                         </div>
-
+                        <div className="col-md-6">
+                            <label className="form-label">
+                                Section <span className="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={form.section}
+                                onChange={(e) =>
+                                    onChange({
+                                        ...form,
+                                        section: e.target.value,
+                                    })
+                                }
+                                placeholder="Enter section"
+                                required
+                            />
+                        </div>
                         <div className="col-md-6">
                             <label className="form-label">
                                 Student Type <span className="text-danger">*</span>
                             </label>
-
                             <select
                                 className="form-select"
                                 value={form.studentType}
@@ -212,7 +213,6 @@ function StudentAdminModal({
                                 required
                             >
                                 <option value="">Select student type</option>
-
                                 {studentTypes.map((studentType) => (
                                     <option key={studentType} value={studentType}>
                                         {studentType}
@@ -220,12 +220,10 @@ function StudentAdminModal({
                                 ))}
                             </select>
                         </div>
-
                         <div className="col-12">
                             <label className="form-label">
                                 Contact Number <span className="text-danger">*</span>
                             </label>
-
                             <input
                                 type="text"
                                 className="form-control"
@@ -239,12 +237,10 @@ function StudentAdminModal({
                                 required
                             />
                         </div>
-
                         <div className="col-12">
                             <label className="form-label">
                                 Address <span className="text-danger">*</span>
                             </label>
-
                             <textarea
                                 className="form-control"
                                 rows={3}
@@ -260,7 +256,6 @@ function StudentAdminModal({
                             />
                         </div>
                     </div>
-
                     <div className="admin-modal-actions">
                         <button
                             type="button"
@@ -270,7 +265,6 @@ function StudentAdminModal({
                         >
                             Cancel
                         </button>
-
                         <button
                             type="submit"
                             className="save-btn"
