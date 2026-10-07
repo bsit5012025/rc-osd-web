@@ -5,13 +5,21 @@ export interface LockedAccount {
     role: string | null;
     failedLoginAttempts: number;
     locked: boolean;
+    active: boolean;
 }
 
-export const getLockedAccounts = async (): Promise<LockedAccount[]> => {
-    const response = await apiClient.get<LockedAccount[]>("/login/locked");
-    return response.data;
-};
+export async function getLockedAccounts(): Promise<LockedAccount[]> {
+    const response = await apiClient.get<LockedAccount[]>(
+        "/login/locked"
+    );
 
-export const unlockAccount = async (username: string): Promise<void> => {
-    await apiClient.put(`/login/${encodeURIComponent(username)}/unlock`);
-};
+    return response.data;
+}
+
+export async function toggleAccountLock(
+    username: string
+): Promise<void> {
+    await apiClient.put(
+        `/login/${encodeURIComponent(username)}/toggle-lock`
+    );
+}

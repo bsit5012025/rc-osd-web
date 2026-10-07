@@ -14,6 +14,8 @@ interface StudentTableProps {
     onEdit: (student: Student) => void;
     onToggleStatus: (student: Student) => void;
     savingStatusIds: Set<string>;
+    lockedUsernames: Set<string>;
+    loadingAccountStatus: boolean;
 }
 
 function StudentTable({
@@ -30,6 +32,8 @@ function StudentTable({
     onEdit,
     onToggleStatus,
     savingStatusIds,
+    lockedUsernames,
+    loadingAccountStatus,
 }: StudentTableProps) {
     return (
         <>
@@ -157,13 +161,30 @@ function StudentTable({
                                     .filter(Boolean)
                                     .join(" ");
 
+                                const studentKey =
+                                    student.studentId
+                                        .trim()
+                                        .toLowerCase();
+
+                                const accountLocked =
+                                    lockedUsernames.has(
+                                        studentKey
+                                    );
+
+                                const accountActive =
+                                    !accountLocked;
+
                                 const isSaving =
                                     savingStatusIds.has(
                                         student.studentId
                                     );
 
                                 return (
-                                    <tr key={student.studentId}>
+                                    <tr
+                                        key={
+                                            student.studentId
+                                        }
+                                    >
                                         <td data-label="Student ID">
                                             {student.studentId}
                                         </td>
@@ -183,7 +204,7 @@ function StudentTable({
                                         <td data-label="Status">
                                             <label
                                                 className={
-                                                    student.isActive
+                                                    accountActive
                                                         ? "status-switch is-active"
                                                         : "status-switch"
                                                 }
@@ -191,9 +212,12 @@ function StudentTable({
                                                 <input
                                                     type="checkbox"
                                                     checked={
-                                                        student.isActive
+                                                        accountActive
                                                     }
-                                                    disabled={isSaving}
+                                                    disabled={
+                                                        isSaving ||
+                                                        loadingAccountStatus
+                                                    }
                                                     onChange={() =>
                                                         onToggleStatus(
                                                             student
@@ -208,7 +232,7 @@ function StudentTable({
                                                 <span className="status-switch-label">
                                                     {isSaving
                                                         ? "Saving..."
-                                                        : student.isActive
+                                                        : accountActive
                                                             ? "Active"
                                                             : "Inactive"}
                                                 </span>
@@ -220,7 +244,9 @@ function StudentTable({
                                                 type="button"
                                                 className="student-edit-btn"
                                                 onClick={() =>
-                                                    onEdit(student)
+                                                    onEdit(
+                                                        student
+                                                    )
                                                 }
                                                 title="Edit student information"
                                             >
