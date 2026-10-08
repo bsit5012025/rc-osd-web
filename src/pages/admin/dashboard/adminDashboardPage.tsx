@@ -1,24 +1,65 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+    useEffect,
+    useMemo,
+    useState,
+    type FormEvent,
+} from "react";
+
 import TopBar from "../../../components/navigation/TopBar";
 import UserGreeting from "../../../components/navigation/UserGreeting";
+
 import StudentTable from "../../../components/table/StudentTable";
 import OffenseTable from "../../../components/table/OffenseTable";
-import LockedAccountTable from "../../../components/table/LockedAccountTable";
+
 import StudentAdminModal from "../../../components/modals/StudentAdminModal";
 import OffenseAdminModal from "../../../components/modals/OffenseAdminModal";
-import BulkImportModal, { type BulkImportColumn } from "../../../components/modals/BulkImportModal";
+
+import BulkImportModal, {
+    type BulkImportColumn,
+} from "../../../components/modals/BulkImportModal";
+
 import Pagination from "../../../components/pagination/Pagination";
-import { getAllStudents, createStudent, updateStudent, setStudentActive } from "../../../services/studentApi";
-import type { Student, StudentInput } from "../../../services/studentApi";
-import { getOffenses, createOffense, updateOffense, setOffenseActive } from "../../../services/offenseApi";
-import type { OffenseInput } from "../../../services/offenseApi";
-import type { Offense } from "../../../types/offense";
-import { getLockedAccounts, unlockAccount } from "../../../services/lockedAccountApi";
-import type { LockedAccount } from "../../../services/lockedAccountApi";
+
+import {
+    getAllStudents,
+    createStudent,
+    updateStudent,
+} from "../../../services/studentApi";
+
+import type {
+    Student,
+    StudentInput,
+} from "../../../services/studentApi";
+
+import {
+    getOffenses,
+    createOffense,
+    updateOffense,
+    setOffenseActive,
+} from "../../../services/offenseApi";
+
+import type {
+    OffenseInput,
+} from "../../../services/offenseApi";
+
+import type {
+    Offense,
+} from "../../../types/offense";
+
+import {
+    getLockedAccounts,
+    toggleAccountLock,
+} from "../../../services/lockedAccountApi";
+
+import type {
+    LockedAccount,
+} from "../../../services/lockedAccountApi";
+
 import "./adminDashboardPage.css";
+
 import StudentContactBirthdayModal from "../../../components/modals/AdminEditModal";
 
-type ActiveTable = "students" | "offenses" | "locked";
+type ActiveTable = "students" | "offenses";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -38,19 +79,40 @@ const offenseTypesList = [
     "Major Offense",
 ];
 
-function matchOption(value: string, options: string[]): string | null {
+function matchOption(
+    value: string,
+    options: string[]
+): string | null {
     return (
         options.find(
-            (option) => option.toLowerCase() === value.trim().toLowerCase()
+            (option) =>
+                option.toLowerCase() ===
+                value.trim().toLowerCase()
         ) ?? null
     );
 }
 
 const studentImportColumns: BulkImportColumn[] = [
-    { key: "studentId", label: "Student ID", required: true },
-    { key: "firstName", label: "First Name", required: true },
-    { key: "middleName", label: "Middle Name", required: true },
-    { key: "lastName", label: "Last Name", required: true },
+    {
+        key: "studentId",
+        label: "Student ID",
+        required: true,
+    },
+    {
+        key: "firstName",
+        label: "First Name",
+        required: true,
+    },
+    {
+        key: "middleName",
+        label: "Middle Name",
+        required: true,
+    },
+    {
+        key: "lastName",
+        label: "Last Name",
+        required: true,
+    },
     {
         key: "dateOfBirth",
         label: "Date of Birth",
@@ -83,12 +145,24 @@ const studentImportColumns: BulkImportColumn[] = [
                 ? null
                 : `Must be one of ${studentTypes.join(", ")}`,
     },
-    { key: "contactNumber", label: "Contact Number", required: true },
-    { key: "address", label: "Address", required: true },
+    {
+        key: "contactNumber",
+        label: "Contact Number",
+        required: true,
+    },
+    {
+        key: "address",
+        label: "Address",
+        required: true,
+    },
 ];
 
 const offenseImportColumns: BulkImportColumn[] = [
-    { key: "offense", label: "Offense", required: true },
+    {
+        key: "offense",
+        label: "Offense",
+        required: true,
+    },
     {
         key: "type",
         label: "Type",
@@ -98,13 +172,21 @@ const offenseImportColumns: BulkImportColumn[] = [
                 ? null
                 : `Must be one of ${offenseTypesList.join(", ")}`,
     },
-    { key: "description", label: "Description", required: true },
+    {
+        key: "description",
+        label: "Description",
+        required: true,
+    },
 ];
 
-const getStudentRowKey = (row: Record<string, string>) =>
+const getStudentRowKey = (
+    row: Record<string, string>
+) =>
     row.studentId?.trim().toLowerCase() || "";
 
-const getOffenseRowKey = (row: Record<string, string>) =>
+const getOffenseRowKey = (
+    row: Record<string, string>
+) =>
     `${row.offense?.trim().toLowerCase()}|${row.type?.trim().toLowerCase()}`;
 
 const emptyStudentForm: StudentInput = {
@@ -131,63 +213,157 @@ const emptyOffenseForm: OffenseInput = {
 };
 
 function AdminDashboardPage() {
-    const username = localStorage.getItem("username") || "";
-    const [students, setStudents] = useState<Student[]>([]);
-    const [offenses, setOffenses] = useState<Offense[]>([]);
-    const [lockedAccounts, setLockedAccounts] = useState<LockedAccount[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [loadingLockedAccounts, setLoadingLockedAccounts] = useState(false);
-    const [error, setError] = useState("");
-    const [activeTable, setActiveTable] = useState<ActiveTable>("students");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [studentSearch, setStudentSearch] = useState("");
-    const [departmentFilter, setDepartmentFilter] = useState("");
-    const [offenseSearch, setOffenseSearch] = useState("");
-    const [offenseTypeFilter, setOffenseTypeFilter] = useState("");
-    const [showStudentModal, setShowStudentModal] = useState(false);
-    const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
-    const [studentForm, setStudentForm] = useState<StudentInput>(emptyStudentForm);
-    const [studentFormError, setStudentFormError] = useState("");
-    const [savingStudent, setSavingStudent] = useState(false);
-    const [showOffenseModal, setShowOffenseModal] = useState(false);
-    const [editingOffenseId, setEditingOffenseId] = useState<number | null>(null);
-    const [offenseForm, setOffenseForm] = useState<OffenseInput>(emptyOffenseForm);
-    const [offenseFormError, setOffenseFormError] = useState("");
-    const [savingOffense, setSavingOffense] = useState(false);
-    const [savingStudentStatusIds, setSavingStudentStatusIds] = useState<Set<string>>(new Set());
-    const [savingOffenseStatusIds, setSavingOffenseStatusIds] = useState<Set<number>>(new Set());
-    const [showStudentImportModal, setShowStudentImportModal] = useState(false);
-    const [showOffenseImportModal, setShowOffenseImportModal] = useState(false);
-    const [showStudentInfoModal, setShowStudentInfoModal] = useState(false);
-    const [editingStudentInfoId, setEditingStudentInfoId] = useState<string | null>(null);
-    const [studentInfoForm, setStudentInfoForm] = useState<StudentInput>(emptyStudentForm);
-    const [studentInfoFormError, setStudentInfoFormError] = useState("");
-    const [savingStudentInfo, setSavingStudentInfo] = useState(false);
-    const [unlockingUsername, setUnlockingUsername] = useState<string | null>(null);
+    const username =
+        localStorage.getItem("username") || "";
+
+    const [students, setStudents] =
+        useState<Student[]>([]);
+
+    const [offenses, setOffenses] =
+        useState<Offense[]>([]);
+
+    const [lockedAccounts, setLockedAccounts] =
+        useState<LockedAccount[]>([]);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [loadingLockedAccounts, setLoadingLockedAccounts] =
+        useState(false);
+
+    const [error, setError] =
+        useState("");
+
+    const [activeTable, setActiveTable] =
+        useState<ActiveTable>("students");
+
+    const [currentPage, setCurrentPage] =
+        useState(1);
+
+    const [studentSearch, setStudentSearch] =
+        useState("");
+
+    const [departmentFilter, setDepartmentFilter] =
+        useState("");
+
+    const [offenseSearch, setOffenseSearch] =
+        useState("");
+
+    const [offenseTypeFilter, setOffenseTypeFilter] =
+        useState("");
+
+    const [showStudentModal, setShowStudentModal] =
+        useState(false);
+
+    const [editingStudentId, setEditingStudentId] =
+        useState<string | null>(null);
+
+    const [studentForm, setStudentForm] =
+        useState<StudentInput>(emptyStudentForm);
+
+    const [studentFormError, setStudentFormError] =
+        useState("");
+
+    const [savingStudent, setSavingStudent] =
+        useState(false);
+
+    const [showOffenseModal, setShowOffenseModal] =
+        useState(false);
+
+    const [editingOffenseId, setEditingOffenseId] =
+        useState<number | null>(null);
+
+    const [offenseForm, setOffenseForm] =
+        useState<OffenseInput>(emptyOffenseForm);
+
+    const [offenseFormError, setOffenseFormError] =
+        useState("");
+
+    const [savingOffense, setSavingOffense] =
+        useState(false);
+
+    const [
+        savingStudentStatusIds,
+        setSavingStudentStatusIds,
+    ] = useState<Set<string>>(new Set());
+
+    const [
+        savingOffenseStatusIds,
+        setSavingOffenseStatusIds,
+    ] = useState<Set<number>>(new Set());
+
+    const [
+        showStudentImportModal,
+        setShowStudentImportModal,
+    ] = useState(false);
+
+    const [
+        showOffenseImportModal,
+        setShowOffenseImportModal,
+    ] = useState(false);
+
+    const [
+        showStudentInfoModal,
+        setShowStudentInfoModal,
+    ] = useState(false);
+
+    const [
+        editingStudentInfoId,
+        setEditingStudentInfoId,
+    ] = useState<string | null>(null);
+
+    const [
+        studentInfoForm,
+        setStudentInfoForm,
+    ] = useState<StudentInput>(emptyStudentForm);
+
+    const [
+        studentInfoFormError,
+        setStudentInfoFormError,
+    ] = useState("");
+
+    const [
+        savingStudentInfo,
+        setSavingStudentInfo,
+    ] = useState(false);
 
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
             setError("");
-            const [studentData, offenseData] = await Promise.all([
+
+            const [
+                studentData,
+                offenseData,
+            ] = await Promise.all([
                 getAllStudents(),
                 getOffenses(),
             ]);
+
             setStudents(
                 studentData.map((student) => ({
                     ...student,
-                    isActive: student.isActive ?? true,
+                    isActive:
+                        student.isActive ?? true,
                 }))
             );
+
             setOffenses(
                 offenseData.map((offense) => ({
                     ...offense,
-                    isActive: offense.isActive ?? true,
+                    isActive:
+                        offense.isActive ?? true,
                 }))
             );
         } catch (err) {
-            console.error("Failed to fetch dashboard data:", err);
-            setError("Failed to load dashboard data.");
+            console.error(
+                "Failed to fetch dashboard data:",
+                err
+            );
+
+            setError(
+                "Failed to load dashboard data."
+            );
         } finally {
             setLoading(false);
         }
@@ -196,11 +372,20 @@ function AdminDashboardPage() {
     const fetchLockedAccounts = async () => {
         try {
             setLoadingLockedAccounts(true);
-            const data = await getLockedAccounts();
+
+            const data =
+                await getLockedAccounts();
+
             setLockedAccounts(data);
         } catch (err) {
-            console.error("Failed to fetch locked accounts:", err);
-            setError("Failed to load locked accounts.");
+            console.error(
+                "Failed to fetch locked accounts:",
+                err
+            );
+
+            setError(
+                "Failed to load account status."
+            );
         } finally {
             setLoadingLockedAccounts(false);
         }
@@ -213,7 +398,11 @@ function AdminDashboardPage() {
 
     const filteredStudents = useMemo(() => {
         return students.filter((student) => {
-            const search = studentSearch.trim().toLowerCase();
+            const search =
+                studentSearch
+                    .trim()
+                    .toLowerCase();
+
             const fullName = [
                 student.person?.firstName,
                 student.person?.middleName,
@@ -222,36 +411,69 @@ function AdminDashboardPage() {
                 .filter(Boolean)
                 .join(" ")
                 .toLowerCase();
+
             const matchesSearch =
                 !search ||
-                student.studentId?.toLowerCase().includes(search) ||
+                student.studentId
+                    ?.toLowerCase()
+                    .includes(search) ||
                 fullName.includes(search);
+
             const matchesDepartment =
                 !departmentFilter ||
-                student.department === departmentFilter;
-            return matchesSearch && matchesDepartment;
+                student.department ===
+                    departmentFilter;
+
+            return (
+                matchesSearch &&
+                matchesDepartment
+            );
         });
-    }, [students, studentSearch, departmentFilter]);
+    }, [
+        students,
+        studentSearch,
+        departmentFilter,
+    ]);
 
     const filteredOffenses = useMemo(() => {
         return offenses.filter((offense) => {
-            const search = offenseSearch.trim().toLowerCase();
+            const search =
+                offenseSearch
+                    .trim()
+                    .toLowerCase();
+
             const matchesSearch =
                 !search ||
-                offense.offense?.toLowerCase().includes(search) ||
-                offense.description?.toLowerCase().includes(search);
+                offense.offense
+                    ?.toLowerCase()
+                    .includes(search) ||
+                offense.description
+                    ?.toLowerCase()
+                    .includes(search);
+
             const matchesType =
                 !offenseTypeFilter ||
-                offense.type === offenseTypeFilter;
-            return matchesSearch && matchesType;
+                offense.type ===
+                    offenseTypeFilter;
+
+            return (
+                matchesSearch &&
+                matchesType
+            );
         });
-    }, [offenses, offenseSearch, offenseTypeFilter]);
+    }, [
+        offenses,
+        offenseSearch,
+        offenseTypeFilter,
+    ]);
 
     const existingStudentIds = useMemo(
         () =>
             new Set(
                 students.map((student) =>
-                    student.studentId.trim().toLowerCase()
+                    student.studentId
+                        .trim()
+                        .toLowerCase()
                 )
             ),
         [students]
@@ -262,7 +484,9 @@ function AdminDashboardPage() {
             new Set(
                 offenses.map(
                     (offense) =>
-                        `${offense.offense.trim().toLowerCase()}|${offense.type
+                        `${offense.offense
+                            .trim()
+                            .toLowerCase()}|${offense.type
                             .trim()
                             .toLowerCase()}`
                 )
@@ -270,107 +494,192 @@ function AdminDashboardPage() {
         [offenses]
     );
 
+    /*
+     * The locked account endpoint returns the accounts
+     * whose Login.IS_LOCKED value is true.
+     *
+     * Therefore:
+     *
+     * username exists in this Set
+     *     = account is LOCKED
+     *
+     * username does not exist in this Set
+     *     = account is ACTIVE
+     */
+    const lockedUsernames = useMemo(
+        () =>
+            new Set(
+                lockedAccounts.map((account) =>
+                    account.username
+                        .trim()
+                        .toLowerCase()
+                )
+            ),
+        [lockedAccounts]
+    );
+
     const totalItems =
         activeTable === "students"
             ? filteredStudents.length
-            : activeTable === "offenses"
-                ? filteredOffenses.length
-                : lockedAccounts.length;
+            : filteredOffenses.length;
 
     const totalPages = Math.max(
         1,
-        Math.ceil(totalItems / ITEMS_PER_PAGE)
+        Math.ceil(
+            totalItems / ITEMS_PER_PAGE
+        )
     );
 
-    const paginatedStudents = filteredStudents.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
+    const paginatedStudents =
+        filteredStudents.slice(
+            (currentPage - 1) *
+                ITEMS_PER_PAGE,
+            currentPage *
+                ITEMS_PER_PAGE
+        );
 
-    const paginatedOffenses = filteredOffenses.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
+    const paginatedOffenses =
+        filteredOffenses.slice(
+            (currentPage - 1) *
+                ITEMS_PER_PAGE,
+            currentPage *
+                ITEMS_PER_PAGE
+        );
 
-    const paginatedLockedAccounts = lockedAccounts.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
-    const changeTable = (table: ActiveTable) => {
+    const changeTable = (
+        table: ActiveTable
+    ) => {
         setActiveTable(table);
         setCurrentPage(1);
     };
 
-    const handleStudentSearchChange = (value: string) => {
+    const handleStudentSearchChange = (
+        value: string
+    ) => {
         setStudentSearch(value);
         setCurrentPage(1);
     };
 
-    const handleDepartmentChange = (value: string) => {
+    const handleDepartmentChange = (
+        value: string
+    ) => {
         setDepartmentFilter(value);
         setCurrentPage(1);
     };
 
-    const handleOffenseSearchChange = (value: string) => {
+    const handleOffenseSearchChange = (
+        value: string
+    ) => {
         setOffenseSearch(value);
         setCurrentPage(1);
     };
 
-    const handleOffenseTypeChange = (value: string) => {
+    const handleOffenseTypeChange = (
+        value: string
+    ) => {
         setOffenseTypeFilter(value);
         setCurrentPage(1);
     };
 
-    const openStudentImportModal = () => setShowStudentImportModal(true);
-    const closeStudentImportModal = () => setShowStudentImportModal(false);
-    const openOffenseImportModal = () => setShowOffenseImportModal(true);
-    const closeOffenseImportModal = () => setShowOffenseImportModal(false);
+    const openStudentImportModal =
+        () =>
+            setShowStudentImportModal(true);
 
-    const importStudentRow = async (row: Record<string, string>) => {
+    const closeStudentImportModal =
+        () =>
+            setShowStudentImportModal(false);
+
+    const openOffenseImportModal =
+        () =>
+            setShowOffenseImportModal(true);
+
+    const closeOffenseImportModal =
+        () =>
+            setShowOffenseImportModal(false);
+
+    const importStudentRow = async (
+        row: Record<string, string>
+    ) => {
         await createStudent({
-            studentId: row.studentId.trim(),
-            address: row.address.trim(),
-            section: row.section.trim(),
+            studentId:
+                row.studentId.trim(),
+
+            address:
+                row.address.trim(),
+
+            section:
+                row.section.trim(),
+
             department:
-                matchOption(row.department, departments) ||
+                matchOption(
+                    row.department,
+                    departments
+                ) ||
                 row.department.trim(),
+
             studentType:
-                matchOption(row.studentType, studentTypes) ||
+                matchOption(
+                    row.studentType,
+                    studentTypes
+                ) ||
                 row.studentType.trim(),
-            contactNumber: row.contactNumber.trim(),
+
+            contactNumber:
+                row.contactNumber.trim(),
+
             isActive: true,
+
             person: {
-                firstName: row.firstName.trim(),
-                middleName: row.middleName.trim(),
-                lastName: row.lastName.trim(),
-                dateOfBirth: row.dateOfBirth.trim(),
+                firstName:
+                    row.firstName.trim(),
+
+                middleName:
+                    row.middleName.trim(),
+
+                lastName:
+                    row.lastName.trim(),
+
+                dateOfBirth:
+                    row.dateOfBirth.trim(),
             },
         });
     };
 
-    const importOffenseRow = async (row: Record<string, string>) => {
+    const importOffenseRow = async (
+        row: Record<string, string>
+    ) => {
         await createOffense({
-            offense: row.offense.trim(),
+            offense:
+                row.offense.trim(),
+
             type:
-                matchOption(row.type, offenseTypesList) ||
+                matchOption(
+                    row.type,
+                    offenseTypesList
+                ) ||
                 row.type.trim(),
-            description: row.description.trim(),
+
+            description:
+                row.description.trim(),
+
             isActive: true,
         });
     };
 
-    const openAddStudentModal = () => {
-        setEditingStudentId(null);
-        setStudentForm({
-            ...emptyStudentForm,
-            person: {
-                ...emptyStudentForm.person,
-            },
-        });
-        setStudentFormError("");
-        setShowStudentModal(true);
-    };
+    const openAddStudentModal =
+        () => {
+            setEditingStudentId(null);
+
+            setStudentForm({
+                ...emptyStudentForm,
+                person: {
+                    ...emptyStudentForm.person,
+                },
+            });
+
+            setStudentFormError("");
+            setShowStudentModal(true);
+        };
 
     const closeStudentModal = () => {
         if (!savingStudent) {
@@ -382,69 +691,118 @@ function AdminDashboardPage() {
         e: FormEvent<HTMLFormElement>
     ) => {
         e.preventDefault();
+
         setStudentFormError("");
 
-        if (!studentForm.studentId.trim()) {
-            setStudentFormError("Student ID is required.");
-            return;
-        }
-
-        if (!studentForm.person.firstName.trim()) {
-            setStudentFormError("First Name is required.");
-            return;
-        }
-
-        if (!studentForm.person.middleName.trim()) {
-            setStudentFormError("Middle Name is required.");
-            return;
-        }
-
-        if (!studentForm.person.lastName.trim()) {
-            setStudentFormError("Last Name is required.");
-            return;
-        }
-
-        if (!studentForm.person.dateOfBirth) {
-            setStudentFormError("Date of Birth is required.");
-            return;
-        }
-
-        if (!studentForm.department.trim()) {
-            setStudentFormError("Department is required.");
-            return;
-        }
-
-        if (!studentForm.section.trim()) {
-            setStudentFormError("Section is required.");
-            return;
-        }
-
-        if (!studentForm.studentType.trim()) {
-            setStudentFormError("Student Type is required.");
-            return;
-        }
-
-        if (!studentForm.contactNumber.trim()) {
-            setStudentFormError("Contact Number is required.");
-            return;
-        }
-
-        if (!studentForm.address.trim()) {
-            setStudentFormError("Address is required.");
-            return;
-        }
-
-        if (editingStudentId === null) {
-            const duplicateStudent = students.some(
-                (student) =>
-                    student.studentId?.trim().toLowerCase() ===
-                    studentForm.studentId.trim().toLowerCase()
+        if (
+            !studentForm.studentId.trim()
+        ) {
+            setStudentFormError(
+                "Student ID is required."
             );
+            return;
+        }
+
+        if (
+            !studentForm.person.firstName.trim()
+        ) {
+            setStudentFormError(
+                "First Name is required."
+            );
+            return;
+        }
+
+        if (
+            !studentForm.person.middleName.trim()
+        ) {
+            setStudentFormError(
+                "Middle Name is required."
+            );
+            return;
+        }
+
+        if (
+            !studentForm.person.lastName.trim()
+        ) {
+            setStudentFormError(
+                "Last Name is required."
+            );
+            return;
+        }
+
+        if (
+            !studentForm.person.dateOfBirth
+        ) {
+            setStudentFormError(
+                "Date of Birth is required."
+            );
+            return;
+        }
+
+        if (
+            !studentForm.department.trim()
+        ) {
+            setStudentFormError(
+                "Department is required."
+            );
+            return;
+        }
+
+        if (
+            !studentForm.section.trim()
+        ) {
+            setStudentFormError(
+                "Section is required."
+            );
+            return;
+        }
+
+        if (
+            !studentForm.studentType.trim()
+        ) {
+            setStudentFormError(
+                "Student Type is required."
+            );
+            return;
+        }
+
+        if (
+            !studentForm.contactNumber.trim()
+        ) {
+            setStudentFormError(
+                "Contact Number is required."
+            );
+            return;
+        }
+
+        if (
+            !studentForm.address.trim()
+        ) {
+            setStudentFormError(
+                "Address is required."
+            );
+            return;
+        }
+
+        if (
+            editingStudentId === null
+        ) {
+            const duplicateStudent =
+                students.some(
+                    (student) =>
+                        student.studentId
+                            ?.trim()
+                            .toLowerCase() ===
+                        studentForm.studentId
+                            .trim()
+                            .toLowerCase()
+                );
 
             if (duplicateStudent) {
                 setStudentFormError(
                     `Student ID "${studentForm.studentId}" already exists. Please use a different Student ID.`
                 );
+
                 return;
             }
         }
@@ -452,33 +810,52 @@ function AdminDashboardPage() {
         try {
             setSavingStudent(true);
 
-            if (editingStudentId !== null) {
+            if (
+                editingStudentId !== null
+            ) {
                 await updateStudent(
                     editingStudentId,
                     studentForm
                 );
             } else {
-                await createStudent(studentForm);
+                await createStudent(
+                    studentForm
+                );
             }
 
-            setShowStudentModal(false);
+            setShowStudentModal(
+                false
+            );
+
             await fetchDashboardData();
         } catch (err: any) {
-            console.error("Failed to save student:", err);
+            console.error(
+                "Failed to save student:",
+                err
+            );
 
             const message =
-                err?.response?.data?.message ||
+                err?.response?.data
+                    ?.message ||
                 err?.response?.data ||
                 "";
 
             if (
-                typeof message === "string" &&
-                message.toLowerCase().includes("already exists")
+                typeof message ===
+                    "string" &&
+                message
+                    .toLowerCase()
+                    .includes(
+                        "already exists"
+                    )
             ) {
                 setStudentFormError(
                     `Student ID "${studentForm.studentId}" already exists. Please use a different Student ID.`
                 );
-            } else if (err?.response?.status === 409) {
+            } else if (
+                err?.response?.status ===
+                409
+            ) {
                 setStudentFormError(
                     `Student ID "${studentForm.studentId}" already exists. Please use a different Student ID.`
                 );
@@ -492,295 +869,478 @@ function AdminDashboardPage() {
         }
     };
 
-    const openStudentInfoModal = (student: Student) => {
-        setEditingStudentInfoId(student.studentId);
+    const openStudentInfoModal = (
+        student: Student
+    ) => {
+        setEditingStudentInfoId(
+            student.studentId
+        );
 
         setStudentInfoForm({
-            studentId: student.studentId,
-            address: student.address || "",
-            section: student.section || "",
-            department: student.department || "",
-            studentType: student.studentType || "",
-            contactNumber: student.contactNumber || "",
-            isActive: student.isActive ?? true,
+            studentId:
+                student.studentId,
+
+            address:
+                student.address || "",
+
+            section:
+                student.section || "",
+
+            department:
+                student.department || "",
+
+            studentType:
+                student.studentType || "",
+
+            contactNumber:
+                student.contactNumber || "",
+
+            isActive:
+                student.isActive ?? true,
+
             person: {
-                firstName: student.person?.firstName || "",
-                middleName: student.person?.middleName || "",
-                lastName: student.person?.lastName || "",
-                dateOfBirth: student.person?.dateOfBirth || null,
+                firstName:
+                    student.person
+                        ?.firstName || "",
+
+                middleName:
+                    student.person
+                        ?.middleName || "",
+
+                lastName:
+                    student.person
+                        ?.lastName || "",
+
+                dateOfBirth:
+                    student.person
+                        ?.dateOfBirth ||
+                    null,
             },
         });
 
         setStudentInfoFormError("");
-        setShowStudentInfoModal(true);
+        setShowStudentInfoModal(
+            true
+        );
     };
 
-    const closeStudentInfoModal = () => {
-        if (!savingStudentInfo) {
-            setShowStudentInfoModal(false);
-        }
-    };
-
-    const handleStudentInfoSubmit = async (
-        e: FormEvent<HTMLFormElement>
-    ) => {
-        e.preventDefault();
-        setStudentInfoFormError("");
-
-        if (!studentInfoForm.section.trim()) {
-            setStudentInfoFormError("Section is required.");
-            return;
-        }
-
-        if (!studentInfoForm.contactNumber.trim()) {
-            setStudentInfoFormError("Contact Number is required.");
-            return;
-        }
-
-        if (!studentInfoForm.person.dateOfBirth) {
-            setStudentInfoFormError("Date of Birth is required.");
-            return;
-        }
-
-        if (!editingStudentInfoId) {
-            setStudentInfoFormError("Student not found.");
-            return;
-        }
-
-        try {
-            setSavingStudentInfo(true);
-
-            await updateStudent(
-                editingStudentInfoId,
-                studentInfoForm
-            );
-
-            setShowStudentInfoModal(false);
-
-            await fetchDashboardData();
-        } catch (err: any) {
-            console.error(
-                "Failed to update student information:",
-                err
-            );
-
-            const message =
-                err?.response?.data?.message ||
-                err?.response?.data ||
-                "";
-
-            if (typeof message === "string" && message.trim()) {
-                setStudentInfoFormError(message);
-            } else {
-                setStudentInfoFormError(
-                    "Failed to update student information. Please try again."
+    const closeStudentInfoModal =
+        () => {
+            if (!savingStudentInfo) {
+                setShowStudentInfoModal(
+                    false
                 );
             }
-        } finally {
-            setSavingStudentInfo(false);
-        }
-    };
+        };
 
-    const handleToggleStudentStatus = async (student: Student) => {
-        const newStatus = !student.isActive;
-        const studentId = student.studentId;
+    const handleStudentInfoSubmit =
+        async (
+            e: FormEvent<HTMLFormElement>
+        ) => {
+            e.preventDefault();
 
-        setSavingStudentStatusIds((previous) => {
-            const next = new Set(previous);
-            next.add(studentId);
-            return next;
-        });
+            setStudentInfoFormError("");
 
-        try {
-            await setStudentActive(studentId, newStatus);
-
-            setStudents((previous) =>
-                previous.map((item) =>
-                    item.studentId === studentId
-                        ? { ...item, isActive: newStatus }
-                        : item
-                )
-            );
-        } catch (err) {
-            console.error("Failed to change student status:", err);
-            setError("Failed to change student status. Please try again.");
-        } finally {
-            setSavingStudentStatusIds((previous) => {
-                const next = new Set(previous);
-                next.delete(studentId);
-                return next;
-            });
-        }
-    };
-
-    const openAddOffenseModal = () => {
-        setEditingOffenseId(null);
-
-        setOffenseForm({
-            offense: "",
-            type: "",
-            description: "",
-            isActive: true,
-        });
-
-        setOffenseFormError("");
-        setShowOffenseModal(true);
-    };
-
-    const closeOffenseModal = () => {
-        if (!savingOffense) {
-            setShowOffenseModal(false);
-        }
-    };
-
-    const handleOffenseSubmit = async (
-        e: FormEvent<HTMLFormElement>
-    ) => {
-        e.preventDefault();
-        setOffenseFormError("");
-
-        if (!offenseForm.offense.trim()) {
-            setOffenseFormError("Offense is required.");
-            return;
-        }
-
-        if (!offenseForm.type.trim()) {
-            setOffenseFormError(
-                "Please select an offense type."
-            );
-            return;
-        }
-
-        if (!offenseForm.description.trim()) {
-            setOffenseFormError("Description is required.");
-            return;
-        }
-
-        if (editingOffenseId === null) {
-            const duplicateOffense = offenses.some(
-                (offense) =>
-                    offense.offense?.trim().toLowerCase() ===
-                    offenseForm.offense.trim().toLowerCase() &&
-                    offense.type?.trim().toLowerCase() ===
-                    offenseForm.type.trim().toLowerCase()
-            );
-
-            if (duplicateOffense) {
-                setOffenseFormError(
-                    `The offense "${offenseForm.offense}" with type "${offenseForm.type}" already exists. Please enter a different offense.`
+            if (
+                !studentInfoForm.section.trim()
+            ) {
+                setStudentInfoFormError(
+                    "Section is required."
                 );
                 return;
             }
-        }
-
-        try {
-            setSavingOffense(true);
-
-            if (editingOffenseId !== null) {
-                await updateOffense(
-                    editingOffenseId,
-                    offenseForm
-                );
-            } else {
-                await createOffense(offenseForm);
-            }
-
-            setShowOffenseModal(false);
-            await fetchDashboardData();
-        } catch (err: any) {
-            console.error("Failed to save offense:", err);
-
-            const message =
-                err?.response?.data?.message ||
-                err?.response?.data ||
-                "";
 
             if (
-                typeof message === "string" &&
-                message.toLowerCase().includes("already exists")
+                !studentInfoForm.contactNumber.trim()
             ) {
-                setOffenseFormError(
-                    `The offense "${offenseForm.offense}" already exists. Please enter a different offense.`
+                setStudentInfoFormError(
+                    "Contact Number is required."
                 );
-            } else if (err?.response?.status === 409) {
-                setOffenseFormError(
-                    `The offense "${offenseForm.offense}" already exists. Please enter a different offense.`
+                return;
+            }
+
+            if (
+                !studentInfoForm.person.dateOfBirth
+            ) {
+                setStudentInfoFormError(
+                    "Date of Birth is required."
                 );
-            } else {
-                setOffenseFormError(
-                    "Failed to save offense. Please try again."
+                return;
+            }
+
+            if (
+                !editingStudentInfoId
+            ) {
+                setStudentInfoFormError(
+                    "Student not found."
+                );
+                return;
+            }
+
+            try {
+                setSavingStudentInfo(
+                    true
+                );
+
+                await updateStudent(
+                    editingStudentInfoId,
+                    studentInfoForm
+                );
+
+                setShowStudentInfoModal(
+                    false
+                );
+
+                await fetchDashboardData();
+            } catch (err: any) {
+                console.error(
+                    "Failed to update student information:",
+                    err
+                );
+
+                const message =
+                    err?.response?.data
+                        ?.message ||
+                    err?.response?.data ||
+                    "";
+
+                if (
+                    typeof message ===
+                        "string" &&
+                    message.trim()
+                ) {
+                    setStudentInfoFormError(
+                        message
+                    );
+                } else {
+                    setStudentInfoFormError(
+                        "Failed to update student information. Please try again."
+                    );
+                }
+            } finally {
+                setSavingStudentInfo(
+                    false
                 );
             }
-        } finally {
-            setSavingOffense(false);
-        }
-    };
+        };
 
-    const handleToggleOffenseStatus = async (offense: Offense) => {
-        const newStatus = !offense.isActive;
-        const offenseId = offense.offenseId;
+    /*
+     * ACCOUNT STATUS
+     *
+     * IMPORTANT:
+     * This does NOT modify Student.isActive.
+     *
+     * The Status toggle is now based entirely
+     * on Login.IS_LOCKED.
+     *
+     * false = Active
+     * true  = Inactive
+     *
+     * The backend toggles Login.IS_LOCKED.
+     */
+    const handleToggleStudentStatus =
+        async (
+            student: Student
+        ) => {
+            const studentId =
+                student.studentId;
 
-        setSavingOffenseStatusIds((previous) => {
-            const next = new Set(previous);
-            next.add(offense.offenseId);
-            return next;
-        });
+            setSavingStudentStatusIds(
+                (previous) => {
+                    const next =
+                        new Set(
+                            previous
+                        );
 
-        try {
-            await setOffenseActive(offenseId, newStatus);
+                    next.add(
+                        studentId
+                    );
 
-            setOffenses((previous) =>
-                previous.map((item) =>
-                    item.offenseId === offenseId
-                        ? { ...item, isActive: newStatus }
-                        : item
-                )
+                    return next;
+                }
             );
-        } catch (err) {
-            console.error("Failed to change offense status:", err);
-            setError("Failed to change offense status. Please try again.");
-        } finally {
-            setSavingOffenseStatusIds((previous) => {
-                const next = new Set(previous);
-                next.delete(offenseId);
-                return next;
+
+            try {
+                setError("");
+
+                await toggleAccountLock(
+                    studentId
+                );
+
+                /*
+                 * Reload the locked-account
+                 * list so the toggle reflects
+                 * the new Login.IS_LOCKED value.
+                 */
+                await fetchLockedAccounts();
+            } catch (err: any) {
+                console.error(
+                    "Failed to change account status:",
+                    err
+                );
+
+                const message =
+                    err?.response?.data
+                        ?.message ||
+                    err?.response?.data ||
+                    "Failed to change account status. Please try again.";
+
+                setError(
+                    typeof message ===
+                        "string"
+                        ? message
+                        : "Failed to change account status. Please try again."
+                );
+            } finally {
+                setSavingStudentStatusIds(
+                    (previous) => {
+                        const next =
+                            new Set(
+                                previous
+                            );
+
+                        next.delete(
+                            studentId
+                        );
+
+                        return next;
+                    }
+                );
+            }
+        };
+
+    const openAddOffenseModal =
+        () => {
+            setEditingOffenseId(null);
+
+            setOffenseForm({
+                offense: "",
+                type: "",
+                description: "",
+                isActive: true,
             });
-        }
-    };
 
-    const handleUnlockAccount = async (username: string) => {
-        try {
-            setError("");
-            setUnlockingUsername(username);
+            setOffenseFormError("");
+            setShowOffenseModal(true);
+        };
 
-            await unlockAccount(username);
+    const closeOffenseModal =
+        () => {
+            if (!savingOffense) {
+                setShowOffenseModal(
+                    false
+                );
+            }
+        };
 
-            setLockedAccounts((previous) =>
-                previous.filter(
-                    (account) => account.username !== username
-                )
+    const handleOffenseSubmit =
+        async (
+            e: FormEvent<HTMLFormElement>
+        ) => {
+            e.preventDefault();
+
+            setOffenseFormError("");
+
+            if (
+                !offenseForm.offense.trim()
+            ) {
+                setOffenseFormError(
+                    "Offense is required."
+                );
+                return;
+            }
+
+            if (
+                !offenseForm.type.trim()
+            ) {
+                setOffenseFormError(
+                    "Please select an offense type."
+                );
+                return;
+            }
+
+            if (
+                !offenseForm.description.trim()
+            ) {
+                setOffenseFormError(
+                    "Description is required."
+                );
+                return;
+            }
+
+            if (
+                editingOffenseId === null
+            ) {
+                const duplicateOffense =
+                    offenses.some(
+                        (offense) =>
+                            offense.offense
+                                ?.trim()
+                                .toLowerCase() ===
+                                offenseForm.offense
+                                    .trim()
+                                    .toLowerCase() &&
+                            offense.type
+                                ?.trim()
+                                .toLowerCase() ===
+                                offenseForm.type
+                                    .trim()
+                                    .toLowerCase()
+                    );
+
+                if (duplicateOffense) {
+                    setOffenseFormError(
+                        `The offense "${offenseForm.offense}" with type "${offenseForm.type}" already exists. Please enter a different offense.`
+                    );
+
+                    return;
+                }
+            }
+
+            try {
+                setSavingOffense(
+                    true
+                );
+
+                if (
+                    editingOffenseId !==
+                    null
+                ) {
+                    await updateOffense(
+                        editingOffenseId,
+                        offenseForm
+                    );
+                } else {
+                    await createOffense(
+                        offenseForm
+                    );
+                }
+
+                setShowOffenseModal(
+                    false
+                );
+
+                await fetchDashboardData();
+            } catch (err: any) {
+                console.error(
+                    "Failed to save offense:",
+                    err
+                );
+
+                const message =
+                    err?.response?.data
+                        ?.message ||
+                    err?.response?.data ||
+                    "";
+
+                if (
+                    typeof message ===
+                        "string" &&
+                    message
+                        .toLowerCase()
+                        .includes(
+                            "already exists"
+                        )
+                ) {
+                    setOffenseFormError(
+                        `The offense "${offenseForm.offense}" already exists. Please enter a different offense.`
+                    );
+                } else if (
+                    err?.response?.status ===
+                    409
+                ) {
+                    setOffenseFormError(
+                        `The offense "${offenseForm.offense}" already exists. Please enter a different offense.`
+                    );
+                } else {
+                    setOffenseFormError(
+                        "Failed to save offense. Please try again."
+                    );
+                }
+            } finally {
+                setSavingOffense(
+                    false
+                );
+            }
+        };
+
+    const handleToggleOffenseStatus =
+        async (
+            offense: Offense
+        ) => {
+            const newStatus =
+                !offense.isActive;
+
+            const offenseId =
+                offense.offenseId;
+
+            setSavingOffenseStatusIds(
+                (previous) => {
+                    const next =
+                        new Set(
+                            previous
+                        );
+
+                    next.add(
+                        offenseId
+                    );
+
+                    return next;
+                }
             );
-        } catch (err: any) {
-            console.error("Failed to unlock account:", err);
 
-            const message =
-                err?.response?.data?.message ||
-                err?.response?.data ||
-                "Failed to unlock account. Please try again.";
+            try {
+                await setOffenseActive(
+                    offenseId,
+                    newStatus
+                );
 
-            setError(
-                typeof message === "string"
-                    ? message
-                    : "Failed to unlock account. Please try again."
-            );
-        } finally {
-            setUnlockingUsername(null);
-        }
-    };
+                setOffenses(
+                    (previous) =>
+                        previous.map(
+                            (item) =>
+                                item.offenseId ===
+                                offenseId
+                                    ? {
+                                        ...item,
+                                        isActive:
+                                            newStatus,
+                                    }
+                                    : item
+                        )
+                );
+            } catch (err) {
+                console.error(
+                    "Failed to change offense status:",
+                    err
+                );
+
+                setError(
+                    "Failed to change offense status. Please try again."
+                );
+            } finally {
+                setSavingOffenseStatusIds(
+                    (previous) => {
+                        const next =
+                            new Set(
+                                previous
+                            );
+
+                        next.delete(
+                            offenseId
+                        );
+
+                        return next;
+                    }
+                );
+            }
+        };
 
     return (
         <div className="admin-dashboard-page">
+
             <div className="container-fluid px-3 px-md-4 py-3 py-md-4">
+
                 <TopBar>
                     <UserGreeting
                         name="Administrator"
@@ -792,264 +1352,483 @@ function AdminDashboardPage() {
                         ]}
                     />
                 </TopBar>
+
                 <main className="admin-dashboard-content">
+
                     {error && (
                         <div className="alert alert-danger mt-3">
                             {error}
                         </div>
                     )}
+
                     <section className="dashboard-management-section">
+
                         <div className="dashboard-table-tabs">
+
                             <button
                                 type="button"
                                 className={
-                                    activeTable === "students"
+                                    activeTable ===
+                                    "students"
                                         ? "dashboard-tab active"
                                         : "dashboard-tab"
                                 }
                                 onClick={() =>
-                                    changeTable("students")
+                                    changeTable(
+                                        "students"
+                                    )
                                 }
                             >
                                 <i className="bi bi-people-fill"></i>
-                                <span>Students</span>
+
+                                <span>
+                                    Students
+                                </span>
                             </button>
+
                             <button
                                 type="button"
                                 className={
-                                    activeTable === "offenses"
+                                    activeTable ===
+                                    "offenses"
                                         ? "dashboard-tab active"
                                         : "dashboard-tab"
                                 }
                                 onClick={() =>
-                                    changeTable("offenses")
+                                    changeTable(
+                                        "offenses"
+                                    )
                                 }
                             >
                                 <i className="bi bi-exclamation-triangle-fill"></i>
-                                <span>Offenses</span>
+
+                                <span>
+                                    Offenses
+                                </span>
                             </button>
-                            <button
-                                type="button"
-                                className={
-                                    activeTable === "locked"
-                                        ? "dashboard-tab active"
-                                        : "dashboard-tab"
-                                }
-                                onClick={() =>
-                                    changeTable("locked")
-                                }
-                            >
-                                <i className="bi bi-lock-fill"></i>
-                                <span>Locked Accounts</span>
-                                {lockedAccounts.length > 0 && (
-                                    <span className="badge bg-danger ms-2">
-                                        {lockedAccounts.length}
-                                    </span>
-                                )}
-                            </button>
+
                         </div>
-                        {activeTable === "students" && (
+
+                        {activeTable ===
+                            "students" && (
                             <section>
+
                                 <StudentTable
-                                    students={students}
-                                    paginatedStudents={paginatedStudents}
-                                    loading={loading}
-                                    studentSearch={studentSearch}
-                                    departmentFilter={departmentFilter}
-                                    departments={departments}
-                                    onSearchChange={handleStudentSearchChange}
-                                    onDepartmentChange={handleDepartmentChange}
-                                    onAdd={openAddStudentModal}
-                                    onImport={openStudentImportModal}
-                                    onEdit={openStudentInfoModal}
-                                    onToggleStatus={handleToggleStudentStatus}
-                                    savingStatusIds={savingStudentStatusIds}
+                                    students={
+                                        students
+                                    }
+
+                                    paginatedStudents={
+                                        paginatedStudents
+                                    }
+
+                                    loading={
+                                        loading
+                                    }
+
+                                    studentSearch={
+                                        studentSearch
+                                    }
+
+                                    departmentFilter={
+                                        departmentFilter
+                                    }
+
+                                    departments={
+                                        departments
+                                    }
+
+                                    onSearchChange={
+                                        handleStudentSearchChange
+                                    }
+
+                                    onDepartmentChange={
+                                        handleDepartmentChange
+                                    }
+
+                                    onAdd={
+                                        openAddStudentModal
+                                    }
+
+                                    onImport={
+                                        openStudentImportModal
+                                    }
+
+                                    onEdit={
+                                        openStudentInfoModal
+                                    }
+
+                                    onToggleStatus={
+                                        handleToggleStudentStatus
+                                    }
+
+                                    savingStatusIds={
+                                        savingStudentStatusIds
+                                    }
+
+                                    lockedUsernames={
+                                        lockedUsernames
+                                    }
+
+                                    loadingAccountStatus={
+                                        loadingLockedAccounts
+                                    }
                                 />
+
                                 <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
+                                    currentPage={
+                                        currentPage
+                                    }
+
+                                    totalPages={
+                                        totalPages
+                                    }
+
                                     onPrevious={() =>
                                         setCurrentPage(
-                                            (previous) =>
+                                            (
+                                                previous
+                                            ) =>
                                                 Math.max(
                                                     1,
-                                                    previous - 1
+                                                    previous -
+                                                        1
                                                 )
                                         )
                                     }
+
                                     onNext={() =>
                                         setCurrentPage(
-                                            (previous) =>
+                                            (
+                                                previous
+                                            ) =>
                                                 Math.min(
                                                     totalPages,
-                                                    previous + 1
+                                                    previous +
+                                                        1
                                                 )
                                         )
                                     }
                                 />
+
                             </section>
                         )}
-                        {activeTable === "offenses" && (
+
+                        {activeTable ===
+                            "offenses" && (
                             <section>
+
                                 <OffenseTable
-                                    offenses={offenses}
+                                    offenses={
+                                        offenses
+                                    }
+
                                     paginatedOffenses={
                                         paginatedOffenses
                                     }
-                                    loading={loading}
-                                    offenseSearch={offenseSearch}
+
+                                    loading={
+                                        loading
+                                    }
+
+                                    offenseSearch={
+                                        offenseSearch
+                                    }
+
                                     offenseTypeFilter={
                                         offenseTypeFilter
                                     }
+
                                     offenseTypes={
                                         offenseTypesList
                                     }
+
                                     onSearchChange={
                                         handleOffenseSearchChange
                                     }
+
                                     onTypeChange={
                                         handleOffenseTypeChange
                                     }
-                                    onAdd={openAddOffenseModal}
-                                    onImport={openOffenseImportModal}
-                                    onToggleStatus={handleToggleOffenseStatus}
-                                    savingStatusIds={savingOffenseStatusIds}
+
+                                    onAdd={
+                                        openAddOffenseModal
+                                    }
+
+                                    onImport={
+                                        openOffenseImportModal
+                                    }
+
+                                    onToggleStatus={
+                                        handleToggleOffenseStatus
+                                    }
+
+                                    savingStatusIds={
+                                        savingOffenseStatusIds
+                                    }
                                 />
+
                                 <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
+                                    currentPage={
+                                        currentPage
+                                    }
+
+                                    totalPages={
+                                        totalPages
+                                    }
+
                                     onPrevious={() =>
                                         setCurrentPage(
-                                            (previous) =>
+                                            (
+                                                previous
+                                            ) =>
                                                 Math.max(
                                                     1,
-                                                    previous - 1
+                                                    previous -
+                                                        1
                                                 )
                                         )
                                     }
+
                                     onNext={() =>
                                         setCurrentPage(
-                                            (previous) =>
+                                            (
+                                                previous
+                                            ) =>
                                                 Math.min(
                                                     totalPages,
-                                                    previous + 1
+                                                    previous +
+                                                        1
                                                 )
                                         )
                                     }
                                 />
+
                             </section>
                         )}
-                        {activeTable === "locked" && (
-                            <section>
-                                <LockedAccountTable
-                                    accounts={paginatedLockedAccounts}
-                                    loading={loadingLockedAccounts}
-                                    onUnlock={handleUnlockAccount}
-                                    unlockingUsername={unlockingUsername}
-                                />
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPrevious={() =>
-                                        setCurrentPage(
-                                            (previous) =>
-                                                Math.max(
-                                                    1,
-                                                    previous - 1
-                                                )
-                                        )
-                                    }
-                                    onNext={() =>
-                                        setCurrentPage(
-                                            (previous) =>
-                                                Math.min(
-                                                    totalPages,
-                                                    previous + 1
-                                                )
-                                        )
-                                    }
-                                />
-                            </section>
-                        )}
+
                     </section>
+
                 </main>
             </div>
+
             <StudentAdminModal
-                show={showStudentModal}
-                editingId={editingStudentId}
-                form={studentForm}
-                error={studentFormError}
-                saving={savingStudent}
-                departments={departments}
-                studentTypes={studentTypes}
-                onClose={closeStudentModal}
-                onSubmit={handleStudentSubmit}
-                onChange={setStudentForm}
+                show={
+                    showStudentModal
+                }
+
+                editingId={
+                    editingStudentId
+                }
+
+                form={
+                    studentForm
+                }
+
+                error={
+                    studentFormError
+                }
+
+                saving={
+                    savingStudent
+                }
+
+                departments={
+                    departments
+                }
+
+                studentTypes={
+                    studentTypes
+                }
+
+                onClose={
+                    closeStudentModal
+                }
+
+                onSubmit={
+                    handleStudentSubmit
+                }
+
+                onChange={
+                    setStudentForm
+                }
             />
+
             <StudentContactBirthdayModal
-                show={showStudentInfoModal}
+                show={
+                    showStudentInfoModal
+                }
+
                 studentName={
                     editingStudentInfoId
                         ? (() => {
-                            const student = students.find(
-                                (s) =>
-                                    s.studentId ===
-                                    editingStudentInfoId
-                            );
+                            const student =
+                                students.find(
+                                    (s) =>
+                                        s.studentId ===
+                                        editingStudentInfoId
+                                );
+
                             return student
                                 ? [
-                                    student.person?.firstName,
-                                    student.person?.middleName,
-                                    student.person?.lastName,
+                                    student
+                                        .person
+                                        ?.firstName,
+
+                                    student
+                                        .person
+                                        ?.middleName,
+
+                                    student
+                                        .person
+                                        ?.lastName,
                                 ]
-                                    .filter(Boolean)
-                                    .join(" ")
+                                    .filter(
+                                        Boolean
+                                    )
+                                    .join(
+                                        " "
+                                    )
                                 : "";
                         })()
                         : ""
                 }
-                form={studentInfoForm}
-                error={studentInfoFormError}
-                saving={savingStudentInfo}
-                onClose={closeStudentInfoModal}
-                onSubmit={handleStudentInfoSubmit}
-                onChange={setStudentInfoForm}
+
+                form={
+                    studentInfoForm
+                }
+
+                error={
+                    studentInfoFormError
+                }
+
+                saving={
+                    savingStudentInfo
+                }
+
+                onClose={
+                    closeStudentInfoModal
+                }
+
+                onSubmit={
+                    handleStudentInfoSubmit
+                }
+
+                onChange={
+                    setStudentInfoForm
+                }
             />
+
             <OffenseAdminModal
-                show={showOffenseModal}
-                editingId={editingOffenseId}
-                form={offenseForm}
-                error={offenseFormError}
-                saving={savingOffense}
-                offenseTypes={offenseTypesList}
-                onClose={closeOffenseModal}
-                onSubmit={handleOffenseSubmit}
-                onChange={setOffenseForm}
+                show={
+                    showOffenseModal
+                }
+
+                editingId={
+                    editingOffenseId
+                }
+
+                form={
+                    offenseForm
+                }
+
+                error={
+                    offenseFormError
+                }
+
+                saving={
+                    savingOffense
+                }
+
+                offenseTypes={
+                    offenseTypesList
+                }
+
+                onClose={
+                    closeOffenseModal
+                }
+
+                onSubmit={
+                    handleOffenseSubmit
+                }
+
+                onChange={
+                    setOffenseForm
+                }
             />
+
             <BulkImportModal
-                show={showStudentImportModal}
+                show={
+                    showStudentImportModal
+                }
+
                 title="Bulk Import Students"
+
                 subtitle="Upload an Excel or CSV file to add many students at once."
-                columns={studentImportColumns}
+
+                columns={
+                    studentImportColumns
+                }
+
                 templateFileName="students-import-template.xlsx"
-                existingKeys={existingStudentIds}
-                getRowKey={getStudentRowKey}
-                onImportRow={importStudentRow}
-                onClose={closeStudentImportModal}
-                onComplete={fetchDashboardData}
+
+                existingKeys={
+                    existingStudentIds
+                }
+
+                getRowKey={
+                    getStudentRowKey
+                }
+
+                onImportRow={
+                    importStudentRow
+                }
+
+                onClose={
+                    closeStudentImportModal
+                }
+
+                onComplete={
+                    fetchDashboardData
+                }
             />
+
             <BulkImportModal
-                show={showOffenseImportModal}
+                show={
+                    showOffenseImportModal
+                }
+
                 title="Bulk Import Offenses"
+
                 subtitle="Upload an Excel or CSV file to add many offense categories at once."
-                columns={offenseImportColumns}
+
+                columns={
+                    offenseImportColumns
+                }
+
                 templateFileName="offenses-import-template.xlsx"
-                existingKeys={existingOffenseKeys}
-                getRowKey={getOffenseRowKey}
-                onImportRow={importOffenseRow}
-                onClose={closeOffenseImportModal}
-                onComplete={fetchDashboardData}
+
+                existingKeys={
+                    existingOffenseKeys
+                }
+
+                getRowKey={
+                    getOffenseRowKey
+                }
+
+                onImportRow={
+                    importOffenseRow
+                }
+
+                onClose={
+                    closeOffenseImportModal
+                }
+
+                onComplete={
+                    fetchDashboardData
+                }
             />
+
         </div>
     );
 }
