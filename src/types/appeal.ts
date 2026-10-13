@@ -14,4 +14,5 @@ export interface Appeal {
     status: string;
     dateProcessed: string | null;
     remarks: string | null;
+    edited?: boolean;
 }

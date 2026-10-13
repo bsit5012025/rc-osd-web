@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { usePolling } from "../../../hooks/usePolling";
+import { formatDateTime } from "../../../utils/dateTime";
+
 import StatCard from "../../../components/cards/StatCard";
 import FileDeptHeadRequestModal from "../../../components/modals/FileDeptHeadRequestModal";
 import RequestCard from "../../../components/cards/RequestCard";
@@ -34,10 +37,10 @@ function DeptHeadRequestPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [showFileModal, setShowFileModal] = useState(false);
 
-    const fetchRequests = async () => {
+    const fetchRequests = async (silent = false) => {
         try {
-            setLoading(true);
-            setError("");
+            if (!silent) setLoading(true);
+            if (!silent) setError("");
 
             const data = await getMyDepartmentRequests();
 
@@ -51,12 +54,16 @@ function DeptHeadRequestPage() {
             setRequests(data);
         } catch (err) {
             console.error("Failed to fetch requests:", err);
-            setError("Failed to load requests.");
-            setRequests([]);
+            if (!silent) {
+                setError("Failed to load requests.");
+                setRequests([]);
+            }
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
+
+    usePolling(() => fetchRequests(true), 15000);
 
     useEffect(() => {
         fetchRequests();
@@ -266,7 +273,7 @@ function DeptHeadRequestPage() {
                                     details={request.details}
                                     message={request.message}
                                     status={normalizeStatus(request.status)}
-                                    dateFiled={request.dateFiled ?? "—"}
+                                    dateFiled={formatDateTime(request.dateFiled)}
                                     dateProcessed={request.dateProcessed}
                                     remarks={request.remarks}
                                 />

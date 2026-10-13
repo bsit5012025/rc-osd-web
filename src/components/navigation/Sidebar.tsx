@@ -33,7 +33,6 @@ const defaultStudentNavItems: SidebarNavItem[] = [
 const Sidebar = ({ navItems = defaultStudentNavItems }: SidebarProps) => {
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(true);
-    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     useEffect(() => {
         document.body.classList.toggle("sidebar-collapsed", collapsed);
@@ -50,11 +49,6 @@ const Sidebar = ({ navItems = defaultStudentNavItems }: SidebarProps) => {
         localStorage.removeItem("studentId");
 
         navigate("/login");
-    };
-
-    const confirmLogout = () => {
-        setShowLogoutConfirm(false);
-        handleLogout();
     };
 
     return (
@@ -86,53 +80,13 @@ const Sidebar = ({ navItems = defaultStudentNavItems }: SidebarProps) => {
                 <button
                     type="button"
                     className="nav-item-custom"
-                    onClick={() => setShowLogoutConfirm(true)}
+                    onClick={handleLogout}
                 >
                     <i className="bi bi-box-arrow-right"></i>
                     <span>Logout</span>
                 </button>
 
             </div>
-
-            {showLogoutConfirm && (
-                <div
-                    className="logout-confirm-overlay"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="logout-confirm-title"
-                >
-                    <div className="logout-confirm-box">
-                        <div className="logout-confirm-icon">
-                            <i className="bi bi-box-arrow-right"></i>
-                        </div>
-
-                        <h5 id="logout-confirm-title" className="logout-confirm-title">
-                            Log out?
-                        </h5>
-
-                        <p className="logout-confirm-text">
-                            You'll need to sign in again to access your account.
-                        </p>
-
-                        <div className="logout-confirm-actions">
-                            <button
-                                type="button"
-                                className="logout-confirm-btn logout-confirm-cancel"
-                                onClick={() => setShowLogoutConfirm(false)}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                className="logout-confirm-btn logout-confirm-ok"
-                                onClick={confirmLogout}
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </nav>
     );
 };

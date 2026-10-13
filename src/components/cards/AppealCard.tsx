@@ -1,3 +1,4 @@
+import { formatDateTime } from "../../utils/dateTime";
 import "./AppealCard.css";
 import "./OffenseCard.css";
 
@@ -16,6 +17,8 @@ interface AppealCardProps {
     reviewerRoleLabel?: string;
     awaitingTitle?: string;
     awaitingText?: string;
+    edited?: boolean;
+    onEdit?: () => void;
 }
 
 const STATUS_ACCENTS: Record<string, string> = {
@@ -23,26 +26,6 @@ const STATUS_ACCENTS: Record<string, string> = {
     approved: "#1f8a3d",
     denied: "#c62828",
 };
-
-function formatDateTime(dateValue: string): string {
-    const date = new Date(dateValue);
-
-    if (Number.isNaN(date.getTime())) {
-        return dateValue;
-    }
-
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const year = date.getFullYear();
-
-    const hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-
-    const hour12 = hours % 12 || 12;
-    const period = hours >= 12 ? "PM" : "AM";
-
-    return `${month}/${day}/${year}, ${hour12}:${minutes} ${period}`;
-}
 
 function AppealCard({
     appealId,
@@ -57,6 +40,8 @@ function AppealCard({
     reviewerRoleLabel = "Prefect of Discipline",
     awaitingTitle = "Awaiting Review",
     awaitingText = "The prefect hasn't responded yet. You'll be notified once a decision is made.",
+    edited = false,
+    onEdit,
 }: AppealCardProps) {
 
     const statusClass = status.toLowerCase();
@@ -83,6 +68,7 @@ function AppealCard({
                 >
                     {status.toUpperCase()}
                 </span>
+                {edited && <span className="appeal-edited-tag">EDITED</span>}
             </div>
 
             <h5 className="appeal-card-title">
@@ -108,6 +94,16 @@ function AppealCard({
                     <p className="appeal-awaiting-text">
                         {awaitingText}
                     </p>
+
+                    {onEdit && (
+                        <button
+                            type="button"
+                            className="appeal-edit-btn"
+                            onClick={onEdit}
+                        >
+                            <i className="bi bi-pencil-square"></i> Edit appeal
+                        </button>
+                    )}
                 </div>
             )}
 

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { usePolling } from "../../../hooks/usePolling";
+
 import TopBar from "../../../components/navigation/TopBar";
 import ProfileHeader from "../../../components/navigation/ProfileHeader";
 import StatCard from "../../../components/cards/StatCard";
@@ -18,23 +20,6 @@ import "./OffensePage.css";
 
 const PAGE_SIZE = 8;
 
-function formatDate(dateString: string): string {
-    if (!dateString) return dateString;
-
-    const isoParts = dateString.split("-");
-    if (isoParts.length === 3 && isoParts[0].length === 4) {
-        const [year, month, day] = isoParts;
-        return `${month}/${day}/${year}`;
-    }
-
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return dateString;
-
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${month}/${day}/${date.getFullYear()}`;
-}
-
 function OffensesPage() {
     const studentId = localStorage.getItem("username") || "";
 
@@ -50,11 +35,10 @@ function OffensesPage() {
 
     const [now] = useState(new Date());
 
-    useEffect(() => {
-        const fetchData = async () => {
+    const fetchData = async (silent = false) => {
             try {
-                setLoading(true);
-                setError("");
+                if (!silent) setLoading(true);
+                if (!silent) setError("");
 
                 if (!studentId) {
                     setError("No logged-in student.");
@@ -72,14 +56,18 @@ function OffensesPage() {
                 setAppeals(appealData);
             } catch (err) {
                 console.error("Failed to fetch offense data:", err);
-                setError("Failed to load offense data.");
+                if (!silent) setError("Failed to load offense data.");
             } finally {
-                setLoading(false);
+                if (!silent) setLoading(false);
             }
         };
 
+    useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [studentId]);
+
+    usePolling(() => fetchData(true), 15000);
 
     const section = records[0]?.enrollment?.section || "";
 
@@ -252,7 +240,7 @@ function OffensesPage() {
                                         <tbody>
                                         {pagedRecords.map((record) => (
                                             <tr key={record.recordId}>
-                                                <td>{formatDate(record.dateOfViolation)}</td>
+                                                <td>{record.dateOfViolation}</td>
                                                 <td>{record.offense.offense}</td>
                                                 <td>
                                                         <span

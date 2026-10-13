@@ -11,6 +11,7 @@ function LoginPage() {
     const [studentId, setStudentId] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [showForgot, setShowForgot] = useState(false);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -130,7 +131,25 @@ function LoginPage() {
 
                         </div>
 
-                        <div className="mb-4"></div>
+                        <div className="text-end mb-4">
+
+                            <button
+                                type="button"
+                                className="login-forgot fw-bold btn btn-link p-0"
+                                onClick={() => setShowForgot((previous) => !previous)}
+                            >
+                                Forgot password?
+                            </button>
+
+                        </div>
+
+                        {showForgot && (
+                            <div className="alert alert-info text-start">
+                                <div><strong>Student / Prefect:</strong> Proceed to prefect office to request for account reactivation or a password reset.</div>
+                                <div><strong>Department Head:</strong> Ask the Administrator to reactivate your account.</div>
+                                <div><strong>Administrator:</strong> After 5 wrong attempts, wait 15 minutes and try again.</div>
+                            </div>
+                        )}
 
                         {error && (
                             <div className="alert alert-danger">
