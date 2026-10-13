@@ -15,7 +15,6 @@ export interface Guardian {
 export interface Student {
     studentId: string;
     address: string;
-    section: string;
     department: string;
     studentType: string;
     contactNumber: string;
@@ -33,7 +32,6 @@ export interface Student {
 export interface StudentInput {
     studentId: string;
     address: string;
-    section: string;
     department: string;
     studentType: string;
     contactNumber: string;
@@ -108,4 +106,14 @@ export const deleteStudent = async (
     studentId: string
 ): Promise<void> => {
     await apiClient.delete(`/api/students/${studentId}`);
+};
+
+export const getActiveStudentsByDepartment = async (
+    department: string
+): Promise<Student[]> => {
+    const response = await apiClient.get<Student[]>(
+        `/api/students/department/${encodeURIComponent(department)}/active`
+    );
+
+    return response.data;
 };

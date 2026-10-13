@@ -1,13 +1,12 @@
-import { useEffect, useState, FormEvent, ChangeEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import axios from "axios";
 
-import { submitRequest } from "../../services/requestApi";
+import { submitRequest, getMyDepartmentName } from "../../services/requestApi";
+import { getActiveStudentsByDepartment, type Student } from "../../services/studentApi";
 
-import SearchableDropdown from "./SearchableDropdown";
+import StudentMultiPicker from "./StudentMultiPicker";
 
 import "./FileDeptHeadRequestModal.css";
-
-type ScopeType = "By Student" | "By Section" | "By Batch";
 
 interface FileDeptHeadRequestModalProps {
     show: boolean;
@@ -15,18 +14,14 @@ interface FileDeptHeadRequestModalProps {
     onFiled: () => void;
 }
 
-// TODO: fetch these from the backend (student IDs, sections, batches/levels)
-// and populate accordingly. Left empty for now — the dropdown UI/behavior
-// can still be reviewed, it'll just have nothing to show until then.
-const STUDENT_OPTIONS: string[] = [];
-const SECTION_OPTIONS: string[] = [];
-const BATCH_OPTIONS: string[] = [];
-
 function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadRequestModalProps) {
 
-    const [scopeType, setScopeType] = useState<ScopeType>("By Section");
-    const [details, setDetails] = useState("");
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [students, setStudents] = useState<Student[]>([]);
+    const [loadingStudents, setLoadingStudents] = useState(false);
     const [message, setMessage] = useState("");
+    const [deliveryMethod, setDeliveryMethod] = useState<"HARDCOPY" | "EMAIL">("HARDCOPY");
+    const [deliveryEmail, setDeliveryEmail] = useState("");
 
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState("");
@@ -35,52 +30,58 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
     useEffect(() => {
         if (!show) return;
 
-        setScopeType("By Section");
-        setDetails("");
+        setSelectedIds([]);
         setMessage("");
+        setDeliveryMethod("HARDCOPY");
+        setDeliveryEmail("");
         setSubmitError("");
         setHasFiled(false);
+
+        let cancelled = false;
+
+        const loadStudents = async () => {
+            try {
+                setLoadingStudents(true);
+                const department = await getMyDepartmentName();
+                const list = await getActiveStudentsByDepartment(department);
+                if (!cancelled) setStudents(list);
+            } catch (err) {
+                console.error("Failed to load students:", err);
+                if (!cancelled) {
+                    setStudents([]);
+                    setSubmitError("Could not load the student list. Please try again.");
+                }
+            } finally {
+                if (!cancelled) setLoadingStudents(false);
+            }
+        };
+
+        loadStudents();
+
+        return () => {
+            cancelled = true;
+        };
     }, [show]);
 
     if (!show) return null;
 
-    const detailsLabel =
-        scopeType === "By Student"
-            ? "Student ID"
-            : scopeType === "By Section"
-                ? "Section"
-                : "Grade/Level or Batch";
-
-    const detailsPlaceholder =
-        scopeType === "By Student"
-            ? "e.g. JHS-0046"
-            : scopeType === "By Section"
-                ? "e.g. St. Augustine"
-                : "e.g. Grade 10";
-
-    const currentOptions =
-        scopeType === "By Student"
-            ? STUDENT_OPTIONS
-            : scopeType === "By Section"
-                ? SECTION_OPTIONS
-                : BATCH_OPTIONS;
-
-    const handleScopeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        setScopeType(e.target.value as ScopeType);
-        // Clear the selection since the available options change with scope.
-        setDetails("");
-    };
+    const emailValid = /^[a-z0-9._%+-]+@gmail\.com$/i.test(deliveryEmail.trim());
 
     const canSubmit =
-        details.trim() !== "" &&
+        selectedIds.length > 0 &&
         message.trim() !== "" &&
+        (deliveryMethod !== "EMAIL" || emailValid) &&
         !submitting;
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
         if (!canSubmit) {
-            setSubmitError("Please fill in both fields before submitting.");
+            setSubmitError(
+                deliveryMethod === "EMAIL" && !emailValid
+                    ? "Enter a valid Gmail address (example@gmail.com) to receive the result."
+                    : "Select at least one student and enter a reason before submitting."
+            );
             return;
         }
 
@@ -89,9 +90,11 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
             setSubmitError("");
 
             await submitRequest({
-                type: scopeType,
-                details: details.trim(),
+                type: "By Student",
+                details: selectedIds.join(", "),
                 message: message.trim(),
+                deliveryMethod,
+                deliveryEmail: deliveryMethod === "EMAIL" ? deliveryEmail.trim().toLowerCase() : undefined,
             });
 
             setHasFiled(true);
@@ -160,46 +163,24 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
                             <div className="file-request-section">
                                 <div className="file-request-section-title">
                                     <span className="file-request-step-num">1</span>
-                                    Request Scope
+                                    Students <span className="required-asterisk">*</span>
                                 </div>
-                                <label className="new-request-section-label" htmlFor="scopeType">
-                                    Request Scope <span className="required-asterisk">*</span>
-                                </label>
                                 <p className="new-request-hint mb-2">
-                                    Choose whether you're requesting records for a specific student, or by group.
+                                    Search by name or ID and add one or more students from your department.
                                 </p>
-                                <select
-                                    id="scopeType"
-                                    className="form-select new-request-select"
-                                    value={scopeType}
-                                    onChange={handleScopeChange}
+                                <StudentMultiPicker
+                                    id="requestStudents"
+                                    students={students}
+                                    selectedIds={selectedIds}
+                                    onChange={setSelectedIds}
+                                    loading={loadingStudents}
                                     disabled={submitting}
-                                >
-                                    <option value="By Student">By Student</option>
-                                    <option value="By Section">By Section</option>
-                                    <option value="By Batch">By Batch / Grade Level</option>
-                                </select>
-                            </div>
-
-                            <div className="file-request-section">
-                                <div className="file-request-section-title">
-                                    <span className="file-request-step-num">2</span>
-                                    {detailsLabel} <span className="required-asterisk">*</span>
-                                </div>
-                                <SearchableDropdown
-                                    id="requestDetails"
-                                    value={details}
-                                    onChange={setDetails}
-                                    options={currentOptions}
-                                    placeholder={detailsPlaceholder}
-                                    disabled={submitting}
-                                    emptyLabel={`No matching ${detailsLabel.toLowerCase()} found`}
                                 />
                             </div>
 
                             <div className="file-request-section">
                                 <div className="file-request-section-title">
-                                    <span className="file-request-step-num">3</span>
+                                    <span className="file-request-step-num">2</span>
                                     Reason for Request <span className="required-asterisk">*</span>
                                 </div>
                                 <p className="new-request-hint mb-2">
@@ -215,6 +196,60 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
                                     maxLength={500}
                                     disabled={submitting}
                                 />
+                            </div>
+
+                            <div className="file-request-section">
+                                <div className="file-request-section-title">
+                                    <span className="file-request-step-num">3</span>
+                                    How do you want to receive the result? <span className="required-asterisk">*</span>
+                                </div>
+                                <div className="delivery-method-options">
+                                    <label className={`delivery-method-option ${deliveryMethod === "HARDCOPY" ? "selected" : ""}`}>
+                                        <input
+                                            type="radio"
+                                            name="deliveryMethod"
+                                            value="HARDCOPY"
+                                            checked={deliveryMethod === "HARDCOPY"}
+                                            onChange={() => setDeliveryMethod("HARDCOPY")}
+                                            disabled={submitting}
+                                        />
+                                        <i className="bi bi-file-earmark-text"></i>
+                                        Hardcopy
+                                    </label>
+                                    <label className={`delivery-method-option ${deliveryMethod === "EMAIL" ? "selected" : ""}`}>
+                                        <input
+                                            type="radio"
+                                            name="deliveryMethod"
+                                            value="EMAIL"
+                                            checked={deliveryMethod === "EMAIL"}
+                                            onChange={() => setDeliveryMethod("EMAIL")}
+                                            disabled={submitting}
+                                        />
+                                        <i className="bi bi-envelope"></i>
+                                        Email
+                                    </label>
+                                </div>
+
+                                {deliveryMethod === "EMAIL" && (
+                                    <div className="mt-3">
+                                        <label htmlFor="deliveryEmail" className="form-label">
+                                            Your Gmail address <span className="required-asterisk">*</span>
+                                        </label>
+                                        <input
+                                            id="deliveryEmail"
+                                            type="email"
+                                            className={`form-control ${deliveryEmail && !emailValid ? "is-invalid" : ""}`}
+                                            placeholder="example@gmail.com"
+                                            value={deliveryEmail}
+                                            onChange={(e) => setDeliveryEmail(e.target.value)}
+                                            maxLength={254}
+                                            disabled={submitting}
+                                        />
+                                        {deliveryEmail && !emailValid && (
+                                            <div className="invalid-feedback">Enter a valid @gmail.com address.</div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {submitError && <p className="text-danger">{submitError}</p>}

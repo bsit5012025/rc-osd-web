@@ -26,12 +26,22 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
     const [message, setMessage] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (selectedFile && selectedFile.type.startsWith("image/")) {
+            const url = URL.createObjectURL(selectedFile);
+            setPreviewUrl(url);
+            return () => URL.revokeObjectURL(url);
+        }
+        setPreviewUrl(null);
+    }, [selectedFile]);
 
     const [submitting, setSubmitting] = useState(false);
     const [submitStage, setSubmitStage] = useState<"idle" | "uploading" | "filing">("idle");
     const [submitError, setSubmitError] = useState("");
     const [hasFiled, setHasFiled] = useState(false);
-    const [filedSuggestion, setFiledSuggestion] = useState<string | null>(null);
 
     useEffect(() => {
         if (!show) return;
@@ -41,7 +51,6 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
         setSelectedFile(null);
         setSubmitError("");
         setHasFiled(false);
-        setFiledSuggestion(null);
 
         const fetchRecordsAndAppeals = async () => {
             try {
@@ -81,10 +90,26 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
         );
     };
 
+    // The status of whichever not-yet-approved appeal is currently blocking
+    // re-filing for this record, or null if nothing is blocking it. Used to
+    // give DENIED a more specific explanation than PENDING: a denied appeal
+    // is a closed-door policy (visit OSD in person), not just "wait and see."
+    const blockingAppealStatus = (recordId: number): string | null => {
+        const blocking = appeals.find(
+            (appeal) =>
+                Number(appeal.record.recordId) === Number(recordId) &&
+                appeal.status?.toUpperCase() !== "APPROVED"
+        );
+        return blocking?.status?.toUpperCase() ?? null;
+    };
+
     const selectedRecord = pendingRecords.find((r) => String(r.recordId) === selectedRecordId);
 
     const selectedRecordHasUnapprovedAppeal =
         selectedRecord !== undefined && hasUnapprovedAppeal(selectedRecord.recordId);
+
+    const selectedRecordWasDenied =
+        selectedRecord !== undefined && blockingAppealStatus(selectedRecord.recordId) === "DENIED";
 
     const canSubmit =
         selectedRecord !== undefined &&
@@ -104,10 +129,17 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
         fileInputRef.current?.click();
     };
 
+    const handleScanClick = () => {
+        cameraInputRef.current?.click();
+    };
+
     const handleRemoveFile = () => {
         setSelectedFile(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
+        }
+        if (cameraInputRef.current) {
+            cameraInputRef.current.value = "";
         }
     };
 
@@ -148,7 +180,6 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                 documentId: uploadResult.documentId,
             });
 
-            setFiledSuggestion(uploadResult.aiSuggestion);
             setHasFiled(true);
         } catch (err) {
             console.error("Failed to submit appeal:", err);
@@ -160,7 +191,7 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
     };
 
     const submitLabel =
-        submitStage === "uploading" ? "Processing letter..." :
+        submitStage === "uploading" ? "Uploading letter..." :
             submitStage === "filing" ? "Submitting appeal..." :
                 "Submit Appeal";
 
@@ -193,24 +224,8 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                             <i className="bi bi-check-lg"></i>
                         </div>
 
-                        <p className="new-appeal-hint mb-4">
-                            Your appeal has been filed and is now waiting for the Prefect's review.
-                            {filedSuggestion
-                                ? " Here's what our system noticed in your letter:"
-                                : " Our system didn't generate a note for this letter."}
-                        </p>
-
-                        {filedSuggestion && (
-                            <div className="ai-suggestion-card mb-4">
-                                <div className="ai-suggestion-icon">
-                                    <i className="bi bi-stars"></i>
-                                </div>
-                                <div className="ai-suggestion-text">{filedSuggestion}</div>
-                            </div>
-                        )}
-
                         <p className="new-appeal-hint mb-0">
-                            This is an automated note to help with the review, not a decision on your appeal.
+                            Request sent to Desktop (Prefect). You can leave this page now.
                         </p>
 
                     </div>
@@ -242,16 +257,25 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                     <option value="" disabled>
                                         {loading ? "Loading offenses..." : "Tap to choose offense"}
                                     </option>
-                                    {pendingRecords
-                                        .filter((record) => !hasUnapprovedAppeal(record.recordId))
-                                        .map((record) => (
+                                    {pendingRecords.map((record) => {
+                                        const blockingStatus = blockingAppealStatus(record.recordId);
+                                        const isDenied = blockingStatus === "DENIED";
+                                        const isBlocked = blockingStatus !== null;
+                                        const label = isDenied
+                                            ? `${record.offense.offense} — filed ${record.dateOfViolation} (Appeal denied — visit OSD in person)`
+                                            : isBlocked
+                                                ? `${record.offense.offense} — filed ${record.dateOfViolation} (Appeal pending)`
+                                                : `${record.offense.offense} — filed ${record.dateOfViolation}`;
+                                        return (
                                             <option
                                                 key={record.recordId}
                                                 value={String(record.recordId)}
+                                                disabled={isBlocked}
                                             >
-                                                {record.offense.offense} — filed {record.dateOfViolation}
+                                                {label}
                                             </option>
-                                        ))}
+                                        );
+                                    })}
                                 </select>
                                 {!loading && pendingRecords.length === 0 && (
                                     <p className="new-appeal-hint mb-0 mt-2">
@@ -262,7 +286,9 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                     pendingRecords.length > 0 &&
                                     pendingRecords.every((record) => hasUnapprovedAppeal(record.recordId)) && (
                                         <p className="new-appeal-hint mb-0 mt-2">
-                                            All of your pending offenses already have appeals that have not been approved yet.
+                                            {pendingRecords.every((record) => blockingAppealStatus(record.recordId) === "DENIED")
+                                                ? "This appeal was denied. To contest it further, please visit the Office of Student Discipline in person."
+                                                : "All of your pending offenses already have appeals that have not been approved yet."}
                                         </p>
                                     )}
                             </div>
@@ -297,6 +323,14 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                         >
                                             {selectedFile ? "Replace File" : "Browse Files"}
                                         </button>
+                                        <button
+                                            type="button"
+                                            className="upload-browse-btn"
+                                            onClick={handleScanClick}
+                                            disabled={submitting}
+                                        >
+                                            <i className="bi bi-camera"></i> Scan with Camera
+                                        </button>
                                         {selectedFile && (
                                             <button
                                                 type="button"
@@ -308,10 +342,26 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
                                             </button>
                                         )}
                                     </div>
+                                    {previewUrl && (
+                                        <img
+                                            src={previewUrl}
+                                            alt="Letter preview"
+                                            style={{ maxWidth: "100%", maxHeight: 220, marginTop: 12, borderRadius: 8 }}
+                                        />
+                                    )}
+                                    <input
+                                        ref={cameraInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        capture="environment"
+                                        className="d-none"
+                                        onChange={handleFileChange}
+                                        disabled={submitting}
+                                    />
                                     <input
                                         ref={fileInputRef}
                                         type="file"
-                                        accept=".pdf,.docx,.doc,.jpg,.jpeg,.png"
+                                        accept=".pdf,.docx,.doc,.jpg,.jpeg,.png,image/*"
                                         className="d-none"
                                         onChange={handleFileChange}
                                         disabled={submitting}
@@ -340,7 +390,9 @@ function FileAppealModal({ show, onClose, onFiled }: FileAppealModalProps) {
 
                             {selectedRecordHasUnapprovedAppeal && (
                                 <p className="text-danger">
-                                    You already have an appeal for this offense that has not been approved yet.
+                                    {selectedRecordWasDenied
+                                        ? "This appeal was denied. To contest it further, please visit the Office of Student Discipline in person."
+                                        : "You already have an appeal for this offense that has not been approved yet."}
                                 </p>
                             )}
 

@@ -1,0 +1,72 @@
+.student-multi-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.student-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 110px;
+    overflow-y: auto;
+}
+
+.student-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 10px;
+    border-radius: 999px;
+    background: #ecebfc;
+    color: var(--color-navy-accent, #1b1b8f);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.student-chip small {
+    font-weight: 400;
+    opacity: 0.75;
+}
+
+.student-chip button {
+    border: none;
+    background: transparent;
+    color: inherit;
+    padding: 0 2px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.student-option-id {
+    float: right;
+    opacity: 0.6;
+    font-size: 12px;
+}
+
+.delivery-method-options {
+    display: flex;
+    gap: 10px;
+}
+
+.delivery-method-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border, #e2e2e8);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.delivery-method-option.selected {
+    border-color: var(--color-navy-accent, #1b1b8f);
+    background: #ecebfc;
+    color: var(--color-navy-accent, #1b1b8f);
+}
+
+.delivery-method-option input {
+    accent-color: var(--color-navy-accent, #1b1b8f);
+}

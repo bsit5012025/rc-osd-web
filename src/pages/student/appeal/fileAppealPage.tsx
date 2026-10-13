@@ -9,23 +9,6 @@ import { uploadAppealDocument } from "../../../services/documentApi";
 
 import "./fileAppealPage.css";
 
-function formatDate(dateString: string): string {
-    if (!dateString) return dateString;
-
-    const isoParts = dateString.split("-");
-    if (isoParts.length === 3 && isoParts[0].length === 4) {
-        const [year, month, day] = isoParts;
-        return `${month}/${day}/${year}`;
-    }
-
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return dateString;
-
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${month}/${day}/${date.getFullYear()}`;
-}
-
 function FileAppealPage() {
     const navigate = useNavigate();
     const studentId = localStorage.getItem("username") || "";
@@ -44,7 +27,6 @@ function FileAppealPage() {
     const [submitStage, setSubmitStage] = useState<"idle" | "uploading" | "filing">("idle");
     const [submitError, setSubmitError] = useState("");
     const [hasFiled, setHasFiled] = useState(false);
-    const [filedSuggestion, setFiledSuggestion] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRecordsAndAppeals = async () => {
@@ -137,11 +119,16 @@ function FileAppealPage() {
                 documentId: uploadResult.documentId,
             });
 
-            setFiledSuggestion(uploadResult.aiSuggestion);
             setHasFiled(true);
         } catch (err) {
             console.error("Failed to submit appeal:", err);
-            setSubmitError("Failed to submit appeal. Please try again.");
+            // Surface the backend's own message when it's one of our known,
+            // student-facing error codes (e.g. FILE_TOO_LARGE) instead of
+            // always showing the generic fallback -- this is what made an
+            // oversized PDF look like "PDFs just don't work."
+            const backendMessage = (err as { response?: { data?: { message?: string } } })
+                ?.response?.data?.message;
+            setSubmitError(backendMessage || "Failed to submit appeal. Please try again.");
         } finally {
             setSubmitting(false);
             setSubmitStage("idle");
@@ -164,20 +151,7 @@ function FileAppealPage() {
                         </div>
 
                         <p className="new-appeal-hint mb-4">
-                            Your appeal has been filed and is now waiting for the Prefect's review.
-                            {filedSuggestion
-                                ? " Here's what our system noticed in your letter:"
-                                : " Our system didn't generate a note for this letter."}
-                        </p>
-
-                        {filedSuggestion && (
-                            <div className="ai-suggestion-card mb-4">
-                                <div className="ai-suggestion-text">{filedSuggestion}</div>
-                            </div>
-                        )}
-
-                        <p className="new-appeal-hint mb-4">
-                            This is an automated note to help with the review, not a decision on your appeal.
+                            Request sent to Desktop (Prefect). You can leave this page now.
                         </p>
 
                         <button
@@ -235,7 +209,7 @@ function FileAppealPage() {
                                             value={String(record.recordId)}
                                             disabled={alreadyAppealed}
                                         >
-                                            {record.offense.offense} — filed {formatDate(record.dateOfViolation)}
+                                            {record.offense.offense} — filed {record.dateOfViolation}
                                             {alreadyAppealed ? " — Appeal Pending" : ""}
                                         </option>
                                     );

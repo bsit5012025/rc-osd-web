@@ -61,3 +61,10 @@ export const getAllRequests = async (status?: string): Promise<RequestItem[]> =>
     console.log("GET /api/requests → status:", response.status, "| data:", response.data);
     return response.data;
 };
+export const getMyDepartmentName = async (): Promise<string> => {
+    const response = await apiClient.get<string>(
+        "/api/requests/my-department/name"
+    );
+
+    return response.data;
+};

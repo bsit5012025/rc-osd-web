@@ -163,3 +163,27 @@
     align-items: center;
     gap: 6px;
 }
+.appeal-edited-tag {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #ecebfc;
+    color: #1b1b8f;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.appeal-edit-btn {
+    margin-top: 10px;
+    padding: 6px 14px;
+    border: 1px solid #1b1b8f;
+    border-radius: 8px;
+    background: #fff;
+    color: #1b1b8f;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.appeal-edit-btn:hover {
+    background: #ecebfc;
+}
