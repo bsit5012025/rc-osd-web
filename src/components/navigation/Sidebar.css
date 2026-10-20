@@ -240,3 +240,65 @@
         min-width: 20px;
     }
 }
+
+/* ===== Tooltip for icons when the sidebar is collapsed ===== */
+
+/* Hidden by default (mobile bottom bar already shows labels, and
+   touch devices have no hover). Only enabled on desktop with a mouse. */
+.sidebar-tooltip {
+    display: none;
+}
+
+@media (min-width: 992px) and (hover: hover) {
+
+    .sidebar-tooltip {
+        display: block;
+
+        /* position: fixed so it isn't clipped by the sidebar's overflow: hidden */
+        position: fixed;
+        transform: translateY(-50%);
+
+        padding: 6px 12px;
+
+        background: #1a1a2e;
+        color: #fff;
+
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+
+        pointer-events: none;
+
+        z-index: 2100;
+
+        animation: sidebar-tooltip-in 0.12s ease;
+    }
+
+    /* little arrow pointing at the icon */
+    .sidebar-tooltip::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: -4px;
+
+        width: 8px;
+        height: 8px;
+
+        background: #1a1a2e;
+        transform: translateY(-50%) rotate(45deg);
+    }
+}
+
+@keyframes sidebar-tooltip-in {
+    from {
+        opacity: 0;
+        margin-left: -4px;
+    }
+    to {
+        opacity: 1;
+        margin-left: 0;
+    }
+}

@@ -232,8 +232,8 @@ function FileDeptHeadRequestModal({ show, onClose, onFiled }: FileDeptHeadReques
 
                                 {deliveryMethod === "EMAIL" && (
                                     <div className="mt-3">
-                                        <label htmlFor="deliveryEmail" className="form-label">
-                                            Your Gmail address <span className="required-asterisk">*</span>
+                                        <label htmlFor="deliveryEmail" className="new-request-section-label">
+                                            Email Address <span className="required-asterisk">*</span>
                                         </label>
                                         <input
                                             id="deliveryEmail"
