@@ -94,7 +94,7 @@ function LoginPage() {
                                 htmlFor="studentId"
                                 className="form-label fw-bold login-label"
                             >
-                                Student ID
+                                Username
                             </label>
 
                             <input

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { usePolling } from "../../../hooks/usePolling";
 import { formatDateTime } from "../../../utils/dateTime";
@@ -6,7 +6,8 @@ import { formatDateTime } from "../../../utils/dateTime";
 import StatCard from "../../../components/cards/StatCard";
 import FileDeptHeadRequestModal from "../../../components/modals/FileDeptHeadRequestModal";
 import RequestCard from "../../../components/cards/RequestCard";
-import { getMyDepartmentRequests } from "../../../services/requestApi";
+import { getMyDepartmentRequests, getMyDepartmentName } from "../../../services/requestApi";
+import { getActiveStudentsByDepartment } from "../../../services/studentApi";
 import type { RequestItem } from "../../../types/request";
 
 import "./deptHeadRequestPage.css";
@@ -36,6 +37,9 @@ function DeptHeadRequestPage() {
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [showFileModal, setShowFileModal] = useState(false);
+
+    // Maps studentId (e.g. "JHS-0019") -> full name (e.g. "Juan Dela Cruz")
+    const [studentNames, setStudentNames] = useState<Record<string, string>>({});
 
     const fetchRequests = async (silent = false) => {
         try {
@@ -69,6 +73,54 @@ function DeptHeadRequestPage() {
         fetchRequests();
     }, []);
 
+    // Load student names once so request cards can show them instead of "By Student"
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadStudentNames = async () => {
+            try {
+                const department = await getMyDepartmentName();
+                const list = await getActiveStudentsByDepartment(department);
+                if (cancelled) return;
+
+                const map: Record<string, string> = {};
+                list.forEach((student) => {
+                    const { firstName, middleName, lastName } = student.person;
+                    map[student.studentId] = [firstName, middleName, lastName]
+                        .filter(Boolean)
+                        .join(" ");
+                });
+                setStudentNames(map);
+            } catch (err) {
+                console.error("Failed to load student names:", err);
+            }
+        };
+
+        loadStudentNames();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    // For "By Student" requests, show the student name(s) instead of the generic type.
+    // Falls back to the original type if no names could be resolved.
+    const getRequestTitle = useCallback(
+        (request: RequestItem) => {
+            if (request.type !== "By Student") return request.type;
+
+            const ids = (request.details ?? "")
+                .split(",")
+                .map((id) => id.trim())
+                .filter(Boolean);
+
+            if (!ids.some((id) => studentNames[id])) return request.type;
+
+            return ids.map((id) => studentNames[id] ?? id).join(", ");
+        },
+        [studentNames]
+    );
+
     const filters: { key: FilterType; icon: string }[] = [
         { key: "All", icon: "bi-grid-fill" },
         { key: "Pending", icon: "bi-hourglass-split" },
@@ -92,6 +144,7 @@ function DeptHeadRequestPage() {
                     formattedId,
                     String(request.requestId ?? ""),
                     request.type,
+                    getRequestTitle(request), // lets you search by student name
                     request.details,
                     request.message,
                     status,
@@ -122,7 +175,7 @@ function DeptHeadRequestPage() {
         });
 
         return result;
-    }, [requests, activeFilter, search]);
+    }, [requests, activeFilter, search, getRequestTitle]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -269,7 +322,7 @@ function DeptHeadRequestPage() {
                                 <RequestCard
                                     key={request.requestId}
                                     requestId={`REQ${String(request.requestId).padStart(4, "0")}`}
-                                    type={request.type}
+                                    type={getRequestTitle(request)}
                                     details={request.details}
                                     message={request.message}
                                     status={normalizeStatus(request.status)}
